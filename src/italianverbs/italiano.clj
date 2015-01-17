@@ -12,7 +12,7 @@
 (require '[italianverbs.parse :as parse])
 (require '[italianverbs.pos.italiano :refer :all])
 (require '[italianverbs.ug :refer :all])
-(require '[italianverbs.unify :refer (get-in)])
+(require '[italianverbs.unify :refer (fail? get-in strip-refs)])
 (require '[italianverbs.unify :as unify])
 
 (def get-string morph/get-string)
@@ -126,4 +126,56 @@
       {:grammar grammar
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
+
+(defn matching-head-lexemes [spec]
+  (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
+    (if (= pred-of-head :top)
+      spec
+      (mapcat (fn [lexemes]
+                (mapcat (fn [lexeme]
+                          (if (= pred-of-head
+                                 (get-in lexeme [:synsem :sem :pred] :top))
+                            (list lexeme)))
+                        lexemes))
+              (vals @lexicon)))))
+
+(defn against-pred [spec]
+  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
+    (if (= :top pred-of-comp)
+      spec
+      (mapcat (fn [lexeme]
+                (let [result (unify spec
+                                    {:synsem {:sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}
+                                    {:synsem {:essere (strip-refs (get-in lexeme [:synsem :essere] :top))}}
+                                    )]
+                  (if (not (fail? result))
+                    (list result))))
+              (matching-head-lexemes spec)))))
+
+(defn matching-comp-lexemes [spec]
+  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
+    (if (= pred-of-comp :top)
+      spec
+      (mapcat (fn [lexemes]
+                (mapcat (fn [lexeme]
+                          (if (= pred-of-comp
+                                 (get-in lexeme [:synsem :sem :pred] :top))
+                            (list lexeme)))
+                        lexemes))
+              (vals @lexicon)))))
+
+(defn against-comp [spec]
+  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
+    (if (= :top pred-of-comp)
+      spec
+      (map (fn [lexeme]
+             (unify spec
+                    {:comp {:synsem {:agr (strip-refs (get-in lexeme [:synsem :agr] :top))
+                                     :sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}}
+                    ))
+           (matching-comp-lexemes spec)))))
+
+(defn enrich [spec]
+  (mapcat against-comp
+          (against-pred spec)))
 

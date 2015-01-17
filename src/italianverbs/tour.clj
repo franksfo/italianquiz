@@ -156,60 +156,6 @@
              :right_context_of_question (:right_context_source form)
              :semantics (strip-refs (get-meaning question))})}))
 
-(defn matching-head-lexemes [spec]
-  (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
-    (if (= pred-of-head :top)
-      spec
-      (mapcat (fn [lexemes]
-                (mapcat (fn [lexeme]
-                          (if (= pred-of-head
-                                 (get-in lexeme [:synsem :sem :pred] :top))
-                            (list lexeme)))
-                        lexemes))
-              (vals @it/lexicon)))))
-
-
-(defn against-pred [spec]
-  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
-    (if (= :top pred-of-comp)
-      spec
-      (mapcat (fn [lexeme]
-                (let [result (unify spec
-;                                    {:synsem {:sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}
-                                    {:synsem {:essere (strip-refs (get-in lexeme [:synsem :essere] :top))}}
-                                    )]
-                  (if (not (fail? result))
-                    (list result))))
-              (matching-head-lexemes spec)))))
-
-(defn matching-comp-lexemes [spec]
-  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
-    (if (= pred-of-comp :top)
-      spec
-      (mapcat (fn [lexemes]
-                (mapcat (fn [lexeme]
-                          (if (= pred-of-comp
-                                 (get-in lexeme [:synsem :sem :pred] :top))
-                            (list lexeme)))
-                        lexemes))
-              (vals @it/lexicon)))))
-
-(defn against-comp [spec]
-  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
-    (if (= :top pred-of-comp)
-      spec
-      (map (fn [lexeme]
-             (unify spec
-                    {:comp {:synsem {:agr (strip-refs (get-in lexeme [:synsem :agr] :top))
-                                     :sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}}
-                    ))
-           (matching-comp-lexemes spec)))))
-
-(defn enrich [spec]
-  (let [pred (get-in spec [:synsem :sem :pred] nil)]
-    (mapcat against-comp
-            (against-pred spec))))
-
 ;; This is the counterpart to (generate-question) immediately above: it generates
 ;; an expression that the user should be learning.
 (defn generate-answers [request]
@@ -233,10 +179,12 @@
 
         debug (log/info (str "to-generate: " to-generate))
 
+        debug (log/info (str "enriched   : " (string/join " ; " (it/enrich to-generate))))
+
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (generate to-generate it/small)
+        answer (generate (it/enrich to-generate) it/small)
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically
