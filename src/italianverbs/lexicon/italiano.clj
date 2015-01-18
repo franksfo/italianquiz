@@ -197,39 +197,57 @@
                           :human true
                           :child false}}})
    "andare"
-   (map (fn [each]
-          (unifyc
-           each
-           ;; common part of all andare lexemes:
-           {:italiano {:italiano "andare"
-                       :essere true
-                       :drop-e true
-                       :present {:1sing "vado"
-                                 :2sing "vai"
-                                 :3sing "va"
-                                 :1plur "andiamo"
-                                 :2plur "andate"
-                                 :3plur "vanno"}}
-            :synsem {:essere true
-                     :sem {:subj {:animate true}
-                           :activity false ;; because "I was going when (something happened) .." sounds weird.
-                           :pred :andare
-                           :discrete false
-                           :motion false}}}))
-        (list
-          ;; "andare"-intransitive
-          (unifyc
-           intransitive
-           {:synsem {:sem {:location '()}}}
+   (trans-intrans
+    {:italiano {:italiano "andare"
+                :essere true
+                :drop-e true
+                :futuro-stem "andr"
+                :present {:1sing "vado"
+                          :2sing "vai"
+                          :3sing "va"
+                          :1plur "andiamo"
+                          :2plur "andate"
+                          :3plur "vanno"}}
+     :synsem {:essere true
+              :sem {:subj {:animate true}
+                    :pred :andare}}})
+  
+   
+;   (map (fn [each]
+;          (unifyc
+;           each
+;           ;; common part of all andare lexemes:
+;           {:italiano {:italiano "andare"
+;                       :essere true
+;                       :drop-e true
+;                       :present {:1sing "vado"
+;                                 :2sing "vai"
+;                                 :3sing "va"
+;                                 :1plur "andiamo"
+;                                 :2plur "andate"
+;                                 :3plur "vanno"}}
+;            :synsem {:essere true
+;                     :sem {:subj {:animate true}
+;                           :activity false ;; because "I was going when (something happened) .." sounds weird.
+;                           :pred :andare
+;                           :discrete false
+;                           :motion false}}}))
+;        (list
+;          ;; "andare"-intransitive
+;          (trans-intrans
 
-           ;; "andare" that takes a prepositional phrase
-           (let [place-sem (ref {:place true
-                                 :pred :a})]
-             {:synsem {:sem {:location place-sem}
-                       :subcat {:2 {:sem place-sem
-                                    :subcat '()
-                                    :cat :prep}}}
-              :note "andare-pp"}))))
+;           {:synsem {:sem {:location '()}}})))
+
+;          (unifyc
+;           transitive
+;           ;; "andare" that takes a prepositional phrase
+;           (let [place-sem (ref {:place true
+;                                 :pred :a})]
+;             {:synsem {:sem {:location place-sem}
+;                       :subcat {:2 {:sem place-sem
+;                                    :subcat '()
+;                                    :cat :prep}}}
+;              :note "andare-pp"}))))
 
 
    "annunciare" (trans-intrans {:synsem {:cat :verb
