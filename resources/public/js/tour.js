@@ -2,46 +2,46 @@
 
 // latitude and longitude paths of tour through Napoli
 var tour_path = [
-    [40.8526231,14.2722163],  // Napoli Centrali train station
-    [40.85318758861975,14.271989576518536],
-    [40.853398582562534,14.27162479609251,   190],
-    [40.854177631299656,14.271528236567972,  0],
-    [40.854128941021976,14.270348064601421,  0],
-    [40.85401533023488,14.269661419093609, 180],
-    [40.85345538850926,14.269779436290264, 180],
-    [40.85266010082301,14.269639961421488, 180],
-    [40.85255460275972,14.268921129405499],
-    [40.85258706372015,14.268234483897686],
-    [40.85262763989835,14.267622940242289],
-    [40.85294413323541,14.266914837062359],
-    [40.85305774585944,14.266678802669047],
-    [40.85330120082628,14.266238920390606],
-    [40.85278182914886,14.266238920390606],
-    [40.8527737139341,14.265681020915508],
-    [40.85270879218017,14.264747612178324],
-    [40.85243287401638,14.263782016932964],
-    [40.85296036362221,14.26338504999876],
-    [40.852676331279376,14.262430183589458],
-    [40.85244098927289,14.261732809245586],
-    [40.852205646430455,14.260971061885357],
-    [40.85191349553206,14.260091297328472],
-    [40.851694381512836,14.259351007640362],
-    [40.851377882205846,14.258503429591656],
-    [40.851012688819125,14.257452003657818],
-    [40.85086661090081,14.256958477199078],
-    [40.85066372436894,14.256336204707623],
-    [40.850412144206636,14.255660288035868],
-    [40.850266064964366,14.255231134593487],
-    [40.850144332016434,14.254834167659283],
-    [40.85001448329216,14.2544050142169],
-    [40.85066372436894,14.254018776118754], // TODO bear north
-    [40.85128861289717,14.253675453364849], // TODO bear north
-    [40.851596997271706,14.253439418971539],
-    [40.85132107447789,14.252570383250713],
-    [40.851183112650055,14.251754991710184],
-    [40.852027109923384,14.251636974513529],
-    [40.8527980595754,14.251583330333233],
-    [40.85322816443017,14.251540414988995] // Museo Archeologico Nazionale
+    [40.8526231,         14.2722163],  // Napoli Centrali train station
+    [40.85318758861975,  14.271989576518536],
+    [40.853398582562534, 14.27162479609251],
+    [40.854177631299656, 14.271528236567972],
+    [40.854128941021976, 14.270348064601421],
+    [40.85401533023488,  14.269661419093609],
+    [40.85345538850926,  14.269779436290264],
+    [40.85266010082301,  14.269639961421488],
+    [40.85255460275972,  14.268921129405499],
+    [40.85258706372015,  14.268234483897686],
+    [40.85262763989835,  14.267622940242289],
+    [40.85294413323541,  14.266914837062359],
+    [40.85305774585944,  14.266678802669047],
+    [40.85330120082628,  14.266238920390606],
+    [40.85278182914886,  14.266238920390606],
+    [40.8527737139341,   14.265681020915508],
+    [40.85270879218017,  14.264747612178324],
+    [40.85243287401638,  14.263782016932964],
+    [40.85296036362221,  14.26338504999876],
+    [40.852676331279376, 14.262430183589458],
+    [40.85244098927289,  14.261732809245586],
+    [40.852205646430455, 14.260971061885357],
+    [40.85191349553206,  14.260091297328472],
+    [40.851694381512836, 14.259351007640362],
+    [40.851377882205846, 14.258503429591656],
+    [40.851012688819125, 14.257452003657818],
+    [40.85086661090081,  14.256958477199078],
+    [40.85066372436894,  14.256336204707623],
+    [40.850412144206636, 14.255660288035868],
+    [40.850266064964366, 14.255231134593487],
+    [40.850144332016434, 14.254834167659283],
+    [40.85001448329216,  14.2544050142169],
+    [40.85066372436894,  14.254018776118754],
+    [40.85128861289717,  14.253675453364849],
+    [40.851596997271706, 14.253439418971539],
+    [40.85132107447789,  14.252570383250713],
+    [40.851183112650055, 14.251754991710184],
+    [40.852027109923384, 14.251636974513529],
+    [40.8527980595754,   14.251583330333233],
+    [40.85322816443017,  14.251540414988995] // Museo Archeologico Nazionale
 
 ];
 
@@ -53,15 +53,66 @@ var encouragements = [
     "Ottimo"
     ]
 
-var current_lat = tour_path[0][0];
-var current_long = tour_path[0][1];
-var heading = 270;// default heading = 270; // headed west.
+function get_quadrant(path,step) {
+    var lat0 = path[step][0];
+    var lat1 = path[step+1][0];
 
-if (tour_path[0][2]) {
-    heading = 0;
+    var long0 = path[step][1];
+    var long1 = path[step+1][1];
+
+    var quadrant = 0;
+
+    if ((lat1 >= lat0) && (long1 >= long0)) {
+	log(INFO,"NORTHEAST: " + long1 + " => " + long0);
+	quadrant = 0;
+    }
+
+    if ((lat1 >= lat0) && (long1 < long0)) {
+	log(INFO,"NORTHWEST: " + long1 + " < " + long0);
+	quadrant = 3;
+    }
+
+    if ((lat1 < lat0) && (long1 >= long0)) {
+	log(INFO,"SOUTHEAST");
+	quadrant = 1;
+    }
+
+    if ((lat1 < lat0) && (long1 < long0)) {
+	log(INFO,"SOUTHWEST");
+	quadrant = 2;
+    }
+    $("#quadrant").val(quadrant);
+    return quadrant;
 }
 
-var current_zoom = 17;
+function get_heading(path,position_index) {
+    var quadrant = get_quadrant(path,position_index);
+
+    var lat0 = tour_path[position_index][0];
+    var long0 = tour_path[position_index][0];
+
+    var lat1 = tour_path[position_index+1][0];
+    var long1 = tour_path[position_index+1][0];
+
+    // lat1 > lat0: you are headed north.
+    // lat1 < lat0: you are headed south.
+//    var delta_x = Math.abs(lat0 - lat1);
+    var delta_x = lat0 - lat1;
+
+    // long1 > long0: you are headed east 
+    // long1 < long0: you are headed west. 
+
+//    var delta_y = Math.abs(long0 - long0);
+    var delta_y = long0 - long0;
+
+    var offset =  Math.abs((Math.atan2(delta_x,delta_y))) * (180/Math.PI);
+    //var heading = offset + (90 * quadrant);
+    var heading = (90 * quadrant) + 45;
+
+    $("#offset").val(offset);
+
+    return heading;
+}
 
 // every X milliseconds, decrement remaining time to answer this question on a tour.
 var tour_question_decrement_interval = 5000;
@@ -72,6 +123,12 @@ var step = 0;
 var direction = 1;
 var map;
 var marker;
+
+var current_lat = tour_path[step][0];
+var current_long = tour_path[step][1];
+var quadrant = get_quadrant(tour_path,step);
+var heading = get_heading(tour_path,0);
+var current_zoom = 17;
 
 function start_tour() {
     map = L.map('map').setView([current_lat, current_long], current_zoom);
@@ -110,6 +167,14 @@ function start_tour() {
 
     // update streetview:
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+
+
+    $("#heading").val(heading);
+    $("#lat").val(current_lat);
+    $("#long").val(current_long);
+    
+    $("#lat1").val(tour_path[step+1][0]);
+    $("#long1").val(tour_path[step+1][1]);
     
     user_keypress();
     tour_loop();
@@ -282,25 +347,19 @@ function update_map(question,correct_answer) {
 	fillOpacity: 0.5
     }).addTo(map).bindPopup(question + " &rarr; <i>" + correct_answer + "</i><br/>" + "<tt>["+current_lat+","+current_long+"]</tt>")
 
-
-    if (step >= (tour_path.length - 1)) {
-	step = tour_path.length - 1;
-	direction = -1;
-	heading = 90; // headed east.
-    } else {
-	if (step <= 0) {
-	    step = 0;
-	    direction = 1;
-	    heading = 270; // headed west.
-	}
-    }
-
+    heading = get_heading(tour_path,step);
     step = step + direction;
     current_lat = tour_path[step][0];
     current_long = tour_path[step][1];
-    if (tour_path[step][2]) {
-	heading = tour_path[step][2];
-    }
+
+    $("#heading").val(heading);
+    $("#lat").val(current_lat);
+    $("#long").val(current_long);
+
+    $("#lat1").val(tour_path[step+1][0]);
+    $("#long1").val(tour_path[step+1][1]);
+
+    get_quadrant(tour_path,step);
 
     map.panTo(tour_path[step]);
    

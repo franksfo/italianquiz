@@ -318,7 +318,6 @@
 
     [:input {:id "gameinput" :size "30"}]
 
-
     [:div#userprogresscontainer
      [:div#userprogress 
       ]]
@@ -326,6 +325,19 @@
     [:div#correctanswer 
      ]
 
+    [:table {:style "display:none"}
+     [:tr
+      [:td [:input {:id "lat" :size "5"}]]
+      [:td [:input {:id "long" :size "5"}]]
+      [:td [:input {:id "offset" :size "5"}]]
+      [:td [:input {:id "quadrant" :size "5" :val ""  }]]
+      [:td [:input {:id "heading" :size "5"}]]]
+
+     [:tr
+      [:td [:input {:id "lat1" :size "5"}]]
+      [:td [:input {:id "long1" :size "5"}]]
+      ]
+     ]
 
     ] ;; end of :div #gameform
    ] ;; end of :div #game
