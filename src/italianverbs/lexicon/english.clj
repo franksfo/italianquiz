@@ -258,6 +258,18 @@
    "give" (trans-intrans {:synsem {:sem {:pred :dare}}
                           :english {:past "gave"}})
 
+
+   "go"
+   (trans-intrans {:synsem {:cat :verb
+                            :sem {:activity true
+                                  :discrete false
+                                  :pred :andare
+                                  :subj {:animate true}}}
+                   :english {:english "go"
+                             :present {:3sing "goes"}
+                             :participle "going"
+                             :past "went"}})
+
    "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:participle "grabbing"
                                      :past "grabbed"}})
