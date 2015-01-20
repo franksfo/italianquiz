@@ -1,5 +1,7 @@
 // Begin configurable section.
 
+var scope = 45; // how much to show from left to right in tryptich.
+
 // latitude and longitude paths of tour through Napoli
 var tour_path = [
     [40.8526231,         14.2722163],  // Napoli Centrali train station
@@ -167,6 +169,12 @@ function start_tour() {
 
     // update streetview:
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+
+    var heading_left = heading - scope;
+   $("#streetviewimageleft").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_left+"&pitch=10");
+
+    var heading_right = heading + scope;
+   $("#streetviewimageright").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_right+"&pitch=10");
 
 
     $("#heading").val(heading);
@@ -371,5 +379,12 @@ function update_map(question,correct_answer) {
 
     // update streetview:
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+
+    var heading_left = heading - scope;
+   $("#streetviewimageleft").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_left+"&pitch=10");
+
+    var heading_right = heading + scope;
+   $("#streetviewimageright").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_right+"&pitch=10");
+
 
 }

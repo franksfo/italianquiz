@@ -285,15 +285,25 @@
       ]
      ]
 
+     ;; map is separate from the triptych street view
+    [:div#map ]
+
     [:div#sidebyside {:style "z-index:2"}
-      
-     ;; map and streetview should be side by side
-     [:div#map ]
+
+     [:div#streetview_left
+      [:img#streetviewimageleft
+       {:src ""}] ;; src value is filled in with Javascript.
+     ]
 
      [:div#streetview
       [:img#streetviewimage
-       {:src ""}]] ;; src value is filled in with Javascript.
+       {:src ""}] ;; src value is filled in with Javascript.
      ]
+
+     [:div#streetviewright
+      [:img#streetviewimageright
+       {:src ""}] ;; src value is filled in with Javascript.
+     ]]
 
     ] ;; end of :div#rainforest
 
@@ -312,7 +322,7 @@
     [:div#correctanswer 
      ]
 
-    [:table {:style "display:none"}
+    [:table#navigation
      [:tr
       [:td [:input {:id "lat" :size "5"}]]
       [:td [:input {:id "long" :size "5"}]]
