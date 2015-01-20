@@ -295,19 +295,6 @@
        {:src ""}]] ;; src value is filled in with Javascript.
      ]
 
-    [:div#correction_dialog {:style "display:none"}
-     [:form {:onsubmit "return false;"}
-      [:div#cd_left_context_of_answer {:class "correct_answer" } "" ]
-      [:div#cd_rca {:class "correct_answer" } "" ]
-      [:h3#correct_answer "" ]
-      [:div#full_question {:class "question"} " " ]
-      [:input {:id "correction_bare_id" :type "hidden"}]
-      ]
-     ;; end of :form
-
-     ] ;; end of :div #correction_dialog
-
-
     ] ;; end of :div#rainforest
 
    [:div#tourgameform
