@@ -14,9 +14,7 @@
     ])
 
 (defn truncate []
-  (k/exec-raw ["TRUNCATE english"])
-  (k/exec-raw ["TRUNCATE italiano"])
-  (k/exec-raw ["TRUNCATE espanol"]))
+  (k/exec-raw ["TRUNCATE expression"]))
 
 (defn populate [num]
   (dotimes [n num]
