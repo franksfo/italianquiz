@@ -7,6 +7,7 @@
     [italianverbs.english :as en]
     [italianverbs.italiano :as it]
     [italianverbs.korma :as korma]
+    [italianverbs.morphology :as morph]
     [italianverbs.tour :as tour]
     [italianverbs.unify :as unify]
     [korma.core :as k]
@@ -21,20 +22,20 @@
   (dotimes [n num]
     (let [italian-sentence (engine/generate {:synsem {:subcat '()}}
                                             it/small)
-          english-sentence (engine/generate {:synsem {:sem (unify/get-in italian-sentence [:synsem :sem])}}
+          italian-semantics (unify/get-in italian-sentence [:synsem :sem])
+
+          english-sentence (engine/generate {:synsem {:sem italian-semantics}}
                                             en/small)]
 
-      (k/exec-raw [(str "INSERT INTO italiano (surface, syntax,semantics) VALUES (?,"
-                        "'" (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem])))       "',"
-                        "'" (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem :sem]))) "'"
+      (k/exec-raw [(str "INSERT INTO italiano (surface, synsem) VALUES (?,"
+                        "'" (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem]))) "'"
                         ")")
-                   [(fo italian-sentence)]])
+                   [(morph/fo italian-sentence)]])
 
-      (k/exec-raw [(str "INSERT INTO english (surface, syntax, semantics) VALUES (?,"
-                        "'" (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem])))       "',"
-                        "'" (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem :sem]))) "'"
+      (k/exec-raw [(str "INSERT INTO english (surface, synsem) VALUES (?,"
+                        "'" (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem]))) "'"
                         ")")
-                   [(fo english-sentence)]]))))
+                   [(morph/fo english-sentence)]]))))
 
 
 (defn -main [& args]

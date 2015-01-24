@@ -1,8 +1,14 @@
-CREATE TABLE english (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, syntax JSON, semantics JSON);
+DROP TABLE english;
 
-CREATE TABLE italiano (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, syntax JSON, semantics JSON);
+DROP TABLE italiano;
 
-CREATE TABLE espanol (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, syntax JSON, semantics JSON);
+DROP TABLE espanol;
+
+CREATE TABLE english (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, synsem JSONB);
+
+CREATE TABLE italiano (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, synsem JSONB);
+
+CREATE TABLE espanol (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, synsem JSONB);
 
 CREATE SEQUENCE english_id_seq
                      START WITH 1
