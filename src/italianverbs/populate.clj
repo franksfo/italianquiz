@@ -24,15 +24,18 @@
           english-sentence (engine/generate {:synsem {:sem (unify/get-in italian-sentence [:synsem :sem])}}
                                             en/small)]
 
-      (k/exec-raw [(str "INSERT INTO italiano (surface, syntax, semantics) VALUES (?,to_json(?::text),to_json(?::text))")
-                   [(fo italian-sentence)
-                    (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem])))
-                    (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem :sem])))]])
+      (k/exec-raw [(str "INSERT INTO italiano (surface, syntax,semantics) VALUES (?,"
+                        "'" (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem])))       "',"
+                        "'" (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem :sem]))) "'"
+                        ")")
+                   [(fo italian-sentence)]])
 
-      (k/exec-raw [(str "INSERT INTO english (surface, syntax, semantics) VALUES (?,to_json(?::text),to_json(?::text))")
-                   [(fo english-sentence)
-                    (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem])))
-                    (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem :sem])))]]))))
+      (k/exec-raw [(str "INSERT INTO english (surface, syntax, semantics) VALUES (?,"
+                        "'" (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem])))       "',"
+                        "'" (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem :sem]))) "'"
+                        ")")
+                   [(fo english-sentence)]]))))
+
 
 (defn -main [& args]
   (if (not (nil? (first args)))
