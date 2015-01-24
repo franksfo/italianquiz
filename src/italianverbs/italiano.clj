@@ -179,6 +179,6 @@
            (matching-comp-lexemes spec)))))
 
 (defn enrich [spec]
-  (mapcat against-comp
-          (against-pred spec)))
+  (against-pred spec))
+
 
