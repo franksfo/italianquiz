@@ -27,16 +27,19 @@
           english-sentence (engine/generate {:synsem {:sem italian-semantics}}
                                             en/small)]
 
-      (k/exec-raw [(str "INSERT INTO italiano (surface, synsem) VALUES (?,"
+      (k/exec-raw [(str "INSERT INTO expression (surface, synsem, language, model) VALUES (?,"
                         "'" (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem]))) "'"
-                        ")")
-                   [(morph/fo italian-sentence)]])
+                        ",?,?)")
+                   [(morph/fo italian-sentence)
+                    "it"
+                    "small"]])
 
-      (k/exec-raw [(str "INSERT INTO english (surface, synsem) VALUES (?,"
+      (k/exec-raw [(str "INSERT INTO expression (surface, synsem,language,model) VALUES (?,"
                         "'" (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem]))) "'"
-                        ")")
-                   [(morph/fo english-sentence)]]))))
-
+                        ",?,?)")
+                   [(morph/fo english-sentence)
+                    "en"
+                    "small"]]))))
 
 (defn -main [& args]
   (if (not (nil? (first args)))
