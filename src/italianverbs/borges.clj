@@ -14,14 +14,6 @@
 (declare generate-from-request)
 (declare resolve-model)
 
-(def routes
-  (compojure/routes
-   (GET "/lookup" request
-       (lookup request))
-
-  (GET "/generate" request
-       (generate-from-request request))))
-
 (defn generate-from-request [request]
   "respond to an HTTP client's request with a generated sentence, given the client's desired spec, language name, and language model name."
 )
