@@ -47,6 +47,7 @@
 
 (defn generate-from-request [request]
   "respond to an HTTP client's request with a generated sentence, given the client's desired spec, language name, and language model name."
+  ;; TODO: 'pred' request param here is deprecated: use spec's {:synsem {:sem {:pred}}} instead.
   (let [pred (keyword (get-in request [:params :pred] :top))
         spec (get-in request [:params :spec])
         spec (if spec (json/read-str spec
@@ -81,6 +82,7 @@
                    "Expires" "0"}
          :body (json/write-str results)}
 
+        ;; debug mode:
         {:status 200
          :headers {"Content-Type" "text/html;charset=utf-8"
                    "Cache-Control" "no-cache, no-store, must-revalidate"
