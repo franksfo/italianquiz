@@ -1,13 +1,9 @@
-DROP TABLE english;
-
-DROP TABLE italiano;
-
-DROP TABLE espanol;
+DROP TABLE expression; 
 
 CREATE TABLE expression (id INTEGER, PRIMARY KEY(id), 
        created TIMESTAMP DEFAULT now(), 
        language TEXT, model TEXT,
-       surface TEXT, synsem JSONB);
+       surface TEXT, structure JSONB);
 
 CREATE SEQUENCE expression_id_seq
                      START WITH 1
