@@ -1,4 +1,76 @@
+(ns italianverbs.borges
+  [:require
+   [clojure.data.json :as json]
+   [clojure.tools.logging :as log]
+   [korma.core :as db]
+   [italianverbs.english :as en]
+   [italianverbs.italiano :as it]
+   [italianverbs.korma :as korma]
+   [italianverbs.unify :as unify :refer [strip-refs unify]]])
 
+;; requires Postgres 9.4 or higher for JSON operator '@>' support.
+
+(defn generate [spec language-model]
+  "generate a sentence matching 'spec' given the supplied language model."
+  (let [spec (unify spec
+                    {:synsem {:subcat '()}})
+        language-model (if (future? language-model)
+                         @language-model
+                         language-model)
+
+        debug (log/debug (str "generate: pre-enrich:" spec))
+
+        ;; apply language-specific constraints on generation.
+        spec (if (:enrich language-model)
+               ((:enrich language-model) spec)
+                spec)
+
+        debug (log/debug (str "generate: post-enrich:" spec))
+
+        language-name ;; TODO: add to API
+        (cond (= language-model @en/small)
+              "en"
+              true
+              "it")
+
+        ;; normalize for JSON lookup
+        json-input-spec (if (= :top spec)
+                          {}
+                          (get-in spec [:synsem]))
+
+        json-spec (json/write-str (strip-refs json-input-spec))
+
+               ]
+
+;; synsem @> '{"sem": {"pred":"andare"}}';
+
+;; italianverbs.borges> (generate :top "en")
+
+    (log/debug (str "looking for expressions in language: " language-name))
+    (log/debug (str "SQL: "
+                   (str "SELECT structure FROM expression WHERE language=? AND structure->'synsem' @> "
+                        "'" json-spec "'")))
+
+    ;; e.g.
+    ;; SELECT * FROM expression WHERE language='it' AND structure->'synsem' @> '{"sem": {"pred":"prendere"}}';
+
+    (let [results (db/exec-raw [(str "SELECT structure::text FROM expression WHERE language=? AND structure->'synsem' @> "
+                                     "'" json-spec "'")
+                                [language-name]]
+                               :results)]
+      (if (empty? results) 
+        nil
+        (json/read-str (:structure (nth results (rand-int (.size results))))
+                       :key-fn keyword
+                       :value-fn (fn [k v]
+                                   (cond (string? v)
+                                         (keyword v)
+                                         :else v)))))))
+
+;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
+
+;; SELECT count(*) FROM (SELECT DISTINCT english.surface AS en, italiano.surface AS it FROM italiano INNER JOIN english ON italiano.structure->synsem->'sem' = english.structure->synsem->'sem' ORDER BY english.surface) AS foo;
+    
 ;; SELECT * FROM (SELECT synsem->'sem'->'pred'::text AS pred,surface FROM english) AS en WHERE en.pred='"andare"';
 ;; SELECT it.surface  FROM (SELECT synsem->'sem'->'pred' AS pred,surface,synsem FROM italiano) AS it WHERE it.synsem->'sem' @> '{"pred":"andare"}';
 
@@ -8,16 +80,3 @@
 
 ;; number of distinct english <-> italiano translation pairs
 ;; SELECT count(*) FROM (SELECT DISTINCT english.surface AS en, italiano.surface AS it FROM italiano INNER JOIN english ON italiano.synsem->'sem' = english.synsem->'sem' ORDER BY english.surface) AS foo;
-(ns italianverbs.borges)
-
-(declare lookup)
-(declare generate-from-request)
-(declare resolve-model)
-
-(defn generate-from-request [request]
-  "respond to an HTTP client's request with a generated sentence, given the client's desired spec, language name, and language model name."
-)
-
-(defn generate [spec language-model]
-  "generate a sentence matching 'spec' given the supplied language model.")
-
