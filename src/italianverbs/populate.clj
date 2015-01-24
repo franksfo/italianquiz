@@ -1,36 +1,38 @@
 (ns italianverbs.populate
-  [:use
-   [clojure.core :exclude [find]]
-   [italianverbs.lexiconfn]
-   [italianverbs.lexicon]
-   [italianverbs.morphology]
-   ]
    [:require
-    [somnium.congomongo :as mongo]
-    [italianverbs.engine :as engine]
-    [italianverbs.english :as en]
-    [italianverbs.html :as html]
-    [italianverbs.italiano :as it]
-    [italianverbs.unify :as unify]
-    [clojure.set :as set]
+    [clojure.data.json :as json]
     [clojure.string :as string]
     [clojure.tools.logging :as log]
-    ]
-  )
+    [italianverbs.engine :as engine]
+    [italianverbs.english :as en]
+    [italianverbs.italiano :as it]
+    [italianverbs.korma :as korma]
+    [italianverbs.tour :as tour]
+    [italianverbs.unify :as unify]
+    [korma.core :as k]
+    ])
+
+(defn truncate []
+  (k/exec-raw ["TRUNCATE english"])
+  (k/exec-raw ["TRUNCATE italiano"])
+  (k/exec-raw ["TRUNCATE espanol"]))
 
 (defn populate [num]
-  (mongo/mongo! :db "mydb")
-  (mongo/make-connection "mydb" :host "localhost")
-  ;; TODO: add switch to avoid removing existing mongodb, if desired.
-  (mongo/destroy! :sentences {})
   (dotimes [n num]
-    (let [italian-sentence (it/sentence)
-          english-sentence (engine/generate {:synsem {:sem (get-in italian-sentence [:synsem :sem])}})]
-      (mongo/insert! :sentences {:italian (fo italian-sentence)
-                                 :english (fo english-sentence)})))
-  (let [count (mongo/fetch-count :sentences)]
-    (println (str "sentence collection now has " count " sentences."))
-    count))
+    (let [italian-sentence (engine/generate {:synsem {:subcat '()}}
+                                            it/small)
+          english-sentence (engine/generate {:synsem {:sem (unify/get-in italian-sentence [:synsem :sem])}}
+                                            en/small)]
+
+      (k/exec-raw [(str "INSERT INTO italiano (surface, syntax, semantics) VALUES (?,to_json(?::text),to_json(?::text))")
+                   [(fo italian-sentence)
+                    (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem])))
+                    (json/write-str (unify/strip-refs (unify/get-in italian-sentence [:synsem :sem])))]])
+
+      (k/exec-raw [(str "INSERT INTO english (surface, syntax, semantics) VALUES (?,to_json(?::text),to_json(?::text))")
+                   [(fo english-sentence)
+                    (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem])))
+                    (json/write-str (unify/strip-refs (unify/get-in english-sentence [:synsem :sem])))]]))))
 
 (defn -main [& args]
   (if (not (nil? (first args)))
