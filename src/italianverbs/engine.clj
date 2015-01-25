@@ -8,6 +8,7 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
+   [italianverbs.borges :as borges]
    [italianverbs.cache :refer (create-index)]
    [italianverbs.forest :as forest]
    [italianverbs.html :refer (tablize)]
@@ -30,23 +31,37 @@
   (GET "/generate" request
        (generate-from-request request))))
 
-(defn generate [spec language-model]
-  (let [spec (unify spec
+(defn generate [spec language-model & [do-enrich]]
+  (let [do-enrich (if do-enrich do-enrich false)
+        spec (unify spec
                     {:synsem {:subcat '()}})
         language-model (if (future? language-model)
                          @language-model
                          language-model)
-        spec (if (:enrich language-model)
+        spec (if (and do-enrich (:enrich language-model))
                ((:enrich language-model)
                 spec)
                spec)]
+    (log/debug (str "calling forest/generate with spec: " (if (seq? spec)
+                                                            (string/join "," spec)
+                                                            spec)))
     (forest/generate spec 
                      (:grammar language-model)
                      (:lexicon language-model)
                      (:index language-model))))
 
+(defn generate-using-db [spec language-model]
+  (let [spec (unify spec
+                    {:synsem {:subcat '()}})
+        language-model (if (future? language-model)
+                         @language-model
+                         language-model)]
+    (log/debug (str "spec pre-borges/generate:" spec))
+    (borges/generate spec language-model)))
+
 (defn generate-from-request [request]
   "respond to an HTTP client's request with a generated sentence, given the client's desired spec, language name, and language model name."
+  ;; TODO: 'pred' request param here is deprecated: use spec's {:synsem {:sem {:pred}}} instead.
   (let [pred (keyword (get-in request [:params :pred] :top))
         spec (get-in request [:params :spec])
         spec (if spec (json/read-str spec
@@ -81,6 +96,7 @@
                    "Expires" "0"}
          :body (json/write-str results)}
 
+        ;; debug mode:
         {:status 200
          :headers {"Content-Type" "text/html;charset=utf-8"
                    "Cache-Control" "no-cache, no-store, must-revalidate"

@@ -1,0 +1,374 @@
+; nrepl.el 0.2.0 (Clojure 1.6.0, nREPL i)
+user> (in-ns 'italianverbs.test.verb)
+#<Namespace italianverbs.test.verb>
+italianverbs.test.verb> (type it/lexicon)
+clojure.core$future_call$reify__6320
+italianverbs.test.verb> (type @it/lexicon)
+clojure.lang.PersistentHashMap
+italianverbs.test.verb> predicates-from-lexicon
+#<verb$predicates_from_lexicon italianverbs.verb$predicates_from_lexicon@e6d083b>
+italianverbs.test.verb> (def foo (predicates-from-lexicon @it/lexicon))
+#'italianverbs.test.verb/foo
+italianverbs.test.verb> (type foo)
+clojure.lang.ArraySeq
+italianverbs.test.verb> (first foo)
+"abandon"
+italianverbs.test.verb> foo
+("abandon" "abbracciare" "accept" "accompany" "aiutare" "amare" "announce" "answer" "assure" "avere" "bere" "cambiare" "cancellare" "cantare" "caricare" "cenare" "cercare" "chiedere" "comment" "comprare" "conserve" "consider" "correspond" "create" "cut" "dare" "decide" "deludere" "desiderare" "dipingere" "dormire" "entrare" "essere" "finish" "frequentare" "funzionare" "giocare" "guidare" "have-to" "imparare" "incontrare" "increase" "insegnare" "insure" "lavorare" "leggere" "lower" "mandare" "mangiare" "parlare" "portare" "prendere" "preserve" "ricevere" "ricordare" "ritornare" "run" "scaricare" "scrivere" "share" "stampare" "studiare" "suonare" "support" "take-advantage-of" "telefonare" "tenere" "tornare" "understand" "usare" "vedere" "vendere" "venire")
+italianverbs.test.verb> (in-ns 'italianverbs.test.tour)
+#<Namespace italianverbs.test.tour>
+italianverbs.test.tour> (get-possible-preds 1)
+(nil nil nil nil)
+italianverbs.test.tour> (get-possible-preds 2)
+(nil nil nil nil nil nil)
+italianverbs.test.tour> (get-possible-preds 3)
+(nil nil)
+italianverbs.test.tour> (get-possible-preds 3)
+(nil nil)
+italianverbs.test.tour> (get-possible-preds 3)
+(nil nil)
+italianverbs.test.tour> (get-possible-preds 3)
+(nil nil)
+italianverbs.test.tour> (k/exec-raw [(str "SELECT id FROM games")] :results)
+[{:id 2} {:id 6} {:id 1} {:id 3} {:id 7} {:id 5}]
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: game-id in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:17) 
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: game-id in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:17) 
+italianverbs.test.tour> (def game-id 3)
+#'italianverbs.test.tour/game-id
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+3
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+3
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+3
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+3
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+3
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+3
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+3
+italianverbs.test.tour> (def game-id nil)
+#'italianverbs.test.tour/game-id
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+{:id 6}
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+{:id 3}
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+{:id 2}
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                      (nth games (rand-int (.size games)))))]
+			    game-id)
+{:id 2}
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:game-id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                                (nth games (rand-int (.size games))))))]
+game-id)
+nil
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:game-id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                                (nth games (rand-int (.size games))))))]
+game-id)
+nil
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:game-id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                                (nth games (rand-int (.size games))))))]
+game-id)
+nil
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:game-id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                                (nth games (rand-int (.size games))))))]
+game-id)
+nil
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:game-id (let [games (k/exec-raw [(str "SELECT id AS game-id FROM games")] :results)]
+                                (nth games (rand-int (.size games))))))]
+game-id)
+Failure to execute query with SQL:
+SELECT id AS game-id FROM games  ::  nil
+PSQLException:
+ Message: ERROR: syntax error at or near "-"
+  Position: 18
+ SQLState: 42601
+ Error Code: 0
+PSQLException ERROR: syntax error at or near "-"
+  Position: 18  org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse (QueryExecutorImpl.java:2157)
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                           (nth games (rand-int (.size games))))))]
+ game-id)
+2
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                           (nth games (rand-int (.size games))))))]
+ game-id)
+3
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                           (nth games (rand-int (.size games))))))]
+ game-id)
+2
+italianverbs.test.tour>   (let [game-id (if game-id game-id
+                    (:id (let [games (k/exec-raw [(str "SELECT id FROM games")] :results)]
+                           (nth games (rand-int (.size games))))))]
+ game-id)
+3
+italianverbs.test.tour> (get-possible-preds)
+IllegalArgumentException No matching ctor found for class java.lang.Integer  clojure.lang.Reflector.invokeConstructor (Reflector.java:183)
+italianverbs.test.tour> (integer? 5)
+true
+italianverbs.test.tour> (integer? 5)
+true
+italianverbs.test.tour> (get-possible-preds)
+IllegalArgumentException No matching ctor found for class java.lang.Integer  clojure.lang.Reflector.invokeConstructor (Reflector.java:183)
+italianverbs.test.tour> (get-possible-preds)
+IllegalArgumentException No matching ctor found for class java.lang.Integer  clojure.lang.Reflector.invokeConstructor (Reflector.java:183)
+italianverbs.test.tour> wtf
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: wtf in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:743) 
+italianverbs.test.tour> wtf
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: wtf in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:743) 
+italianverbs.test.tour> wtf
+#<tour$wtf italianverbs.test.tour$wtf@7f6ef6fb>
+italianverbs.test.tour> (wtf 5)
+5
+italianverbs.test.tour> (wtf)
+nil
+italianverbs.test.tour> (get-possible-preds)
+ArityException Wrong number of args (1) passed to: core/map  clojure.lang.AFn.throwArity (AFn.java:429)
+italianverbs.test.tour> (get-possible-preds 5)
+ArityException Wrong number of args (1) passed to: core/map  clojure.lang.AFn.throwArity (AFn.java:429)
+italianverbs.test.tour> (get-possible-preds 5)
+({:pred "chiedere"})
+italianverbs.test.tour> (get-possible-preds 5)
+({:pred "chiedere"})
+italianverbs.test.tour> (get-possible-preds)
+({:pred "parlare"} {:pred "portare"})
+italianverbs.test.tour> (get-possible-preds)
+({:pred "cambiare"} {:pred "dormire"} {:pred "mangiare"} {:pred "parlare"})
+italianverbs.test.tour> (get-possible-preds)
+({:pred "cambiare"} {:pred "dormire"} {:pred "mangiare"} {:pred "parlare"})
+italianverbs.test.tour> (get-possible-preds)
+({:pred "cambiare"} {:pred "dormire"} {:pred "mangiare"} {:pred "parlare"})
+italianverbs.test.tour> (get-possible-preds)
+({:pred "chiedere"})
+italianverbs.test.tour> (get-possible-preds)
+("parlare" "portare")
+italianverbs.test.tour> (get-possible-preds)
+("chiedere")
+italianverbs.test.tour> (get-possible-preds)
+("abandon" "abbracciare" "accept" "accompany")
+italianverbs.test.tour> (get-possible-preds)
+("entrare" "ritornare" "tornare" "venire")
+italianverbs.test.tour> (get-possible-preds)
+("entrare" "ritornare" "tornare" "venire")
+italianverbs.test.tour> (get-possible-preds)
+("abandon" "abbracciare" "accept" "accompany")
+italianverbs.test.tour> (choose-random-verb-group)
+Failure to execute query with SQL:
+SELECT id FROM games WHERE games.id IN (SELECT game FROM games_to_use)  ::  nil
+PSQLException:
+ Message: A result was returned when none was expected.
+ SQLState: 0100E
+ Error Code: 0
+PSQLException A result was returned when none was expected.  org.postgresql.jdbc2.AbstractJdbc2Statement$BatchResultHandler.handleResultRows (AbstractJdbc2Statement.java:2695)
+italianverbs.test.tour> (choose-random-verb-group)
+{:id 5}
+italianverbs.test.tour> (choose-random-verb-group)
+{:id 5}
+italianverbs.test.tour> (choose-random-verb-group)
+{:id 5}
+italianverbs.test.tour> (choose-random-verb-group)
+{:id 5}
+italianverbs.test.tour> (choose-random-verb-group)
+{:id 5}
+italianverbs.test.tour> (choose-random-verb-group)
+{:id 5}
+italianverbs.test.tour> (choose-random-verb-group)
+{:id 5}
+italianverbs.test.tour> (choose-random-verb-group)
+5
+italianverbs.test.tour> (choose-random-verb-group)
+5
+italianverbs.test.tour> (choose-random-verb-group)
+5
+italianverbs.test.tour> (choose-random-verb-group)
+5
+italianverbs.test.tour> (choose-random-verb-group)
+5
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-preds (choose-random-verb-group))
+("chiedere")
+italianverbs.test.tour> (get-possible-inflections (choose-random-verb-group))
+Failure to execute query with SQL:
+SELECT inflection
+                            FROM inflections_per_game
+                           WHERE games.id = ?  ::  [5]
+PSQLException:
+ Message: ERROR: missing FROM-clause entry for table "games"
+  Position: 106
+ SQLState: 42P01
+ Error Code: 0
+PSQLException ERROR: missing FROM-clause entry for table "games"
+  Position: 106  org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse (QueryExecutorImpl.java:2157)
+italianverbs.test.tour> (get-possible-inflections (choose-random-verb-group))
+("passato")
+italianverbs.test.tour> (get-possible-inflections (choose-random-verb-group))
+("passato")
+italianverbs.test.tour> (get-possible-inflections (choose-random-verb-group))
+("passato")
+italianverbs.test.tour> (get-possible-inflections (choose-random-verb-group))
+("passato")
+italianverbs.test.tour> (map keyword (get-possible-inflections (choose-random-verb-group)))
+(:passato)
+italianverbs.test.tour> (map #({:synsem {:infl (keyword %}}}) (get-possible-inflections (choose-random-verb-group)))
+RuntimeException Unmatched delimiter: }  clojure.lang.Util.runtimeException (Util.java:221)
+RuntimeException Unmatched delimiter: }  clojure.lang.Util.runtimeException (Util.java:221)
+RuntimeException Unmatched delimiter: }  clojure.lang.Util.runtimeException (Util.java:221)
+RuntimeException Unmatched delimiter: )  clojure.lang.Util.runtimeException (Util.java:221)
+("passato")
+RuntimeException Unmatched delimiter: )  clojure.lang.Util.runtimeException (Util.java:221)
+italianverbs.test.tour> (map #({:synsem {:infl (keyword %}}}) (get-possible-inflections (choose-random-verb-group)))
+RuntimeException Unmatched delimiter: }  clojure.lang.Util.runtimeException (Util.java:221)
+RuntimeException Unmatched delimiter: }  clojure.lang.Util.runtimeException (Util.java:221)
+RuntimeException Unmatched delimiter: }  clojure.lang.Util.runtimeException (Util.java:221)
+RuntimeException Unmatched delimiter: )  clojure.lang.Util.runtimeException (Util.java:221)
+("passato")
+RuntimeException Unmatched delimiter: )  clojure.lang.Util.runtimeException (Util.java:221)
+italianverbs.test.tour> (map #{:synsem {:infl (keyword %)}} (get-possible-inflections (choose-random-verb-group)))
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: % in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:23) 
+italianverbs.test.tour> (map #(do {:synsem {:infl (keyword %)}}) (get-possible-inflections (choose-random-verb-group)))
+({:synsem {:infl :passato}})
+italianverbs.test.tour> (map #(do {:synsem {:infl (keyword %)}}) (get-possible-inflections (choose-random-verb-group)))
+({:synsem {:infl :passato}})
+italianverbs.test.tour> (map #(do {:synsem {:infl (keyword %)}}) (get-possible-inflections (choose-random-verb-group)))
+({:synsem {:infl :passato}})
+italianverbs.test.tour> (map #(do {:synsem {:infl (keyword %)}}) (get-possible-inflections (choose-random-verb-group)))
+({:synsem {:infl :passato}})
+italianverbs.test.tour> (get-possible-inflections (choose-random-verb-group))
+("passato")
+italianverbs.test.tour> (map keyword (get-possible-inflections (choose-random-verb-group)))
+(:passato)
+italianverbs.test.tour> it/small
+italianverbs.test.tour> (keys it/small)
+IllegalArgumentException Don't know how to create ISeq from: clojure.core$future_call$reify__6320  clojure.lang.RT.seqFrom (RT.java:505)
+italianverbs.test.tour> (keys @it/small)
+(:grammar :lexicon :index)
+italianverbs.test.tour> (def killer-spec {:comp {:phrasal false}, :head {:phrasal :top}, :synsem {:sem {:tense :past, :subj {:mass false, :furniture false, :pred :loro, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :gender :masc, :edible false, :part-of-human-body false}, :aspect :perfect, :obj :unspec, :pred :parlare}, :subcat [], :cat :verb}})
+#'italianverbs.test.tour/killer-spec
+italianverbs.test.tour> killer-spec
+{:comp {:phrasal false}, :head {:phrasal :top}, :synsem {:sem {:tense :past, :aspect :perfect, :pred :parlare, :subj {:mass false, :furniture false, :pred :loro, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :gender :masc, :edible false, :part-of-human-body false}, :obj :unspec}, :subcat [], :cat :verb}}
+italianverbs.test.tour> generate
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: generate in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:743) 
+italianverbs.test.tour> generate
+#<engine$generate italianverbs.engine$generate@2771f4fa>
+italianverbs.test.tour> (generate killer-spec it/small)
+
+
+
+
+
+italianverbs.test.tour> 
+italianverbs.test.tour> 
+italianverbs.test.tour> 
+italianverbs.test.tour> 
+italianverbs.test.tour> (fo (generate killer-spec it/small))
+
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: fo in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:1) 
+italianverbs.test.tour> (fo (generate killer-spec it/small))
+
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: fo in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:1) 
+italianverbs.test.tour> (fo (generate killer-spec it/small))
+
+"loro hanno parlato"
+italianverbs.test.tour> (fo (generate killer-spec it/small))
+
+"loro hanno parlato"
+italianverbs.test.tour> (time (fo (generate killer-spec it/small)))
+
+"Elapsed time: 11474.106 msecs"
+"loro hanno parlato"
+italianverbs.test.tour> killer-spec
+
+{:comp {:phrasal false}, :head {:phrasal :top}, :synsem {:sem {:tense :past, :aspect :perfect, :pred :parlare, :subj {:mass false, :furniture false, :pred :loro, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :gender :masc, :edible false, :part-of-human-body false}, :obj :unspec}, :subcat [], :cat :verb}}
+italianverbs.test.tour> (unify killer-spec {:synsem {:essere true}})
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: unify in this context, compiling:(/private/var/folders/3h/_y3t461j0rl_rvc6x7s3b1fw0000gp/T/form-init4681177935049721188.clj:1:1) 
+italianverbs.test.tour> (unifyc killer-spec {:synsem {:essere true}})
+{:head {:phrasal :top}, :comp {:phrasal false}, :synsem {:subcat [], :essere true, :sem {:obj :unspec, :subj {:mass false, :furniture false, :pred :loro, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :gender :masc, :edible false, :part-of-human-body false}, :pred :parlare, :aspect :perfect, :tense :past}, :cat :verb}}
+italianverbs.test.tour> (unifyc killer-spec {:synsem {:essere true}})
+{:head {:phrasal :top}, :comp {:phrasal false}, :synsem {:subcat [], :essere true, :sem {:obj :unspec, :subj {:mass false, :furniture false, :pred :loro, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :gender :masc, :edible false, :part-of-human-body false}, :pred :parlare, :aspect :perfect, :tense :past}, :cat :verb}}
+italianverbs.test.tour> (unifyc killer-spec {:synsem {:essere false}})
+{:head {:phrasal :top}, :comp {:phrasal false}, :synsem {:subcat [], :essere false, :sem {:obj :unspec, :subj {:mass false, :furniture false, :pred :loro, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :gender :masc, :edible false, :part-of-human-body false}, :pred :parlare, :aspect :perfect, :tense :past}, :cat :verb}}
+italianverbs.test.tour> (def k2 (unify killer-spec {:synsem {:essere true}}))
+#'italianverbs.test.tour/k2
+italianverbs.test.tour> (time (fo (generate k2 it/small)))
+
+"Elapsed time: 14034.479 msecs"
+""
+italianverbs.test.tour> (time (fo (generate killer-spec it/small)))
+
+"Elapsed time: 11818.773 msecs"
+"loro hanno parlato"
+italianverbs.test.tour> (time (fo (generate killer-spec it/small)))
+
+"Elapsed time: 1323.96 msecs"
+"loro hanno parlato"
+italianverbs.test.tour> (time (fo (generate killer-spec it/small)))
+
+"Elapsed time: 8815.144 msecs"
+"loro hanno parlato"
+italianverbs.test.tour> 

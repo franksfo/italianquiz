@@ -8,15 +8,18 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
-   [italianverbs.engine :refer [generate]]
+   [italianverbs.engine :refer [generate generate-using-db]]
+   [italianverbs.english :as en]
    [italianverbs.html :refer [page tablize]]
+   [italianverbs.italiano :as it]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [fail? get-in merge strip-refs unify]]
-   [italianverbs.english :as en]
-   [italianverbs.italiano :as it]
    [korma.core :as k]))
+
+(def generate-by :db)
+;(def generate-by :runtime)
 
 (declare evaluate)
 (declare generate-answers)
@@ -115,6 +118,15 @@
      :right_context_source ""
      :right_context_destination ""}))
 
+(defn additional-generation-constraints [spec]
+  "apply additional constraints to improve generation results or performance."
+  (cond (= generate-by :runtime)
+        (unify spec
+               {:head {:phrasal :top}
+                :comp {:phrasal false}})
+        true
+        spec))
+
 (defn generate-question [request]
   (let [verb-group (choose-random-verb-group)
         possible-preds (get-possible-preds verb-group)
@@ -123,25 +135,30 @@
                (keyword (get-in request [:params :pred]))
                (nth possible-preds (rand-int (.size possible-preds))))
         debug (log/info (str "generate-question: pred: " pred))
-        debug (log/info (str "possible-inflections: " verb-group))
+        debug (log/info (str "verb-group: " verb-group))
+        debug (log/info (str "possible-inflections: " (string/join "," possible-inflections)))
+        chosen-inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))
+        debug (log/info (str "chosen-inflection: " chosen-inflection))
         spec
-        {:head {:phrasal :top}
-         :comp {:phrasal false}
-         :synsem {:sem {:pred pred}
+        {:synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
+        spec (additional-generation-constraints spec)
 
         ;; TODO: use runtime to decide which language rather than
         ;; hard-coded en/inflection.
         spec (unify spec
-                    (en/inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))))
+                    (en/inflection chosen-inflection))
 
         ;; TODO: use runtime to decide which language and grammar rather than
         ;; hard-coded en/small.
-        question (generate spec en/small)
+        question (cond (= generate-by :runtime)
+                       (generate spec en/small)
+                       true
+                       (generate-using-db spec en/small))
         form (html-form question)]
 
-    (log/info "generate-question: question: " (fo question))
+    (log/info "generate-question: question(fo): " (fo question))
 
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
@@ -171,18 +188,21 @@
                                               :else v)))
         debug (log/debug (str "semantics: " semantics))
 
-        more-constraints {:synsem {:subcat '()}
-                          :head {:phrasal :top}
-                          :comp {:phrasal false}}
+        more-constraints {:synsem {:subcat '()}}
 
         to-generate (merge semantics more-constraints)
 
-        debug (log/info (str "to-generate: " to-generate))
+        to-generate (additional-generation-constraints to-generate)
+
+        debug (log/info (str "(answer)to-generate: " to-generate))
 
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (generate to-generate it/small)
+        answer (cond (= generate-by :runtime)
+                     (generate to-generate it/small)
+                     true
+                     (generate-using-db to-generate it/small))
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically

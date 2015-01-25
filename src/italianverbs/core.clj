@@ -4,17 +4,13 @@
    (cemerick.friend [workflows :as workflows]
                     [credentials :as creds])
    [clojure.java.io :as io]
-   [clojure.string :as string]
    [clojure.tools.logging :as log]
    [compojure.core :as compojure :refer [context defroutes GET PUT POST DELETE ANY]]
-   [compojure.handler :refer [site]]
    [compojure.route :as route]
    [compojure.handler :as handler]
    [environ.core :refer [env]]
    [hiccup.page :as h]
-   [hiccup.element :as e]
    [italianverbs.auth :as auth :refer [confirm-and-create-user get-user-id haz-admin is-authenticated]]
-   [italianverbs.class :as vc-class]
    [italianverbs.editor :as editor]
    [italianverbs.engine :as engine]
    [italianverbs.game :as game]
@@ -31,7 +27,6 @@
    [italianverbs.verb :as verb]
    [italianverbs.workbook :as workbook]
    [ring.adapter.jetty :as jetty]
-   [ring.middleware.basic-authentication :as basic]
    [ring.middleware.session.cookie :as cookie]
    [ring.middleware.stacktrace :as trace]
    [ring.util.response :as resp]
@@ -648,7 +643,7 @@
                          ((if (env :production)
                             wrap-error-page
                             trace/wrap-stacktrace))
-                         (site {:session {:store store}}))
+                         (handler/site {:session {:store store}}))
                      {:port port :join? false})))
 
 ;; For interactive development:
