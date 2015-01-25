@@ -38,7 +38,7 @@
       (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
                         "'" (json/write-str (unify/strip-refs english-sentence)) "'"
                         ","
-                        "'" (json/write-str (unify/serialize english-sentence)) "'"
+                        "'" (str (unify/serialize english-sentence)) "'"
                         ","
                         "?,?)")
                    [(morph/fo english-sentence)
