@@ -10,6 +10,20 @@
 
 ;; requires Postgres 9.4 or higher for JSON operator '@>' support.
 
+(defn foo [spec language-model]
+  (unify/deserialize 
+   (json/read-str (:serialized (first (db/exec-raw ["SELECT serialized::text FROM expression"] :results))) 
+                  :key-fn keyword 
+                  :value-fn (fn [k v] 
+                              (cond (= k :italiano)
+                                    v
+                                    (= k :english)
+                                    v
+                                    (string? v)
+                                    (keyword v)
+ 
+                                    :else v)))))
+
 (defn generate [spec language-model]
   "generate a sentence matching 'spec' given the supplied language model."
   (let [spec (unify spec
@@ -63,7 +77,13 @@
         (deserialize (json/read-str (:serialized (nth results (rand-int (.size results))))
                                     :key-fn keyword
                                     :value-fn (fn [k v]
-                                                (cond (string? v)
+                                                (cond (= k :italiano)
+                                                      v
+                                                      (= k :english)
+                                                      v
+                                                      (= k :espanol)
+                                                      v
+                                                      (string? v)
                                                       (keyword v)
                                                       :else v))))))))
 
