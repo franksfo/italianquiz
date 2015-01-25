@@ -48,7 +48,7 @@
       (if (not (empty? results))
         (deserialize (read-string (:serialized (nth results index-of-result))))
         (do (log/error "Nothing found in database that matches search: " json-spec)
-            :fail)))))
+            (throw (Exception. (str "Nothing found in database that matches search: " json-spec))))))))
 
 ;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
 
