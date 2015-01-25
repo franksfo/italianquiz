@@ -4,7 +4,7 @@ CREATE TABLE expression (id INTEGER, PRIMARY KEY(id),
        created TIMESTAMP DEFAULT now(), 
        language TEXT, model TEXT,
        surface TEXT, structure JSONB,
-       serialized JSON);
+       serialized TEXT);
 
 CREATE SEQUENCE expression_id_seq
                      START WITH 1

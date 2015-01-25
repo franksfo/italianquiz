@@ -12,17 +12,7 @@
 
 (defn foo [spec language-model]
   (unify/deserialize 
-   (json/read-str (:serialized (first (db/exec-raw ["SELECT serialized::text FROM expression"] :results))) 
-                  :key-fn keyword 
-                  :value-fn (fn [k v] 
-                              (cond (= k :italiano)
-                                    v
-                                    (= k :english)
-                                    v
-                                    (string? v)
-                                    (keyword v)
- 
-                                    :else v)))))
+   (read-string (:serialized (first (db/exec-raw ["SELECT serialized::text FROM expression"] :results))))))
 
 (defn generate [spec language-model]
   "generate a sentence matching 'spec' given the supplied language model."
