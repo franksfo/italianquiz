@@ -9,29 +9,6 @@
    [italianverbs.unify :as unify :refer [deserialize strip-refs unify]]])
 
 ;; requires Postgres 9.4 or higher for JSON operator '@>' support.
-
-(defn foo [spec language-model]
-  (let [language-name ;; TODO: add to API
-        (cond (= language-model @en/small)
-              "en"
-              true
-              "it")
-        json-input-spec (if (= :top spec)
-                          {}
-                          spec)
-
-        json-spec (json/write-str (strip-refs json-input-spec))
-
-        debug (log/debug (str "foo2: json-spec:" json-spec))
-
-        language-name "it"
-        results (db/exec-raw [(str "SELECT serialized::text 
-                                                            FROM expression 
-                                                           WHERE (language=?)") [language-name]]
-                             :results)]
-    (if (not (empty? results))
-      (deserialize (read-string (:serialized (nth results (rand-int (.size results)))))))))
-
 (defn generate [spec language-model]
   "generate a sentence matching 'spec' given the supplied language model."
   (let [spec (unify spec
@@ -58,30 +35,22 @@
         ;; normalize for JSON lookup
         json-input-spec (if (= :top spec)
                           {}
-                          (get-in spec [:synsem]))
-
+                          spec)
+        
         json-spec (json/write-str (strip-refs json-input-spec))
-
-               ]
-
-;; synsem @> '{"sem": {"pred":"andare"}}';
-
-;; italianverbs.borges> (generate :top "en")
-
+        ]
     (log/debug (str "looking for expressions in language: " language-name))
     (log/debug (str "SQL: "
-                   (str "SELECT structure FROM expression WHERE language=? AND structure->'synsem' @> "
+                   (str "SELECT structure FROM expression WHERE language=? AND structure @> "
                         "'" json-spec "'")))
 
-    ;; e.g.
-    ;; SELECT * FROM expression WHERE language='it' AND structure->'synsem' @> '{"sem": {"pred":"prendere"}}';
-
-    (let [results (db/exec-raw [(str "SELECT structure::text FROM expression WHERE language=? AND structure @> "
+    (let [results (db/exec-raw [(str "SELECT serialized::text 
+                                        FROM expression 
+                                       WHERE language=? AND structure @> "
                                      "'" json-spec "'")
                                 [language-name]]
                                :results)]
-      (if (empty? results) 
-        nil
+      (if (not (empty? results))
         (deserialize (read-string (:serialized (nth results (rand-int (.size results))))))))))
 
 ;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
