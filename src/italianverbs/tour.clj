@@ -123,7 +123,8 @@
                (keyword (get-in request [:params :pred]))
                (nth possible-preds (rand-int (.size possible-preds))))
         debug (log/info (str "generate-question: pred: " pred))
-        debug (log/info (str "possible-inflections: " verb-group))
+        debug (log/info (str "verb-group: " verb-group))
+        debug (log/info (str "possible-inflections: " possible-inflections))
         spec
         {:head {:phrasal :top}
          :comp {:phrasal false}
@@ -141,7 +142,7 @@
         question (generate spec en/small)
         form (html-form question)]
 
-    (log/info "generate-question: question: " (fo question))
+    (log/info "generate-question: question(fo): " (fo question))
 
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
@@ -177,7 +178,7 @@
 
         to-generate (merge semantics more-constraints)
 
-        debug (log/info (str "to-generate: " to-generate))
+        debug (log/info (str "(answer)to-generate: " to-generate))
 
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
