@@ -19,9 +19,6 @@
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]))
 
-
-;;(fo (borges/foo {:synsem {:subcat '()}} it/small))
-
 (declare lookup)
 (declare generate-from-request)
 (declare resolve-model)
@@ -48,6 +45,18 @@
                      (:grammar language-model)
                      (:lexicon language-model)
                      (:index language-model))))
+
+(defn generate-using-db [spec language-model]
+  (let [spec (unify spec
+                    {:synsem {:subcat '()}})
+        language-model (if (future? language-model)
+                         @language-model
+                         language-model)
+        spec (if (:enrich language-model)
+               ((:enrich language-model)
+                spec)
+               spec)]
+    (borges/generate spec language-model)))
 
 (defn generate-from-request [request]
   "respond to an HTTP client's request with a generated sentence, given the client's desired spec, language name, and language model name."
