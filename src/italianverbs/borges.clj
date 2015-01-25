@@ -11,8 +11,26 @@
 ;; requires Postgres 9.4 or higher for JSON operator '@>' support.
 
 (defn foo [spec language-model]
-  (unify/deserialize 
-   (read-string (:serialized (first (db/exec-raw ["SELECT serialized::text FROM expression"] :results))))))
+  (let [language-name ;; TODO: add to API
+        (cond (= language-model @en/small)
+              "en"
+              true
+              "it")
+        json-input-spec (if (= :top spec)
+                          {}
+                          spec)
+
+        json-spec (json/write-str (strip-refs json-input-spec))
+
+        debug (log/debug (str "foo2: json-spec:" json-spec))
+
+        language-name "it"
+        results (db/exec-raw [(str "SELECT serialized::text 
+                                                            FROM expression 
+                                                           WHERE (language=?)") [language-name]]
+                             :results)]
+    (if (not (empty? results))
+      (deserialize (read-string (:serialized (nth results (rand-int (.size results)))))))))
 
 (defn generate [spec language-model]
   "generate a sentence matching 'spec' given the supplied language model."
@@ -58,24 +76,13 @@
     ;; e.g.
     ;; SELECT * FROM expression WHERE language='it' AND structure->'synsem' @> '{"sem": {"pred":"prendere"}}';
 
-    (let [results (db/exec-raw [(str "SELECT structure::text FROM expression WHERE language=? AND structure->'synsem' @> "
+    (let [results (db/exec-raw [(str "SELECT structure::text FROM expression WHERE language=? AND structure @> "
                                      "'" json-spec "'")
                                 [language-name]]
                                :results)]
       (if (empty? results) 
         nil
-        (deserialize (json/read-str (:serialized (nth results (rand-int (.size results))))
-                                    :key-fn keyword
-                                    :value-fn (fn [k v]
-                                                (cond (= k :italiano)
-                                                      v
-                                                      (= k :english)
-                                                      v
-                                                      (= k :espanol)
-                                                      v
-                                                      (string? v)
-                                                      (keyword v)
-                                                      :else v))))))))
+        (deserialize (read-string (:serialized (nth results (rand-int (.size results))))))))))
 
 ;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
 

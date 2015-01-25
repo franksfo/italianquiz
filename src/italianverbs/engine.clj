@@ -19,6 +19,9 @@
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]))
 
+
+;;(fo (borges/foo {:synsem {:subcat '()}} it/small))
+
 (declare lookup)
 (declare generate-from-request)
 (declare resolve-model)
