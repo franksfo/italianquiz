@@ -17,18 +17,41 @@
 (defn truncate []
   (k/exec-raw ["TRUNCATE expression"]))
 
+;; (populate 1 {:synsem {:infl :futuro :sem {:pred :chiedere :subj {:pred :lei}}}})
+;; (populate 1 {:synsem {:infl :present :sem {:pred :chiedere :subj {:pred :lei}}}})
 (defn populate [num & [ spec ]]
-  (let [spec (if spec spec :top)]
+  (let [spec (if spec spec :top)
+        debug (log/debug (str "spec(1): " spec))
+        spec (cond
+              (not (= :notfound (get-in spec [:synsem :sem :subj] :notfound)))
+              (unify/unify spec
+                           {:synsem {:sem {:subj (lexfn/sem-impl (unify/get-in spec [:synsem :sem :subj]))}}})
+              true
+              spec)
+
+        debug (log/debug (str "spec(2): " spec))
+
+        spec (unify/unify spec {:synsem {:subcat '()}})
+
+        debug (log/debug (str "spec(3): " spec))
+
+        ]
     (dotimes [n num]
-      (let [language-1-sentence (engine/generate (unify/unify spec {:synsem {:subcat '()}})
+      (let [language-1-sentence (engine/generate spec
                                                  it/small)
-            semantics (unify/get-in language-1-sentence [:synsem :sem])
+
+            language-1-sentence (cond
+                                 (not (= :notfound (get-in language-1-sentence [:synsem :sem :subj] :notfound)))
+                                 (unify/unify language-1-sentence
+                                              {:synsem {:sem {:subj (lexfn/sem-impl (unify/get-in language-1-sentence
+                                                                                                  [:synsem :sem :subj]))}}})
+                                 true
+                                 language-1-sentence)
             
-            ;; canonicalize semantics with all possible implicatures:
-            ;; TODO: do same with :obj, :iobj, and other impliable semantics.
-            semantics (unify/unifyc semantics
-                                    {:subj (lexfn/sem-impl (unify/get-in language-1-sentence [:synsem :sem :subj]))})
-            
+            semantics (unify/strip-refs (get-in language-1-sentence [:synsem :sem] :top))
+
+            debug (log/debug (str "semantics: " semantics))
+
             language-2-sentence (engine/generate {:synsem {:sem semantics
                                                            :subcat '()}}
                                                  en/small)]
