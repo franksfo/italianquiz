@@ -32,7 +32,7 @@
         ]
     (log/debug (str "looking for expressions in language: " language-name))
     (log/debug (str "SQL: "
-                   (str "SELECT structure FROM expression WHERE language=? AND structure @> "
+                   (str "SELECT surface FROM expression WHERE language='" language-name "' AND structure @> "
                         "'" json-spec "'")))
 
     (let [results (db/exec-raw [(str "SELECT serialized::text 
@@ -40,9 +40,14 @@
                                        WHERE language=? AND structure @> "
                                      "'" json-spec "'")
                                 [language-name]]
-                               :results)]
+                               :results)
+          size-of-results (.size results)
+          index-of-result (rand-int (.size results))
+          debug (log/debug (str "number of results:" size-of-results))
+          debug (log/debug (str "index of result:" index-of-result))]
       (if (not (empty? results))
-        (deserialize (read-string (:serialized (nth results (rand-int (.size results))))))))))
+        (deserialize (read-string (:serialized (nth results index-of-result))))
+        (log/error "Nothing found in database that matches search: " json-spec)))))
 
 ;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
 
