@@ -9,13 +9,13 @@
    [hiccup.page :refer (html5)]
 
    [italianverbs.engine :refer [generate generate-using-db]]
+   [italianverbs.english :as en]
    [italianverbs.html :refer [page tablize]]
+   [italianverbs.italiano :as it]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [fail? get-in merge strip-refs unify]]
-   [italianverbs.english :as en]
-   [italianverbs.italiano :as it]
    [korma.core :as k]))
 
 ;(def generate-by :db)
@@ -136,7 +136,9 @@
                (nth possible-preds (rand-int (.size possible-preds))))
         debug (log/info (str "generate-question: pred: " pred))
         debug (log/info (str "verb-group: " verb-group))
-        debug (log/info (str "possible-inflections: " possible-inflections))
+        debug (log/info (str "possible-inflections: " (string/join "," possible-inflections)))
+        chosen-inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))
+        debug (log/info (str "chosen-inflection: " chosen-inflection))
         spec
         {:synsem {:sem {:pred pred}
                   :cat :verb
@@ -146,7 +148,7 @@
         ;; TODO: use runtime to decide which language rather than
         ;; hard-coded en/inflection.
         spec (unify spec
-                    (en/inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))))
+                    (en/inflection chosen-inflection))
 
         ;; TODO: use runtime to decide which language and grammar rather than
         ;; hard-coded en/small.
