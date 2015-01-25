@@ -6,7 +6,7 @@
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.korma :as korma]
-   [italianverbs.unify :as unify :refer [strip-refs unify]]])
+   [italianverbs.unify :as unify :refer [deserialize strip-refs unify]]])
 
 ;; requires Postgres 9.4 or higher for JSON operator '@>' support.
 
@@ -60,12 +60,12 @@
                                :results)]
       (if (empty? results) 
         nil
-        (json/read-str (:structure (nth results (rand-int (.size results))))
-                       :key-fn keyword
-                       :value-fn (fn [k v]
-                                   (cond (string? v)
-                                         (keyword v)
-                                         :else v)))))))
+        (deserialize (json/read-str (:serialized (nth results (rand-int (.size results))))
+                                    :key-fn keyword
+                                    :value-fn (fn [k v]
+                                                (cond (string? v)
+                                                      (keyword v)
+                                                      :else v))))))))
 
 ;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
 

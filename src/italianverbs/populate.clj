@@ -25,16 +25,22 @@
           english-sentence (engine/generate {:synsem {:sem italian-semantics}}
                                             en/small)]
 
-      (k/exec-raw [(str "INSERT INTO expression (surface, structure, language, model) VALUES (?,"
+      (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
                         "'" (json/write-str (unify/strip-refs italian-sentence)) "'"
-                        ",?,?)")
+                        ","
+                        "'" (json/write-str (unify/serialize italian-sentence)) "'"
+                        ","
+                        "?,?)")
                    [(morph/fo italian-sentence)
                     "it"
                     "small"]])
 
-      (k/exec-raw [(str "INSERT INTO expression (surface, structure, language,model) VALUES (?,"
+      (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
                         "'" (json/write-str (unify/strip-refs english-sentence)) "'"
-                        ",?,?)")
+                        ","
+                        "'" (json/write-str (unify/serialize english-sentence)) "'"
+                        ","
+                        "?,?)")
                    [(morph/fo english-sentence)
                     "en"
                     "small"]]))))
