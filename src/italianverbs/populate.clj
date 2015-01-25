@@ -24,6 +24,8 @@
                                                  it/small)
             semantics (unify/get-in language-1-sentence [:synsem :sem])
             
+            ;; canonicalize semantics with all possible implicatures:
+            ;; TODO: do same with :obj, :iobj, and other impliable semantics.
             semantics (unify/unifyc semantics
                                     {:subj (lexfn/sem-impl (unify/get-in language-1-sentence [:synsem :sem :subj]))})
             
