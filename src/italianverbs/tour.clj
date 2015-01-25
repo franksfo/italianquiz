@@ -18,8 +18,8 @@
    [italianverbs.unify :refer [fail? get-in merge strip-refs unify]]
    [korma.core :as k]))
 
-;(def generate-by :db)
-(def generate-by :runtime)
+(def generate-by :db)
+;(def generate-by :runtime)
 
 (declare evaluate)
 (declare generate-answers)
