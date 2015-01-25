@@ -8,7 +8,7 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
-   [italianverbs.engine :refer [generate]]
+   [italianverbs.engine :refer [generate generate-using-db]]
    [italianverbs.html :refer [page tablize]]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
@@ -17,6 +17,9 @@
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [korma.core :as k]))
+
+;(def generate-by :db)
+(def generate-by :runtime)
 
 (declare evaluate)
 (declare generate-answers)
@@ -115,6 +118,15 @@
      :right_context_source ""
      :right_context_destination ""}))
 
+(defn additional-generation-constraints [spec]
+  "apply additional constraints to improve generation results or performance."
+  (cond (= generate-by :runtime)
+        (unify spec
+               {:head {:phrasal :top}
+                :comp {:phrasal false}})
+        true
+        spec))
+
 (defn generate-question [request]
   (let [verb-group (choose-random-verb-group)
         possible-preds (get-possible-preds verb-group)
@@ -126,11 +138,10 @@
         debug (log/info (str "verb-group: " verb-group))
         debug (log/info (str "possible-inflections: " possible-inflections))
         spec
-        {:head {:phrasal :top}
-         :comp {:phrasal false}
-         :synsem {:sem {:pred pred}
+        {:synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
+        spec (additional-generation-constraints spec)
 
         ;; TODO: use runtime to decide which language rather than
         ;; hard-coded en/inflection.
@@ -139,7 +150,10 @@
 
         ;; TODO: use runtime to decide which language and grammar rather than
         ;; hard-coded en/small.
-        question (generate spec en/small)
+        question (cond (= generate-by :runtime)
+                       (generate spec en/small)
+                       true
+                       (generate-using-db spec en/small))
         form (html-form question)]
 
     (log/info "generate-question: question(fo): " (fo question))
@@ -172,18 +186,21 @@
                                               :else v)))
         debug (log/debug (str "semantics: " semantics))
 
-        more-constraints {:synsem {:subcat '()}
-                          :head {:phrasal :top}
-                          :comp {:phrasal false}}
+        more-constraints {:synsem {:subcat '()}}
 
         to-generate (merge semantics more-constraints)
+
+        to-generate (additional-generation-constraints to-generate)
 
         debug (log/info (str "(answer)to-generate: " to-generate))
 
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (generate to-generate it/small)
+        answer (cond (= generate-by :runtime)
+                     (generate to-generate it/small)
+                     true
+                     (generate-using-db to-generate it/small))
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically
