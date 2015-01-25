@@ -31,16 +31,20 @@
   (GET "/generate" request
        (generate-from-request request))))
 
-(defn generate [spec language-model]
-  (let [spec (unify spec
+(defn generate [spec language-model & [do-enrich]]
+  (let [do-enrich (if do-enrich do-enrich false)
+        spec (unify spec
                     {:synsem {:subcat '()}})
         language-model (if (future? language-model)
                          @language-model
                          language-model)
-        spec (if (:enrich language-model)
+        spec (if (and do-enrich (:enrich language-model))
                ((:enrich language-model)
                 spec)
                spec)]
+    (log/debug (str "calling forest/generate with spec: " (if (seq? spec)
+                                                            (string/join "," spec)
+                                                            spec)))
     (forest/generate spec 
                      (:grammar language-model)
                      (:lexicon language-model)
