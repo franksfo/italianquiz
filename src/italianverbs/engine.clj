@@ -51,11 +51,8 @@
                     {:synsem {:subcat '()}})
         language-model (if (future? language-model)
                          @language-model
-                         language-model)
-        spec (if (:enrich language-model)
-               ((:enrich language-model)
-                spec)
-               spec)]
+                         language-model)]
+    (log/debug (str "spec pre-borges/generate:" spec))
     (borges/generate spec language-model)))
 
 (defn generate-from-request [request]
