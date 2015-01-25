@@ -17,15 +17,6 @@
                          @language-model
                          language-model)
 
-        debug (log/debug (str "generate: pre-enrich:" spec))
-
-        ;; apply language-specific constraints on generation.
-        spec (if (:enrich language-model)
-               ((:enrich language-model) spec)
-                spec)
-
-        debug (log/debug (str "generate: post-enrich:" spec))
-
         language-name ;; TODO: add to API
         (cond (= language-model @en/small)
               "en"
