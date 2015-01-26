@@ -498,7 +498,7 @@
               (trans-intrans {:synsem {:sem {:pred :tornare}}})))
 
    "run" (trans-intrans {:english {:past "ran"
-                                   :participle "run"}
+                                   :past-participle "run"}
                          :synsem {:sem {:pred :run}}})
 
    ;; TODO: search _within_ or _on_: depends on the object.
