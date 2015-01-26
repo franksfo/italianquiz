@@ -11,15 +11,9 @@
                                     verb verb-aux)])
 (require '[italianverbs.pos.english :refer :all])
 
-(defn intrans [spec & [opts]]
-  [(unify
-    spec
-    transitive
-    (if (:subj opts)
-      {:synsem {:sem {:subj (:subj opts)}}}
-      :top)
-    (if (:obj opts) {:synsem {:sem {:obj (:obj opts)}}}
-        :top))])
+(defn intrans [spec]
+  (unify intransitive
+         spec))
 
 (defn trans-intrans [spec & [opts]]
   [(unify
