@@ -19,6 +19,8 @@
 
 ;; (populate 1 {:synsem {:infl :futuro :sem {:pred :chiedere :subj {:pred :lei}}}})
 ;; (populate 1 {:synsem {:infl :present :sem {:pred :chiedere :subj {:pred :lei}}}})
+;;(do (truncate)  (populate 1 {:synsem {:sem {:pred :chiedere :subj {:pred :lei}}}}))
+
 (defn populate [num & [ spec ]]
   (let [spec (if spec spec :top)
         debug (log/debug (str "spec(1): " spec))
@@ -38,13 +40,16 @@
         ]
     (dotimes [n num]
       (let [language-1-sentence (engine/generate spec
-                                                 it/small)
+                                                 it/small true)
 
             language-1-sentence (cond
                                  (not (= :notfound (get-in language-1-sentence [:synsem :sem :subj] :notfound)))
-                                 (unify/unify language-1-sentence
-                                              {:synsem {:sem {:subj (lexfn/sem-impl (unify/get-in language-1-sentence
-                                                                                                  [:synsem :sem :subj]))}}})
+                                 (let [subj (lexfn/sem-impl (unify/get-in language-1-sentence
+                                                                          [:synsem :sem :subj]))]
+                                   (log/debug (str "subject constraints: " subj))
+                                   (unify/unify language-1-sentence
+                                                {:synsem {:sem {:subj subj}}}))
+
                                  true
                                  language-1-sentence)
             
@@ -54,7 +59,8 @@
 
             language-2-sentence (engine/generate {:synsem {:sem semantics
                                                            :subcat '()}}
-                                                 en/small)]
+                                                 en/small
+                                                 true)]
 
         (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
                           "'" (json/write-str (unify/strip-refs language-1-sentence)) "'"
