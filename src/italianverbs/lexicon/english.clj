@@ -412,12 +412,12 @@
               :subcat '()}}
 
    "keep"
-   [(trans-intrans {:synsem {:sem {:pred :tenere}}
+   (concat
+    (trans-intrans {:synsem {:sem {:pred :tenere}}
                     :english {:past "kept"}})
     (trans-intrans {:synsem {:sem {:pred :keep-safe}}
                     :english {:note "keep something safe"
-                              :past "kept"}})]
-
+                              :past "kept"}}))
 
    "key" {:synsem {:cat :noun
                    :sem {:pred :key
@@ -664,15 +664,16 @@
                           :pred :donna
                           :child false}}})
 
-   "work" [(trans-intrans {:synsem {:sem {:pred :work-human
+   "work" (concat
+           (trans-intrans {:synsem {:sem {:pred :work-human
                                           :subj {:human true}}}
                            :english {:note "human"}})
-
+           
            (trans-intrans {:english {:note "nonliving or machines"} ;; TODO: add support in cloud for :note.
                            :synsem {:sem {:subj {:living false
                                                  :human false ;; should not need to add human=false and animate=false: living=false should suffice.
                                                  :animate false}
-                                          :pred :work-nonhuman}}})]
+                                          :pred :work-nonhuman}}}))
    
    "write"  (trans-intrans {:english {:past "wrote"
                                       :past-participle "written"}
