@@ -1122,14 +1122,18 @@
              :number :plur}}
 
    "lei"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :3rd
-                   :gender :fem
-                   :number :sing}
-             :sem {:pred :lei} ;; note: we don't specify human=true (english "it").
-             :subcat '()}}
+   (let [common {:synsem {:cat :noun
+                          :pronoun true
+                          :case :nom
+                          :agr {:person :3rd
+                                :gender :fem
+                                :number :sing}
+                          :sem {:pred :lei} ;; note: we don't specify human=true (english "it").
+                          :subcat '()}}]
+     (unifyc common
+             {:synsem {:sem {:human false}}})
+     (unifyc common
+             {:synsem {:sem {:human true}}}))
 
    "leggere"
    (trans-intrans {:italiano {:passato "letto"}
@@ -1197,15 +1201,18 @@
                     :pred :loro}
               :subcat '()}}]
 
-   "lui"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :3rd
-                   :gender :masc
-                   :number :sing}
-             :sem {:pred :lui} ;; note: we don't specify human=true (english "it").
-             :subcat '()}}
+   "lui" (let [common {:synsem {:cat :noun
+                                :pronoun true
+                                :case :nom
+                                :agr {:person :3rd
+                                      :gender :masc
+                                      :number :sing}
+                                :sem {:pred :lui} ;; note: we don't specify human=true (english "it").
+                                :subcat '()}}]
+           (unifyc common
+                   {:synsem {:sem {:human false}}})
+           (unifyc common
+                   {:synsem {:sem {:human true}}}))
 
    "madre"
    (unifyc agreement-noun
