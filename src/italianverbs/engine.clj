@@ -85,8 +85,8 @@
                    {:spec spec
                     (keyword lang) (fo expression)
                     :semantics semantics})]
-      (log/info (str "fo of expression: " (fo expression)))
-      (log/info (str "semantics of expression: " semantics))
+      (log/info (str "generated expression: " (fo expression) " with pred: " (get-in expression [:synsem :sem :pred])))
+      (log/debug (str "semantics of expression: " semantics))
 
       (if (not (= "true" (get-in request [:params :debug])))
         ;; non-debug mode:
