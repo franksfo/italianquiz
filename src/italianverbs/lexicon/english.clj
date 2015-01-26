@@ -86,6 +86,8 @@
 
    "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
 
+   "avoid" (trans-intrans {:synsem {:sem {:pred :avoid}}})
+
    "bag" {:synsem {:cat :noun
                    :sem {:pred :bag
                          :place false}}}
@@ -117,6 +119,32 @@
                              :3plur "were"}}})]
      (unify essere-common
             {:synsem {:sem {:pred :essere}}}))
+
+
+   "be missing"
+   (let [essere-common 
+         (let [infl (ref :top)
+               agr (ref :top)]
+           {:synsem {:cat :verb
+                     :subcat {:1 {:agr agr}}
+                     :agr agr
+                     :infl infl}
+            :english {:agr agr
+                      :infl infl
+                      :present {:1sing "am missing"
+                                :2sing "are missing"
+                                :3sing "is missing"
+                                :1plur "are missing"
+                                :2plur "are missing"
+                                :3plur "are missing"}
+                      :past {:1sing "was missing"
+                             :2sing "were missing"
+                             :3sing "was missing"
+                             :1plur "were missing"
+                             :2plur "were missing"
+                             :3plur "were missing"}}})]
+     (unify essere-common
+            {:synsem {:sem {:pred :to-be-missing}}}))
 
    "bicycle" {:synsem {:cat :noun
                    :sem {:pred :bicycle
@@ -220,6 +248,9 @@
                                         :pet true})}})
 
 
+   "earn"  (trans-intrans {:synsem {:sem {:pred :earn
+                                          :subj {:human true}}}})
+
    "eat"
    (trans-intrans
     {:english {:past "ate"}
@@ -242,10 +273,11 @@
    "enjoy" {:synsem {:cat :verb
                      :sem {:pred :enjoy}}}
 
-   "enter"  (trans-intrans {:synsem {:sem {:pred :entrare}}})
+   "enter"  (trans-intrans {:synsem {:sem {:pred :enter}}})
 
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
 
+   "escape" (trans-intrans {:synsem {:sem {:pred :escape}}})
 
    "finish" (trans-intrans {:synsem {:cat :verb
                                      :sem {:pred :finish}}})
@@ -380,8 +412,12 @@
               :subcat '()}}
 
    "keep"
-   (trans-intrans {:synsem {:sem {:pred :tenere}}
-                   :english {:past "kept"}})
+   [(trans-intrans {:synsem {:sem {:pred :tenere}}
+                    :english {:past "kept"}})
+    (trans-intrans {:synsem {:sem {:pred :keep-safe}}
+                    :english {:note "keep something safe"
+                              :past "kept"}})]
+
 
    "key" {:synsem {:cat :noun
                    :sem {:pred :key
@@ -494,6 +530,8 @@
                    :pred :lei}
              :subcat '()}}
 
+   "show"  (trans-intrans {:synsem {:sem {:pred :show}}})
+
    "sing"  (trans-intrans {:synsem {:sem {:pred :cantare}}
                            :english {:past "sang"}})
 
@@ -516,13 +554,13 @@
 
    "speak"
    (trans-intrans
-    {:english {:past "spoke"}
-     :synsem {:essere false
-              :sem {:pred :parlare
-                    :subj {:human true}}}}
-    {:obj {:speakable true}})
+    {:english {:past "spoke"
+               :past-participle "spoken"}
+     :synsem {:sem {:pred :speak
+                    :subj {:human true}
+                    :obj {:speakable true}}}})
 
-   "study"  (trans-intrans {:synsem {:sem {:pred :studiare}}
+   "study"  (trans-intrans {:synsem {:sem {:pred :study}}
                             :english {:past "studied"}})
 
    "support" (trans-intrans {:synsem {:cat :verb
@@ -534,7 +572,7 @@
                                        :synsem {:cat :verb
                                                 :sem {:pred :take-advantage-of}}})
 
-   "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}
+   "teach"  (trans-intrans {:synsem {:sem {:pred :teach}}
                             :english {:past "taught"}})
 
    "telephone" (trans-intrans {:synsem {:sem {:pred :telefonare}}})
@@ -568,6 +606,11 @@
                    :pred :loro}
              :subcat '()}}
 
+
+   "throw out"
+   (trans-intrans {:synsem {:sem {:pred :throw-out}}
+                   :english {:past "threw out"}})
+
    "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:past "took"}})
 
@@ -579,6 +622,8 @@
    "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
 
    "use"  (trans-intrans {:synsem {:sem {:pred :usare}}})
+
+   "wait"  (trans-intrans {:synsem {:sem {:pred :wait-for}}})
 
    "we (♀)"
    {:synsem {:cat :noun
@@ -605,6 +650,11 @@
    "wear"  (trans-intrans {:english {:past "wore"}
                            :synsem {:sem {:pred :portare}}})
 
+
+   "win"  (trans-intrans {:synsem {:sem {:pred :win
+                                         :subj {:human true}}}
+                          :english {:past "won"}})
+
    "woman"
    (unify agreement-noun
           common-noun
@@ -614,14 +664,16 @@
                           :pred :donna
                           :child false}}})
 
-   "work (human)"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
+   "work" [(trans-intrans {:synsem {:sem {:pred :work-human
+                                          :subj {:human true}}}
+                           :english {:note "human"}})
 
-   "work (machines)" (trans-intrans {:english {:note "nonliving"} ;; TODO: add support in cloud for :note.
-                                     :synsem {:sem {:subj {:living false
-                                                           :human false ;; should not need to add human=false and animate=false: living=false should suffice.
-                                                           :animate false}
-                                                    :pred :funzionare}}})
-
+           (trans-intrans {:english {:note "nonliving or machines"} ;; TODO: add support in cloud for :note.
+                           :synsem {:sem {:subj {:living false
+                                                 :human false ;; should not need to add human=false and animate=false: living=false should suffice.
+                                                 :animate false}
+                                          :pred :work-nonhuman}}})]
+   
    "write"  (trans-intrans {:english {:past "wrote"
                                       :past-participle "written"}
                             :synsem {:sem {:pred :scrivere}}})

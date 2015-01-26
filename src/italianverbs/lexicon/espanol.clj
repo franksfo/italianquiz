@@ -111,48 +111,69 @@
                      "dejar" {:synsem {:cat :verb
                                        :sem {:pred :leave-behind}}}
 
-                     "depender" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
                      "desarrollar" {:synsem {:cat :verb
-                                             :sem {:pred :??}}}
+                                             :sem {:pred :develop}}}
+
                      "desear" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :desire}}}
+
                      "echar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "enseñar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                       :sem {:pred :throw-out}}}
+
+                     "enseñar" [{:synsem {:cat :verb
+                                          :sem {:pred :show}}}
+                                {:synsem {:cat :verb
+                                          :sem {:pred :teach}}}]
+
                      "entrar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :enter}}}
+
                      "escapar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                         :sem {:pred :escape}}}
+
                      "escuchar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "esperar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                          :sem {:pred :listen-to}}}
+
+                     "esperar" [{:synsem {:cat :verb
+                                          :sem {:pred :wait-for}}}
+                                {:synsem {:cat :verb
+                                          :sem {:pred :hope}}}]
+
                      "estudiar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
+                                          :sem {:pred :study}}}
+
                      "evitar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :avoid}}}
+
                      "existir" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                         :sem {:pred :exist}}}
+
                      "expresar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
+                                          :sem {:pred :express}}}
+
                      "faltar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "fijar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+                                        :sem {:pred :to-be-missing}}}
+
                      "formar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :form}}}
+
                      "funcionar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "ganar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "guardar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "gustar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "hablar" {:synsem {:cat :verb
-                                        :sem {:pred :parlare}}}
+                                           :sem {:pred :work-nonhuman}}}
+
+                     "ganar" [{:synsem {:cat :verb
+                                        :sem {:pred :earn}}}
+                              {:synsem {:cat :verb
+                                        :sem {:pred :win}}}]
+
+;; TODO: handle syntax/semantics mismatch between Italian/Spanish and English.
+;                     "gustar" {:synsem {:cat :verb
+;                                         :sem {:pred :??}}}
+
+                     "hablar" [{:synsem {:cat :verb
+                                         :sem {:pred :speak}}}
+                               {:synsem {:cat :verb
+                                         :sem {:pred :talk}}}]
+
                      "imaginar" {:synsem {:cat :verb
                                           :sem {:pred :??}}}
                      "importar" {:synsem {:cat :verb
@@ -237,8 +258,13 @@
                                         :sem {:pred :??}}}
                      "terminar" {:synsem {:cat :verb
                                           :sem {:pred :??}}}
-                     "tirar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+
+                     "tirar" [{:synsem {:cat :verb
+                                        :sem {:pred :throw-out}}}
+                              {:synsem {:cat :verb
+                                        :sem {:pred :throw}}}]
+                               
+
                      "tomar" {:synsem {:cat :verb
                                        :sem {:pred :??}}}
                      "trabajar" {:synsem {:cat :verb

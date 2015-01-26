@@ -262,6 +262,11 @@
    "approfittare" (trans-intrans {:synsem {:cat :verb
                                            :sem {:pred :take-advantage-of}}})
 
+   "ascoltare" (trans-intrans {:synsem {:cat :verb
+                                        :sem {:pred :listen-to}}})
+
+   "aspettare" (trans-intrans {:synsem {:cat :verb
+                                        :sem {:pred :wait-for}}})
 
    "assicurare" (concat (trans-intrans {:synsem {:cat :verb
                                                  :sem {:pred :assure}}})
@@ -720,7 +725,7 @@
                       })
 ;                      :obj {:human true}})
 
-      "desiderare" (trans-intrans {:synsem {:sem {:pred :desiderare}}})
+      "desiderare" (trans-intrans {:synsem {:sem {:pred :desire}}})
       
       "di"
       {:synsem {:cat :prep
@@ -827,7 +832,15 @@
 
       "entrare" (trans-intrans
                  {:synsem {:essere true
-                           :sem {:pred :entrare}}})
+                           :sem {:pred :enter}}})
+
+      "esistere" {:synsem {:cat :verb
+                           :essere true
+                           :sem {:pred :exist}}}
+
+      "esprimere" {:italiano {:passato "espresso"}
+                   :synsem {:cat :verb
+                            :sem {:pred :express}}}
 
       "essere"
       (let [essere-common 
@@ -938,16 +951,22 @@
                 verb-subjective
                 {:italiano {:notes "essere-aux"}})])
 
-      "finire" {:italian {:boot-stem1 "finisc"
-                          :boot-stem2 "fin"}
+      "evitare" (trans-intrans {:synsem {:sem {:pred :avoid}}})
+
+      "finire" {:italiano {:boot-stem1 "finisc"
+                           :boot-stem2 "fin"}
                 :synsem {:cat :verb
                          :sem {:pred :finish}}}
+
+      "formare" {:italiano "formare"
+                 :synsem {:cat :verb
+                          :sem {:pred :form}}}
 
       "frequentare" (trans-intrans {:synsem {:sem {:pred :frequentare}}})
 
       "funzionare" (trans-intrans
                     {:synsem {:essere false
-                              :sem {:pred :funzionare
+                              :sem {:pred :work-nonhuman
                                     :subj {:human false}}}})
 
       "gatto"
@@ -963,6 +982,8 @@
       "giocare" (trans-intrans {:synsem {:sem {;:obj {:games true}
                                                :pred :giocare}}
                                 :italiano {:futuro-stem "gioch"}})
+
+      "guadagnare" (trans-intrans {:synsem {:sem {:pred :earn}}})
 
       "guidare" (trans-intrans {:synsem {:sem {:pred :guidare}}})
       
@@ -986,7 +1007,7 @@
 
       "indossare" (trans-intrans {:synsem {:sem {:pred :portare}}})
 
-      "insegnare" (trans-intrans {:synsem {:sem {:pred :insegnare}}})
+      "insegnare" (trans-intrans {:synsem {:sem {:pred :teach}}})
 
       "io"
       [{:synsem {:cat :noun
@@ -1093,7 +1114,7 @@
                 :sem {:number :plur
                       :person :2nd}}}]
 
-   "lavorare" (trans-intrans {:synsem {:sem {:pred :lavorare}}})
+   "lavorare" (trans-intrans {:synsem {:sem {:pred :work-human}}})
 
    "le"
    {:synsem {:cat :det
@@ -1196,6 +1217,8 @@
                           :pred :madre
                           :child false}}})
 
+   "mancare" (trans-intrans {:synsem {:sem {:pred :mancare}}})
+
    "mandare" (trans-intrans {:synsem {:sem {:pred :mandare}}})
 
    "mangiare"
@@ -1204,6 +1227,9 @@
               :sem {:pred :mangiare
                     :subj {:animate true}}}}
     {:obj {:edible true}})
+
+   "mostrare"(trans-intrans
+              {:synsem {:sem {:pred :show}}})
 
    ;; non-comparative
    ;; TODO: add comparative
@@ -1247,13 +1273,25 @@
                                  :def :def}}}})
 
    "parlare"
-   (let [common
+   (let [common1
          {:synsem {:essere false
-                   :sem {:pred :parlare
+                   :sem {:pred :speak
+                         :subj {:human true}}}}
+         common2
+         {:synsem {:essere false
+                   :sem {:pred :talk
                          :subj {:human true}}}}]
-     (unifyc common transitive
+
+     (unifyc common1 transitive
             {:synsem {:obj {:speakable true}}})
-     (unifyc common intransitive intransitive-unspecified-obj))
+     (unifyc common1 intransitive intransitive-unspecified-obj)
+
+     (unifyc common2 transitive
+            {:synsem {:obj {:speakable true}}})
+     (unifyc common2 intransitive intransitive-unspecified-obj))
+
+
+
 
    "portare" (trans-intrans {:synsem {:sem {:pred :portare}}})
    "prendere" (trans-intrans
@@ -1288,13 +1326,18 @@
                           :physical-object true
                           :human false}}})
 
+   "scappare" (trans-intrans {:synsem {:sem {:pred :escape}}})
+
    "scaricare" (trans-intrans {:synsem {:sem {:pred :scaricare}}})
    "scrivere" (trans-intrans {:synsem {:sem {:pred :scrivere}}
                               :italiano {:passato "scritto"}})
    "stampare" (trans-intrans {:synsem {:sem {:pred :stampare}}})
-   "studiare" (trans-intrans {:synsem {:sem {:pred :studiare}}})
+   "studiare" (trans-intrans {:synsem {:sem {:pred :study}}})
    "suonare" (trans-intrans {:synsem {:sem {:pred :suonare}}})
 ;                                            :obj {:music true}}}})
+
+   "sviluppare" (trans-intrans {:synsem {:sem {:pred :develop}}})
+
 
    "tagliare" (trans-intrans {:synsem {:cat :verb
                                        :sem {:pred :cut}}})
@@ -1309,6 +1352,9 @@
                                                  :3sing "tiene"
                                                  :3plur "tengono"}
                                        :futuro-stem "terr"}})
+
+   "tirare" (trans-intrans
+             {:synsem {:sem {:pred :throw}}})
 
    "tornare" (trans-intrans
                     {:synsem {:sem {:pred :tornare}
@@ -1367,6 +1413,9 @@
                                    :3sing "viene"
                                    :3plur "vengono"}
                          :futuro-stem "verr"}})
+
+
+   "vincere" (trans-intrans {:synsem {:sem {:pred :win}}})
 
    "vino"
    (unifyc drinkable-noun
