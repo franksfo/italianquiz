@@ -26,7 +26,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
     (log/warn (str "Ignoring this lexeme because (fail?=true): " entry))
     ;; else, not fail, so add to lexicon.
     (do
-      (log/debug (str "Adding entry: " (morph/fo entry)))
+      (log/info (str "Adding entry: " (morph/fo entry)))
       ;; TODO: should not make reference to particular languages here
       (let [italian (get-in entry '(:italiano) :none)
             english (get-in entry '(:english) :none)
@@ -204,7 +204,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                   :part-of-human-body false
                   :drinkable false
                   :speakable false
-                  :place false}{})
+                  :place false})
          inanimate (if (= (get-in input '(:animate))
                            false)
                      {:human false})
@@ -269,14 +269,21 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
          ]
      (let [merged
-           (if (= input :fail) :fail
-               ;; don't need the features of merge (at least not yet), so use core/merge.
-               (core/merge input animate artifact buyable city clothing consumable consumable-false drinkable
-                           drinkable-xor-edible-1 drinkable-xor-edible-2
-                           edible furniture human inanimate
-                           legible material-false non-places
-                           not-legible-if-not-artifact part-of-human-body pets place
-                      ))]
+           (cond (= input :fail) :fail
+
+                 (seq? input)
+                 (log/error (Exception. (str "input was unexpectedly a sequence: " input)))
+;                 (first (remove #(= {} %) 
+;                                (remove #(nil? %) input)))
+
+                 true
+                 ;; don't need the features of merge (at least not yet), so use core/merge.
+                 (core/merge input animate artifact buyable city clothing consumable consumable-false drinkable
+                             drinkable-xor-edible-1 drinkable-xor-edible-2
+                             edible furniture human inanimate
+                             legible material-false non-places
+                             not-legible-if-not-artifact part-of-human-body pets place
+                             ))]
        (log/debug (str "sem-impl so far: " merged))
        (if (not (= merged input)) ;; TODO: make this check more efficient: count how many rules were hit
          ;; rather than equality-check to see if merged has changed.
