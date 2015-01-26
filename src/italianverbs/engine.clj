@@ -33,7 +33,7 @@
 
 ;; TODO: use a option map/destructuring thing.
 (defn generate [spec language-model & [do-enrich]]
-  (let [do-enrich (if do-enrich do-enrich false)
+  (let [do-enrich (if do-enrich do-enrich true)
         spec (unify spec
                     {:synsem {:subcat '()}})
         language-model (if (future? language-model)
