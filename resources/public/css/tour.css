@@ -16,7 +16,6 @@
     border:1px solid lime;
 }
 
-
 #userprogress {
     border-radius: 5px;
     background:lime;
@@ -42,10 +41,10 @@
     position:absolute;
     border: 0px dashed green;
     top:10%;
-    right:1%;
+    right:30%;
     float:right;
-    width:40em;
-    height:10em;
+    width:10%;
+    height:5em;
 }
 
 #sidebyside > div {
