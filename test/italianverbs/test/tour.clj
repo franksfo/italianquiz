@@ -18,7 +18,7 @@
    :head {:phrasal :top} 
    :synsem {:sem {:tense :past 
                   :aspect :perfect 
-                  :pred :parlare 
+                  :pred :talk
                   :subj {:mass false 
                          :furniture false 
                          :pred :loro 
