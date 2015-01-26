@@ -143,8 +143,8 @@
               (vals @lexicon)))))
 
 (defn against-pred [spec]
-  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
-    (if (= :top pred-of-comp)
+  (let [pred (get-in spec [:synsem :sem :pred] :top)]
+    (if (= :top pred)
       spec
       (mapcat (fn [lexeme]
                 (let [result (unify spec
