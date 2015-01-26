@@ -810,8 +810,7 @@
                                     :subcat '()}}}})
 
       "dormire"
-      (unifyc
-       intransitive
+      (intrans
        {:synsem {:cat :verb
                  :essere false
                  :sem {:subj {:animate true}
@@ -1282,17 +1281,14 @@
                    :sem {:pred :talk
                          :subj {:human true}}}}]
 
-     (unifyc common1 transitive
-            {:synsem {:obj {:speakable true}}})
-     (unifyc common1 intransitive intransitive-unspecified-obj)
+     (list
+      (unifyc common1 transitive
+              {:synsem {:obj {:speakable true}}})
+      (unifyc common1 intransitive intransitive-unspecified-obj)
 
-     (unifyc common2 transitive
-            {:synsem {:obj {:speakable true}}})
-     (unifyc common2 intransitive intransitive-unspecified-obj))
-
-
-
-
+      (unifyc common2 transitive
+              {:synsem {:obj {:speakable true}}})
+      (unifyc common2 intransitive intransitive-unspecified-obj)))
    "portare" (trans-intrans {:synsem {:sem {:pred :portare}}})
    "prendere" (trans-intrans
                {:synsem {:sem {:pred :prendere}}

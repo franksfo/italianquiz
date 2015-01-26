@@ -530,8 +530,7 @@
                            :english {:past "sang"}})
 
    "sleep"
-   (unify
-    intransitive
+   (intrans
     {:synsem {:cat :verb
               :sem {:subj {:animate true}
                     :discrete false
