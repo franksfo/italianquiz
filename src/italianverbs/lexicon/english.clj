@@ -189,8 +189,8 @@
 
    "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
 
-   "come" (trans-intrans {:synsem {:sem {:pred :venire}}
-                          :english {:past "came"}})
+   "come" (intrans {:synsem {:sem {:pred :venire}}
+                    :english {:past "came"}})
 
    "comment" (trans-intrans {:synsem {:cat :verb
                                       :sem {:pred :comment}}})
