@@ -667,7 +667,7 @@
    "work" (concat
            (trans-intrans {:synsem {:sem {:pred :work-human
                                           :subj {:human true}}}
-                           :english {:note "human"}})
+                           :english {:note "(human)"}})
            
            (trans-intrans {:english {:note "nonliving or machines"} ;; TODO: add support in cloud for :note.
                            :synsem {:sem {:subj {:living false
