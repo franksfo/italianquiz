@@ -492,6 +492,7 @@
               (trans-intrans {:synsem {:sem {:pred :tornare}}})))
 
    "run" (trans-intrans {:english {:past "ran"
+                                   :participle "running"
                                    :past-participle "run"}
                          :synsem {:sem {:pred :run}}})
 
