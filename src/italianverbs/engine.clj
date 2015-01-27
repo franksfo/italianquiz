@@ -14,10 +14,7 @@
    [italianverbs.html :refer (tablize)]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.ug :refer (head-principle)]
-   [italianverbs.unify :refer [fail? get-in merge strip-refs unify unifyc]]
-
-   [italianverbs.english :as en]
-   [italianverbs.italiano :as it]))
+   [italianverbs.unify :refer [fail? get-in merge strip-refs unify unifyc]]))
 
 (declare lookup)
 (declare generate-from-request)
@@ -50,15 +47,6 @@
                      (:grammar language-model)
                      (:lexicon language-model)
                      (:index language-model))))
-
-(defn generate-using-db [spec language-model]
-  (let [spec (unify spec
-                    {:synsem {:subcat '()}})
-        language-model (if (future? language-model)
-                         @language-model
-                         language-model)]
-    (log/debug (str "spec pre-borges/generate:" spec))
-    (borges/generate spec language-model)))
 
 (defn generate-from-request [request]
   "respond to an HTTP client's request with a generated sentence, given the client's desired spec, language name, and language model name."
