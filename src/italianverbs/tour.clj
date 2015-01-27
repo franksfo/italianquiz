@@ -1,30 +1,24 @@
 (ns italianverbs.tour
   (:refer-clojure :exclude [get-in merge])
-  (:use [hiccup core page])
   (:require
    [clojure.data.json :refer [read-str write-str]]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
-   [hiccup.page :refer (html5)]
-
-   [italianverbs.engine :refer [generate generate-using-db]]
-   [italianverbs.english :as en]
-   [italianverbs.html :refer [page tablize]]
-   [italianverbs.italiano :as it]
-   [italianverbs.morphology :refer [fo fo-ps remove-parens]]
-   [italianverbs.translate :refer [get-meaning]]
-   [italianverbs.ug :refer (head-principle)]
-   [italianverbs.unify :refer [fail? get-in merge strip-refs unify]]
+   [hiccup.core :refer (html)]
+   [hiccup.page :refer (include-css html5)]
+   [italianverbs.borges :refer [generate-using-db]]
+   [italianverbs.english_rt :as en]
+   [italianverbs.html :as html :refer (page tablize)]
+   [italianverbs.morphology :refer (fo remove-parens)]
+   [italianverbs.unify :refer (get-in merge strip-refs unify)]
    [korma.core :as k]))
-
-(def generate-by :db)
-;(def generate-by :runtime)
 
 (declare evaluate)
 (declare generate-answers)
 (declare generate-question)
 (declare tour)
+(declare get-meaning)
 
 (def routes
   (compojure/routes
@@ -120,7 +114,7 @@
 
 (defn additional-generation-constraints [spec]
   "apply additional constraints to improve generation results or performance."
-  (cond (= generate-by :runtime)
+  (cond false ;;(= generate-by :runtime)
         (unify spec
                {:head {:phrasal :top}
                 :comp {:phrasal false}})
@@ -152,10 +146,7 @@
 
         ;; TODO: use runtime to decide which language and grammar rather than
         ;; hard-coded en/small.
-        question (cond (= generate-by :runtime)
-                       (generate spec en/small)
-                       true
-                       (generate-using-db spec en/small))
+        question (generate-using-db spec "en")
         form (html-form question)]
 
     (log/info "generate-question: question(fo): " (fo question))
@@ -199,10 +190,7 @@
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (cond (= generate-by :runtime)
-                     (generate to-generate it/small)
-                     true
-                     (generate-using-db to-generate it/small))
+        answer (generate-using-db to-generate "it")
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically
@@ -360,4 +348,14 @@
    ] ;; end of :div #game
 
 ) ;; end of (defn)
+
+
+(defn get-meaning [input-map]
+  "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
+  (if (seq? input-map)
+    (map get-meaning
+         input-map)
+    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
+              :sem (get-in input-map [:synsem :sem] :top)
+              :subcat (get-in input-map [:synsem :subcat] :top)}}))
 
