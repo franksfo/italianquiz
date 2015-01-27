@@ -26,15 +26,6 @@
          (it/generate-all (get-meaning (en/parse input))))]
     (map fo return-val)))
 
-(defn get-meaning [input-map]
-  "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
-  (if (seq? input-map)
-    (map get-meaning
-         input-map)
-    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
-              :sem (get-in input-map [:synsem :sem] :top)
-              :subcat (get-in input-map [:synsem :subcat] :top)}}))
-
 (defn parse [input]
   (lazy-cat (it/parse input)
             (en/parse input)))

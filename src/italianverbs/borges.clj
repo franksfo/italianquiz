@@ -3,25 +3,22 @@
    [clojure.data.json :as json]
    [clojure.tools.logging :as log]
    [korma.core :as db]
-   [italianverbs.english :as en]
-   [italianverbs.italiano :as it]
    [italianverbs.korma :as korma]
    [italianverbs.unify :as unify :refer [deserialize strip-refs unify]]])
 
+(declare generate)
+
+(defn generate-using-db [spec language-name]
+  (let [spec (unify spec
+                    {:synsem {:subcat '()}})]
+    (log/debug (str "spec pre-borges/generate:" spec))
+    (generate spec language-name)))
+
 ;; requires Postgres 9.4 or higher for JSON operator '@>' support.
-(defn generate [spec language-model]
+(defn generate [spec language-name]
   "generate a sentence matching 'spec' given the supplied language model."
   (let [spec (unify spec
                     {:synsem {:subcat '()}})
-        language-model (if (future? language-model)
-                         @language-model
-                         language-model)
-
-        language-name ;; TODO: add to API
-        (cond (= language-model @en/small)
-              "en"
-              true
-              "it")
 
         ;; normalize for JSON lookup
         json-input-spec (if (= :top spec)
@@ -30,7 +27,7 @@
         
         json-spec (json/write-str (strip-refs json-input-spec))
         ]
-    (log/debug (str "looking for expressions in language: " language-name))
+    (log/debug (str "looking for expressions in language: " language-name " with spec: " spec))
     (log/debug (str "SQL: "
                    (str "SELECT surface FROM expression WHERE language='" language-name "' AND structure @> "
                         "'" json-spec "'")))
@@ -63,3 +60,13 @@
 
 ;; number of distinct english <-> italiano translation pairs
 ;; SELECT count(*) FROM (SELECT DISTINCT english.surface AS en, italiano.surface AS it FROM italiano INNER JOIN english ON italiano.synsem->'sem' = english.synsem->'sem' ORDER BY english.surface) AS foo;
+
+(defn get-meaning [input-map]
+  "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
+  (if (seq? input-map)
+    (map get-meaning
+         input-map)
+    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
+              :sem (get-in input-map [:synsem :sem] :top)
+              :subcat (get-in input-map [:synsem :subcat] :top)}}))
+
