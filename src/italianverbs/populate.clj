@@ -8,7 +8,7 @@
     [italianverbs.italiano :as it]
     [italianverbs.korma :as korma]
     [italianverbs.lexiconfn :as lexfn]
-    [italianverbs.morphology :as morph]
+    [italianverbs.morphology :as morph :refer [fo]]
     [italianverbs.tour :as tour]
     [italianverbs.unify :as unify]
     [korma.core :as k]
@@ -60,7 +60,23 @@
             language-2-sentence (engine/generate {:synsem {:sem semantics
                                                            :subcat '()}}
                                                  en/small
-                                                 true)]
+                                                 true)
+
+            language-1-surface (morph/fo language-1-sentence)
+            language-2-surface (morph/fo language-2-sentence)
+
+            debug (log/debug (str "lang-1 surface: " language-1-surface))
+            debug (log/debug (str "lang-2 surface: " language-2-surface))
+
+            error (if (nil? language-1-surface)
+                    (do (log/error (str "surface of language-1 was null with semantics: " semantics ))
+                        (throw (Exception. (str "surface of language-1 was null with semantics: " semantics )))))
+
+            error (if (nil? language-2-surface)
+                    (do (log/error (str "surface of language-2 was null with semantics: " semantics))
+                        (throw (Exception. (str "surface of language-2 was null with semantics: " semantics )))))
+
+            ]
 
         (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
                           "'" (json/write-str (unify/strip-refs language-1-sentence)) "'"
@@ -68,7 +84,7 @@
                           "'" (str (unify/serialize language-1-sentence)) "'"
                           ","
                           "?,?)")
-                     [(morph/fo language-1-sentence)
+                     [language-1-surface
                       "it"
                       "small"]])
 
@@ -78,7 +94,7 @@
                           "'" (str (unify/serialize language-2-sentence)) "'"
                           ","
                           "?,?)")
-                     [(morph/fo language-2-sentence)
+                     [language-2-surface
                       "en"
                       "small"]])))))
 
