@@ -14,7 +14,7 @@
     (log/debug (str "spec pre-borges/generate:" spec))
     (generate spec language-name)))
 
-;; requires Postgres 9.4 or higher for JSON operator '@>' support.
+;; requires Postgres 9.4 or higher for JSONb operator '@>' support.
 (defn generate [spec language-name]
   "generate a sentence matching 'spec' given the supplied language model."
   (let [spec (unify spec
@@ -49,12 +49,14 @@
 
 ;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
 
+;; SELECT surface FROM italiano WHERE synsem->'sem' @> '{"pred":"andare"}';
+
+
 ;; SELECT count(*) FROM (SELECT DISTINCT english.surface AS en, italiano.surface AS it FROM italiano INNER JOIN english ON italiano.structure->synsem->'sem' = english.structure->synsem->'sem' ORDER BY english.surface) AS foo;
     
 ;; SELECT * FROM (SELECT synsem->'sem'->'pred'::text AS pred,surface FROM english) AS en WHERE en.pred='"andare"';
 ;; SELECT it.surface  FROM (SELECT synsem->'sem'->'pred' AS pred,surface,synsem FROM italiano) AS it WHERE it.synsem->'sem' @> '{"pred":"andare"}';
 
-;; SELECT surface FROM italiano WHERE synsem->'sem' @> '{"pred":"andare"}';
 
 ;;SELECT italiano.surface,english.surface FROM italiano INNER JOIN english ON italiano.synsem->'sem' = english.synsem->'sem';
 
