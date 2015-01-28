@@ -19,6 +19,7 @@
    [italianverbs.html :as html]
    [italianverbs.session :as session]
    [italianverbs.tour :as tour]
+   [italianverbs.verb :as verb]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.session.cookie :as cookie]
    [ring.middleware.stacktrace :as trace]
@@ -33,6 +34,10 @@
        ;; response map
        {:status 302
         :headers {"Location" "/tour"}})
+
+
+  (context "/gen" []
+           verb/routes)
 
   (context "/tour" []
            tour/routes)

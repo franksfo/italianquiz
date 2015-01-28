@@ -10,9 +10,9 @@
    [clojure.tools.logging :as log]
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [italianverbs.auth :refer (haz-admin)]
-   [italianverbs.english :as en]
+;   [italianverbs.english :as en]
    [italianverbs.html :as html]
-   [italianverbs.italiano :as it]
+;   [italianverbs.italiano :as it]
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
@@ -185,7 +185,7 @@
        
        [:div#verbs 
 
-        (generation-table (predicates-from-lexicon @it/lexicon))
+;        (generation-table (predicates-from-lexicon @it/lexicon))
 
         ]
 
@@ -195,17 +195,17 @@
         [:h4 "Nouns and Pronouns"]
         [:table
 
-         (map (fn [lexeme]
-                [:tr 
-                 [:th [:input {:type "checkbox"}]]
-                 [:td lexeme]])
-              (filter (fn [lexeme]
-                        (not (empty?
-                              (filter (fn [lex]
-                                        (= :noun
-                                           (get-in lex [:synsem :cat])))
-                                      (get @it/lexicon lexeme)))))
-                      (sort (keys @it/lexicon))))
+ ;        (map (fn [lexeme]
+ ;               [:tr 
+ ;                [:th [:input {:type "checkbox"}]]
+ ;                [:td lexeme]])
+ ;             (filter (fn [lexeme]
+ ;                       (not (empty?
+ ;                             (filter (fn [lex]
+ ;                                       (= :noun
+ ;                                          (get-in lex [:synsem :cat])))
+ ;                                     (get @it/lexicon lexeme)))))
+ ;                     (sort (keys @it/lexicon))))
          ]
         ])
 
@@ -215,17 +215,17 @@
         [:h4 "Determiners"]
         [:table
 
-         (map (fn [lexeme]
-                [:tr 
-                 [:th [:input {:type "checkbox"}]]
-                 [:td lexeme]])
-              (filter (fn [lexeme]
-                        (not (empty?
-                              (filter (fn [lex]
-                                        (= :det
-                                           (get-in lex [:synsem :cat])))
-                                      (get @it/lexicon lexeme)))))
-                      (sort (keys @it/lexicon))))
+;         (map (fn [lexeme]
+;                [:tr 
+;                 [:th [:input {:type "checkbox"}]]
+;                 [:td lexeme]])
+;              (filter (fn [lexeme]
+;                        (not (empty?
+;                              (filter (fn [lex]
+;                                        (= :det
+;                                           (get-in lex [:synsem :cat])))
+;                                      (get @it/lexicon lexeme)))))
+;                      (sort (keys @it/lexicon))))
          ]
        ])
 
@@ -315,23 +315,24 @@
 (defn show-as-rows [results haz-admin & [i]]
   (if (not (empty? results))
     (let [i (if i i 1)]
-      (str (html [:tr
-                  [:th.num i]
-                  [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
-                        (it/get-string (first results))]]
-                  [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
-                        (en/get-string (:english (first results)))]]
-                  [:td [:span {:class "date"}
-                        (f/unparse html/short-format (:created (first results)))]]
+;      (str (html [:tr
+;                  [:th.num i]
+;                  [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
+;                        (it/get-string (first results))]]
+;                  [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
+;                        (en/get-string (:english (first results)))]]
+;                  [:td [:span {:class "date"}
+;                        (f/unparse html/short-format (:created (first results)))]]
+;
+;                  [:td [:span {:class "date"}
+;                        (f/unparse html/short-format (:updated (first results)))]]
+;                  (if haz-admin
+;                    [:td {:class "edit"} (delete-form (first results)) ])
+;
+;                  ]
 
-                  [:td [:span {:class "date"}
-                        (f/unparse html/short-format (:updated (first results)))]]
-                  (if haz-admin
-                    [:td {:class "edit"} (delete-form (first results)) ])
-
-                  ])
            (show-as-rows (rest results) haz-admin (+ i 1))))
-    ""))
+    "")
 
 (defn lookup [verb]
   (db/fetch :verb {:italian {:infinitive verb}}))
