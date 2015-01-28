@@ -8,10 +8,11 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
-   [italianverbs.borges :as borges]
    [italianverbs.cache :refer (create-index)]
+   [italianverbs.english :as en]
    [italianverbs.forest :as forest]
    [italianverbs.html :refer (tablize)]
+   [italianverbs.italiano :as it]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [fail? get-in merge strip-refs unify unifyc]]))
