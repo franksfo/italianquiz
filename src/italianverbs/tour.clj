@@ -20,6 +20,8 @@
 (declare tour)
 (declare get-meaning)
 
+
+;; "/js/leaflet.js"]})})
 (def routes
   (compojure/routes
    (GET "/" request
@@ -27,7 +29,7 @@
          :body (page "Map Tour" (tour) request {:onload "start_tour();"
                                                 :css ["/css/tour.css"]
                                                 :jss ["/js/tour.js" "/js/gen.js"
-                                                      "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"]})})
+                                                      "/js/leaflet.js"]})})
 
    (POST "/evaluate" request
          {:status 200
@@ -170,7 +172,6 @@
   "generate a single sentence according to the semantics of the request."
   ;; TODO: generate more than one answer, possibly.
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
-  (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
   (let [semantics (read-str (get-in request [:params :semantics])
                             :key-fn keyword
                             :value-fn (fn [k v]
