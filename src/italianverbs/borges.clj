@@ -72,3 +72,9 @@
               :sem (get-in input-map [:synsem :sem] :top)
               :subcat (get-in input-map [:synsem :subcat] :top)}}))
 
+(defn generate-question-and-correct-set [source-language target-language]
+  "generate a question and a set of possible correct answers, given request."
+  {:question "I went"
+   :answer-set ["io ho vado","ho vado"]})
+
+

@@ -7,7 +7,7 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.core :refer (html)]
    [hiccup.page :refer (include-css html5)]
-   [italianverbs.borges :refer [generate-using-db]]
+   [italianverbs.borges :refer [generate-using-db generate-question-and-correct-set]]
    [italianverbs.english_rt :as en]
    [italianverbs.html :as html :refer (page tablize)]
    [italianverbs.morphology :refer (fo remove-parens)]
@@ -122,9 +122,9 @@
         spec))
 
 (defn generate-pair [request]
-  "generate a question and a set of possible correct answers."
+  "generate a question and a set of possible correct answers, given request."
   ;; TODO: combine generate-question and generate-answer into one.
-)
+  (generate-question-and-correct-set "en" "it"))
 
 (defn generate-question [request]
   (let [verb-group (choose-random-verb-group)
