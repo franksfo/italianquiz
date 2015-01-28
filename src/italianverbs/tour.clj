@@ -20,17 +20,15 @@
 (declare tour)
 (declare get-meaning)
 
-
-;; "/js/leaflet.js"]})})
 (def routes
   (compojure/routes
    (GET "/" request
         {:status 200
          :body (page "Map Tour" (tour) request {:onload "start_tour();"
                                                 :css ["/css/tour.css"]
-                                                :jss ["/js/tour.js" "/js/gen.js"
-                                                      "/js/leaflet.js"]})})
-
+                                                :jss ["/js/gen.js"
+                                                      "/js/leaflet.js"
+                                                      "/js/tour.js"]})})
    (POST "/evaluate" request
          {:status 200
           :headers {"Content-Type" "text/html;charset=utf-8"}
@@ -122,6 +120,11 @@
                 :comp {:phrasal false}})
         true
         spec))
+
+(defn generate-pair [request]
+  "generate a question and a set of possible correct answers."
+  ;; TODO: combine generate-question and generate-answer into one.
+)
 
 (defn generate-question [request]
   (let [verb-group (choose-random-verb-group)
