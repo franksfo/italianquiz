@@ -16,6 +16,7 @@
    [environ.core :refer [env]]
    [hiccup.page :as h]
    [italianverbs.auth :as auth :refer [confirm-and-create-user get-user-id haz-admin is-authenticated]]
+   [italianverbs.editor :as editor]
    [italianverbs.html :as html]
    [italianverbs.session :as session]
    [italianverbs.tour :as tour]
@@ -35,6 +36,9 @@
        {:status 302
         :headers {"Location" "/tour"}})
 
+
+  (context "/editor" []
+           editor/routes)
 
   (context "/gen" []
            verb/routes)
