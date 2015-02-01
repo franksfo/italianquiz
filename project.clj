@@ -13,7 +13,7 @@
                  [digest "1.4.4"]
                  [environ "1.0.0"]
                  [formative "0.8.8"]
-                 [hiccup "1.0.1"]
+                 [hiccup "1.0.5"]
                  [javax.servlet/servlet-api "2.5"]
                  [korma "0.3.0-RC5"]
                  [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
