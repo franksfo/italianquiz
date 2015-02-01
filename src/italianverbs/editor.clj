@@ -59,19 +59,22 @@
          :headers {"Location" "/editor"}})
   
    (GET "/create" request
-        (create-form request))
+        {:body (create-form request)
+         :headers headers})
 
    (POST "/create" request
         (create request))
 
    (GET "/read" request
-        (read-request request))
+        {:body (read-request request)
+         :headers headers})
 
    (POST "/update/:game" request
          (update request))
 
    (GET "/delete/:game" request
-        (delete-form request))
+        {:headers headers
+         :body (delete-form request)})
 
    (POST "/delete/:game" request
         (delete request))
@@ -79,6 +82,7 @@
    ;; alias for '/read' (above)
    (GET "/:game" request
         {:body (read-request request)
+         :headers headers
          :status 200})
 
    ;; which game(s) will be active (more than one are possible).
@@ -89,18 +93,12 @@
   (map #(string/replace-first (str %) ":" "")
        [:conditional :present :future :imperfect :passato]))
 
-(def all-verbs
-  (filter (fn [lexeme]
-            (not (empty?
-                  (filter (fn [lex]
-                            (and
-                             (= :top (get-in lex [:synsem :infl]))
-                             (= :verb
-                                (get-in lex [:synsem :cat]))))
-                          (get @it/lexicon lexeme)))))
-          (sort (keys @it/lexicon))))
-
-(def all-preds (predicates-from-lexicon @it/lexicon))
+(defn predicates-from-db []
+  (map #(string/replace (str (:predicate %)) "\"" "")
+       (k/exec-raw [(str "SELECT DISTINCT structure->'synsem'->'sem'->'pred'::text
+                                       AS predicate
+                                     FROM expression
+                                 ORDER BY predicate")] :results)))
 
 (def game-form
   {:fields [{:name :name :size 50 :label "Name"}
@@ -120,7 +118,7 @@
              :cols 3
              :type :checkboxes
              :datatype :strs
-             :options all-preds}
+             :options (predicates-from-db)}
             {:name :inflections
              :label "Tenses for this group"
              :type :checkboxes
@@ -156,33 +154,80 @@
     :jss ["/js/editor.js" "/js/gen.js"]
     :onload (onload)}))
 
+;;                                        ON source.structure->'synsem'->'sem' @> target.structure->'synsem'->'sem'       
+
+(defn examples-per-game [game-id]
+  (let [results (k/exec-raw [(str "SELECT source.surface AS source, 
+                                          target.surface AS target
+                                     FROM expression AS source
+                               INNER JOIN expression AS target
+                                       ON ((source.structure->'synsem'->'sem')::jsonb @> (target.structure->'synsem'->'sem')::jsonb)
+                                    WHERE source.language='en' AND target.language='it'
+                                      AND source.structure->'synsem'->'sem'->'pred' 
+                                       IN (SELECT ('\"'||word||'\"')::jsonb 
+                                             FROM words_per_game WHERE game=?)
+                                 ORDER BY source.id LIMIT 10") [(Integer. game-id)]]
+                            :results)]
+    results))
+
+(defn example-table [request]
+  (html
+   [:div {:style "width:100%"}
+    [:h4 "Examples"]
+    (let [examples (examples-per-game (:game (:params request)))]
+      [:div#exampletable
+       [:table.striped
+        [:tr
+         [:th "Source"]
+         [:th "Target"]]
+
+        (map (fn [row]
+               (let [debug (log/debug (str "source expression:"
+                                           (:source row)))
+                     source (:source row)
+                     target (:target row)]
+                 [:tr 
+                  [:td source]
+                  [:td target]]))
+             examples)]])]))
+
 (defn read-request [request]
   "show a single game, along with UI to edit or delete the game."
   (let [game-id (:game (:params request))
-        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)] ] :results))]
+        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)] ] 
+                                    :results))]
     (body (str "Showing game: " (:name game-row))
           (html
            [:h3 (:name game-row)]
 
-           [:h4 "Verbs"]
-           (let [verbs (show-words-per-game request)]
-             (if (empty? verbs)
-               [:p "No verbs chosen."]
-               [:ul
-                (map (fn [word]
-                       [:li (str word)])
-                     (map #(:word %)
-                          verbs))]))
+           [:div.gameinfo
+            [:div
+             [:h4 "Predicates"]
+             (let [verbs (show-words-per-game request)]
+               (if (empty? verbs)
+                 [:p "No predicates chosen."]
+                [:ul
+                 (map (fn [word]
+                        [:li (str word)])
+                      (map #(:word %)
+                           verbs))]))]
+            [:div
+             [:h4 "Tenses"]
+             (let [inflections (show-inflections-per-game request)]
+               (if (empty? inflections)
+                 [:p "No tenses chosen."]
+                 [:ul
+                  (map (fn [inflection]
+                         [:li (str inflection)])
+                       (map #(:inflection %)
+                            inflections))]))]
 
-           [:h4 "Tenses"]
-           (let [inflections (show-inflections-per-game request)]
-             (if (empty? inflections)
-               [:p "No tenses chosen."]
-               [:ul
-                (map (fn [inflection]
-                       [:li (str inflection)])
-                     (map #(:inflection %)
-                          inflections))]))
+            (example-table request)
+
+            ] ;; div.gameinfo
+                 
+
+           [:h4 {:style "float:left;width:100%;"} "Edit"]
 
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
            [:div.user-alert (:message (:params request))]
