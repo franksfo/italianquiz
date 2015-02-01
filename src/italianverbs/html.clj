@@ -833,7 +833,7 @@
 
 (defn page-body [content req & [ title options]]
   (let [title (if title title "default page title")]
-    (log/info (str "page-body with options: " options))
+    (log/debug (str "page-body with options: " options))
     (h/html5
      (pretty-head title (:js options) (:jss options) (:css options))
      (pretty-body
