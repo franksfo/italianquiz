@@ -1,7 +1,7 @@
 (ns italianverbs.editor
   (:refer-clojure :exclude [get-in])
   (:require
-   [cemerick.friend :as friend]
+   [clojure.data.json :as json]
    [clojure.tools.logging :as log]
    [clojure.string :as string]
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
@@ -158,10 +158,12 @@
 
 (defn examples-per-game [game-id]
   (let [results (k/exec-raw [(str "SELECT source.surface AS source, 
-                                          target.surface AS target
+                                          target.surface AS target,
+                                          source.structure->'synsem'->'sem' AS source_sem,
+                                          target.structure->'synsem'->'sem' AS target_sem
                                      FROM expression AS source
                                INNER JOIN expression AS target
-                                       ON ((source.structure->'synsem'->'sem')::jsonb @> (target.structure->'synsem'->'sem')::jsonb)
+                                       ON ((source.structure->'synsem'->'sem')::jsonb = (target.structure->'synsem'->'sem')::jsonb)
                                     WHERE source.language='en' AND target.language='it'
                                       AND source.structure->'synsem'->'sem'->'pred' 
                                        IN (SELECT ('\"'||word||'\"')::jsonb 
@@ -179,16 +181,34 @@
        [:table.striped
         [:tr
          [:th "Source"]
-         [:th "Target"]]
+         [:th "Target"]
+         [:th "Source sem"]
+         ]
 
         (map (fn [row]
                (let [debug (log/debug (str "source expression:"
                                            (:source row)))
                      source (:source row)
-                     target (:target row)]
+                     target (:target row)
+                     source_sem (let [sem (str (:source_sem row))]
+                                  (json/read-str sem
+                                                 :key-fn keyword
+                                                 :value-fn (fn [k v]
+                                                             (cond (string? v)
+                                                                   (keyword v)
+                                                                   :else v))))
+                     target_sem (let [sem (str (:target_sem row))]
+                                  (json/read-str sem
+                                                 :key-fn keyword
+                                                 :value-fn (fn [k v]
+                                                             (cond (string? v)
+                                                                   (keyword v)
+                                                                   :else v))))]
                  [:tr 
                   [:td source]
-                  [:td target]]))
+                  [:td target]
+                  [:td (html/tablize source_sem)]
+                  [:td (html/tablize target_sem)]]))
              examples)]])]))
 
 (defn read-request [request]
