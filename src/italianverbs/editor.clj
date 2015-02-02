@@ -183,6 +183,7 @@
          [:th "Source"]
          [:th "Target"]
          [:th "Source sem"]
+         [:th "Target sem"]
          ]
 
         (map (fn [row]
@@ -207,8 +208,8 @@
                  [:tr 
                   [:td source]
                   [:td target]
-                  [:td (html/tablize source_sem)]
-                  [:td (html/tablize target_sem)]]))
+                  [:td [:div {:onclick "expand(this);" :style "height:100px; width:200px ;overflow:scroll"} (html/tablize source_sem)]]
+                  [:td [:div {:onclick "expand(this);" :style "height:100px; width:200px ;overflow:scroll"} (html/tablize target_sem)]]]))
              examples)]])]))
 
 (defn read-request [request]
