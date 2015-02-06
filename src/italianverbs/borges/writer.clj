@@ -1,5 +1,6 @@
 (ns italianverbs.borges.writer
-   [:require
+  (:refer-clojure :exclude [get-in merge])
+  (:require
     [clojure.data.json :as json]
     [clojure.string :as string]
     [clojure.tools.logging :as log]
@@ -10,9 +11,9 @@
     [italianverbs.lexiconfn :as lexfn]
     [italianverbs.morphology :as morph :refer [fo]]
     [italianverbs.tour :as tour]
-    [italianverbs.unify :as unify]
+    [italianverbs.unify :as unify :refer [get-in]]
     [korma.core :as k]
-    ])
+    ))
 
 (defn truncate []
   (k/exec-raw ["TRUNCATE expression"]))
