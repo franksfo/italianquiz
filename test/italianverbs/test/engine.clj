@@ -2,10 +2,14 @@
   (:require
    [clojure.test :refer :all]
    [italianverbs.italiano :as it]
-   [italianverbs.engine :refer :all]))
+   [italianverbs.engine :refer :all :as engine]))
 
-(deftest lookup-test
-  (is true))
+(deftest generate-with-essere-true
+  (is (= true (engine/generate {:synsem {:essere true}} it/small :do-enrich true) [:synsem :essere])))
+
+
+
+
 
 
 
