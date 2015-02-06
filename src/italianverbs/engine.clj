@@ -30,7 +30,7 @@
        (generate-from-request request))))
 
 ;; TODO: use a option map/destructuring thing.
-(defn generate [spec language-model & [do-enrich]]
+(defn generate [spec language-model & {:do-enrich true}]
   (let [do-enrich (if do-enrich do-enrich true)
         spec (unify spec
                     {:synsem {:subcat '()}})
