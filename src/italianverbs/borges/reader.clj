@@ -1,4 +1,4 @@
-(ns italianverbs.borges
+(ns italianverbs.borges.reader
   [:require
    [clojure.data.json :as json]
    [clojure.tools.logging :as log]
