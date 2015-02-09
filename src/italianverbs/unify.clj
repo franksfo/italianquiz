@@ -8,15 +8,16 @@
 ;; e.g. {:fail :fail} rather than simply :fail,
 ;; and {:top :top} rather than simply :top.
 (ns italianverbs.unify
-  (:refer-clojure :exclude [get-in merge resolve])
+  (:refer-clojure :exclude [get get-in merge resolve])
   (:require
+   [clojure.core :as core]
    [clojure.set :refer :all]
    [clojure.string :as string]
    [clojure.tools.logging :as log]))
 
 (defn get-head [sign]
-  (if (get sign :head)
-    (get-head (get sign :head))
+  (if (core/get sign :head)
+    (get-head (core/get sign :head))
     sign))
 
 (defn resolve [arg]
@@ -39,7 +40,7 @@
         true
         (let [result
               (if (first path)
-                (let [result (get in-map (first path) not-found)]
+                (let [result (core/get in-map (first path) not-found)]
                   (if (= result not-found) not-found
                       (get-in (resolve result) (rest path) not-found)))
                 in-map)]
@@ -91,7 +92,7 @@
           (do
             (defn failr? [fs keys]
               (and (not (empty? keys))
-                   (or (fail? (get fs (first keys)))
+                   (or (fail? (core/get fs (first keys)))
                        (failr? fs (rest keys)))))
             (cond
              (= fs :fail) true
@@ -810,7 +811,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (if (or (= (type map) clojure.lang.PersistentArrayMap)
                 (= (type map) clojure.lang.PersistentHashMap))
           (mapcat (fn [key]
-                    (paths-to-value (get map key) value (concat path (list key))))
+                    (paths-to-value (core/get map key) value (concat path (list key))))
                   (keys map))))))
 
 (defn all-refs [input]
@@ -837,7 +838,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           ;; TODO: fix bug here: vals resolves @'s
           (concat
            (mapcat (fn [key]
-                     (let [val (get input key)]
+                     (let [val (core/get input key)]
                        (if (= (type input) clojure.lang.Ref)
                          (if (= (type @val) clojure.lang.Ref)
                            (list @val)
@@ -902,7 +903,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
      ;; associate each ref with its skeleton.
      (map (fn [ref]
             {:ref ref
-             :skel (get skels ref)})
+             :skel (core/get skels ref)})
           refs)
 
      ;; list of all paths that point to each ref in _input-map_.
@@ -951,7 +952,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           max-length (second path-length-pair)]
       (cons
        (list paths
-             (get serialization paths))
+             (core/get serialization paths))
        (sort-shortest-path-ascending-r serialization (rest path-length-pairs))))))
 
 (defn ser-intermed [input-map]
@@ -1031,7 +1032,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (serialize (expand-disj input-map))
 
    true
-   (let [memoized (get input-map :serialized :none)]
+   (let [memoized (core/get input-map :serialized :none)]
      (if (not (= memoized :none))
        (let [debug (log/debug "using cached serialization.")]
          memoized)
@@ -1206,8 +1207,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (and
      (not (= butlast-val1 :none))
      (not (= butlast-val2 :none))
-     (= (get butlast-val1 (last path1) :none1)
-        (get butlast-val2 (last path2) :none2)))))
+     (= (core/get butlast-val1 (last path1) :none1)
+        (core/get butlast-val2 (last path2) :none2)))))
 
 (defn strip-refs [map-with-refs]
   "return a map like map-with-refs, but without refs - (e.g. {:foo (ref 42)} => {:foo 42}) - used for printing maps in plain (i.e. non html) format"
@@ -1220,7 +1221,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (map? map-with-refs)
    (let [map-keys (sort (keys map-with-refs))]
      (let [first-key (first (keys map-with-refs))
-           val (get map-with-refs first-key)]
+           val (core/get map-with-refs first-key)]
        (conj
         {first-key (strip-refs val)}
         (strip-refs (dissoc map-with-refs first-key)))))
@@ -1239,7 +1240,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (map? fs)
    (let [map-keys (sort (keys fs))]
      (let [first-key (first (keys fs))
-           val (get fs first-key)]
+           val (core/get fs first-key)]
        (cond
         (and (not (= first-key :1)) 
              (not (= first-key :2)) 
@@ -1273,7 +1274,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (map? fs)
    (let [map-keys (sort (keys fs))]
      (let [k (first (keys fs))
-           v (get fs k)]
+           v (core/get fs k)]
        (cond
         (and (ref? v)
              (pred k @v))
@@ -1467,7 +1468,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                (map (fn [each-ref-in-fs]
                                       {:ref each-ref-in-fs
                                     :val (get-unified-value-for each-fs each-ref-in-fs)})
-                                    (get refs-per-fs each-fs))})
+                                    (core/get refs-per-fs each-fs))})
                             step2-set)]
     (set (filter (fn [each]
                    (not (fail? each)))
@@ -1593,8 +1594,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         false ;; two maps whose key cardinality (different number of keys) is different are not equal.
         (and (map? a)
              (map? b))
-        (and (isomorphic? (get a (first (keys a))) ;; two maps are isomorphic if their keys' values are isomorphic.
-                          (get b (first (keys a))))
+        (and (isomorphic? (core/get a (first (keys a))) ;; two maps are isomorphic if their keys' values are isomorphic.
+                          (core/get b (first (keys a))))
              (isomorphic? (dissoc a (first (keys a)))
                           (dissoc b (first (keys a)))))
         (and (ref? a)
@@ -1621,3 +1622,27 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (let [paths-in-fs1 (map #(first (first %)) (pathify-r fs1))
         paths-in-fs2 (map #(first (first %)) (pathify-r fs2))]
     (find-fail-in fs1 fs2 (concat paths-in-fs1 paths-in-fs2))))
+
+(defn get [input key & [ default-val ]]
+  "strip :serialized key from map, since it's verbose, for computers only, and makes a map hard to read."
+  (if (or (seq? input)
+          (vector? input))
+    (map #(get % key default-val)
+         input)
+    (let [got (if default-val
+                (core/get input key default-val)
+                (core/get input key))]
+      (cond (or (seq? got)
+                (vector? got))
+            (map #(dissoc % :serialized)
+                 got)
+
+            (map? got)
+            (dissoc got :serialized)
+
+            true
+            got))))
+
+
+            
+

@@ -1,5 +1,5 @@
 (ns italianverbs.morphology.english
-  (:refer-clojure :exclude [get-in merge resolve replace reverse]))
+  (:refer-clojure :exclude [get get-in merge resolve replace reverse]))
 
 (require '[clojure.core :as core])
 (require '[clojure.string :refer :all])

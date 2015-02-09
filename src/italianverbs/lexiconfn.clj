@@ -1,5 +1,5 @@
 (ns italianverbs.lexiconfn
-  (:refer-clojure :exclude [get-in merge resolve find])
+  (:refer-clojure :exclude [get get-in merge resolve find])
   (:use [clojure.set])
   (:require
    [clojure.set :as set]
@@ -43,7 +43,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                             italian)})
              (dissoc
               (dissoc
-               (if (not (= :none (get entry :serialized :none)))
+               (if (not (= :none (core/get entry :serialized :none)))
                  (conj {:serialized (serialize entry)}
                        entry)
                  (conj {:serialized (serialize (dissoc entry :serialized))}

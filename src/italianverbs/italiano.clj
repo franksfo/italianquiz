@@ -125,10 +125,12 @@
                                 v)]
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))]
-      {:enrich enrich
+      {
+       :enrich enrich
        :grammar grammar
        :lexicon lexicon
-       :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
+       :index (create-index grammar (flatten (vals lexicon)) head-principle)
+       })))
 
 (defn matching-head-lexemes [spec]
   (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
@@ -179,8 +181,11 @@
            (matching-comp-lexemes spec)))))
 
 (defn enrich [spec]
-  (map against-comp
-       (against-pred spec)))
+  spec)
+
+;(defn enrich [spec]
+;  (map against-comp
+;       (against-pred spec)))
 
 
 

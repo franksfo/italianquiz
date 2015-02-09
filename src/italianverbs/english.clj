@@ -1,5 +1,5 @@
 (ns italianverbs.english
-  (:refer-clojure :exclude [get-in]))
+  (:refer-clojure :exclude [get get-in]))
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)])
@@ -10,7 +10,7 @@
 (require '[italianverbs.morphology.english :as morph])
 (require '[italianverbs.parse :as parse])
 (require '[italianverbs.ug :refer :all])
-(require '[italianverbs.unify :refer (get-in)])
+(require '[italianverbs.unify :refer (get get-in)])
 
 (def get-string morph/get-string)
 (def grammar gram/grammar)
