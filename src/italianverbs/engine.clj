@@ -8,7 +8,6 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
-   [italianverbs.cache :refer (create-index)]
    [italianverbs.english :as en]
    [italianverbs.forest :as forest]
    [italianverbs.html :refer (tablize)]
