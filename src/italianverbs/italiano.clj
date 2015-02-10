@@ -122,12 +122,10 @@
                                 v)]
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))]
-      {
-       :enrich enrich
+      {:enrich enrich
        :grammar grammar
        :lexicon lexicon
-       :index (create-index grammar (flatten (vals lexicon)) head-principle)
-       })))
+       :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
 
 (defn matching-head-lexemes [spec]
   (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
@@ -166,23 +164,23 @@
                         lexemes))
               (vals @lexicon)))))
 
+;; TODO: not currently used: needs to be called from within (enrich).
 (defn against-comp [spec]
   (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
     (if (= :top pred-of-comp)
       spec
-      (map (fn [lexeme]
-             (unify spec
-                    {:comp {:synsem {:agr (strip-refs (get-in lexeme [:synsem :agr] :top))
-                                     :sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}}
-                    ))
-           (matching-comp-lexemes spec)))))
+      (mapcat (fn [lexeme]
+                (unify spec
+                       {:comp {:synsem {:agr (strip-refs (get-in lexeme [:synsem :agr] :top))
+                                        :sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}}
+                       ))
+              (matching-comp-lexemes spec)))))
 
 (defn enrich [spec]
-  spec)
-
-;(defn enrich [spec]
-;  (map against-comp
-;       (against-pred spec)))
+  (let [against-pred (against-pred spec)]
+    (if (seq? against-pred)
+      (seq (set against-pred))
+      against-pred)))
 
 
 
