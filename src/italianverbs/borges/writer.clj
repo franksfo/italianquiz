@@ -18,10 +18,6 @@
 (defn truncate []
   (k/exec-raw ["TRUNCATE expression"]))
 
-;; (populate 1 {:synsem {:infl :futuro :sem {:pred :chiedere :subj {:pred :lei}}}})
-;; (populate 1 {:synsem {:infl :present :sem {:pred :chiedere :subj {:pred :lei}}}})
-;;(do (truncate)  (populate 1 {:synsem {:sem {:pred :chiedere :subj {:pred :lei}}}}))
-
 (declare populate)
 
 (defn fill [num & [spec]]
