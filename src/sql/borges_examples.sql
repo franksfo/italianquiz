@@ -1,5 +1,10 @@
 -- number of distinct english <-> italiano translation pairs
-SELECT DISTINCT * FROM (SELECT english.surface AS en, italiano.surface AS it 
+SELECT DISTINCT * FROM (SELECT english.surface AS en, 
+                              italiano.surface AS it,
+                              italiano.structure->'synsem'->'sem'->'subj'->'pred' AS subject_it,
+                              italiano.structure->'synsem'->'sem'->'pred' AS pred_it,
+                              italiano.structure->'synsem'->'sem'->'subj'->'pred' AS subject_it,
+                              italiano.structure->'synsem'->'sem'->'pred' AS pred_it
                                              FROM expression AS italiano 
                                        INNER JOIN expression AS english 
                                                ON italiano.language = 'it' 
