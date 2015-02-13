@@ -74,7 +74,23 @@
 
 (defn generate-question-and-correct-set [source-language target-language]
   "generate a question and a set of possible correct answers, given request."
-  {:question "I went"
-   :answer-set ["io ho vado","ho vado"]})
+  (let [test-val
+        {:question "I went"
+         :answer-set ["io ho vado","ho vado"]}]
+    (let [results 
+          (db/exec-raw [(str "SELECT DISTINCT * FROM (SELECT english.surface AS en,
+                                                            italiano.surface AS it
+                                                        FROM expression AS italiano
+                                                  INNER JOIN expression AS english
+                                                          ON italiano.language = 'it'
+                                                         AND english.language = 'en'
+                                                         AND italiano.structure->'synsem'->'sem' = 
+                                                             english.structure->'synsem'->'sem') AS pairs")
+                        []]
+                       :results)]
+      (take 1 (shuffle results)))))
+
+
+
 
 
