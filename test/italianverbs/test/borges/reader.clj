@@ -7,6 +7,7 @@
    [italianverbs.engine]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo)]
+   [italianverbs.populate :refer (populate)]
    [italianverbs.unify :refer (get get-in)]))
 
 ;; (populate 1 {:synsem {:infl :futuro :sem {:pred :chiedere :subj {:pred :lei}}}})
@@ -15,6 +16,8 @@
 
 (def spec {:synsem {:essere true}})
 
-(def results (generate-using-db {:synsem {:essere true}} "it"))
+(populate 1 spec)
+
+(def results (generate-using-db spec "it"))
 
 
