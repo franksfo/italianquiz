@@ -254,6 +254,11 @@ on a table."
                             :host "localhost"
                             :port "5432"}))
 
+(def travis-ci (postgres {:db "verbcoach"
+                          :user "postgres"
+                          :host "localhost"
+                          :port "5432"}))
+
 (def heroku (postgres {:db "ddb134r1j9l37p"
                        :user "vozlyexfiyoqnl"
                        :password (env :postgres-secret)
@@ -276,6 +281,10 @@ on a table."
         (do
           (log/info (str "using heroku-dev postgres connection."))
           heroku-dev)
+        (= postgres_env "travis-ci")
+        (do
+          (log/info (str "using travis-ci postgres connection"))
+          travis-ci)
         (= postgres_env "workstation")
         (do
           (log/info (str "using workstation-environment postgres connection"))
