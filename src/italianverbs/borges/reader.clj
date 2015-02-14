@@ -77,7 +77,6 @@
   {:question "I went"
    :answer-set ["io ho vado","ho vado"]})
 
-
 (defn contains [spec]
   "Find the sentences in English that match the spec, and the set of Italian sentences that each English sentence contains."
     (let [spec (if (= :top spec)
@@ -91,14 +90,15 @@
                                    english.structure->'synsem'->'sem'  AS english_semantics         
                                                 FROM expression AS italiano
                                           INNER JOIN expression AS english                                 
-                                                  ON english..structure @> ?
+                                                  ON english.structure @> '" json-spec "'
                                                  AND italiano.language = 'it'
                                                  AND english.language = 'en'
                                                  AND (italiano.structure->'synsem'->'sem') @> 
-                                                     (english.structure->'synsem'->'sem')) AS pairs ORDER BY pairs.en")
-                                [json-spec]]
+                                                     (english.structure->'synsem'->'sem')) AS pairs 
+                                    ORDER BY pairs.en")
+                                []]
                                :results)]
       results))
 
-
+;; (map #(str (get-in % [:en]) " / " (get-in % [:it]) " | ") (contains {:synsem {:sem {:pred :mangiare :subj {:pred :noi}}}}))
 
