@@ -40,7 +40,7 @@
         ]
     (dotimes [n num]
       (let [language-1-sentence (engine/generate spec
-                                                 it/small true)
+                                                 it/small :do-enrich true)
 
             language-1-sentence (cond
                                  (not (= :notfound (get-in language-1-sentence [:synsem :sem :subj] :notfound)))
@@ -59,8 +59,7 @@
 
             language-2-sentence (engine/generate {:synsem {:sem semantics
                                                            :subcat '()}}
-                                                 en/small
-                                                 true)
+                                                 en/small :do-enrich true)
 
             language-1-surface (morph/fo language-1-sentence)
             language-2-surface (morph/fo language-2-sentence)
