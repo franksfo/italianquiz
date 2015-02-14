@@ -1,7 +1,8 @@
 language: clojure
 lein: lein2
-script: lein with-profile travis-ci test
+script: lein with-profile travis-ci compile test
 addons:
   postgresql: "9.4"
 before_script:
   - psql -c 'create database verbcoach;' -U postgres
+  - psql -U postgres < src/sql/borges.sql
