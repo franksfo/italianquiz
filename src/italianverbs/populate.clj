@@ -101,3 +101,21 @@
   (if (not (nil? (first args)))
     (populate (Integer. (first args)))
     (populate 100)))
+
+(defn do-a-bunch []
+  (do (populate 20 {:synsem {:sem {:pred :enter}}})
+      (populate 20 {:synsem {:sem {:pred :tornare}}})
+      (populate 20 {:synsem {:sem {:pred :venire}}})
+      (populate 20 {:synsem {:sem {:pred :ritornare}}})
+      (populate 20 {:synsem {:sem {:pred :chiedere}}})
+      (populate 20 {:synsem {:sem {:pred :abbraciare}}})
+      (populate 20 {:synsem {:sem {:pred :abbraciare}}})
+      (populate 20 {:synsem {:sem {:pred :abbracciare}}})
+      (populate 20 {:synsem {:sem {:pred :abandon}}})
+      (populate 20 {:synsem {:sem {:pred :accep}}})
+      (populate 20 {:synsem {:sem {:pred :accept}}})
+      (populate 20 {:synsem {:sem {:pred :accompany}}})
+      (populate 20 {:synsem {:sem {:pred :dormire}}})
+      (populate 20 {:synsem {:sem {:pred :essere}}})
+
+))
