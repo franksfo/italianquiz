@@ -5,4 +5,4 @@ addons:
   postgresql: "9.4"
 before_script:
   - psql -c 'create database verbcoach;' -U postgres
-  - psql -U postgres < src/sql/borges.sql
+  - psql -U postgres verbcoach < src/sql/borges.sql
