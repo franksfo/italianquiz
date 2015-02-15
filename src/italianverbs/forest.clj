@@ -24,8 +24,8 @@
 (declare lightning-bolt)
 (declare generate-all)
 
-(defn generate [spec grammar lexicon cache]
-  (first (take 1 (generate-all spec grammar lexicon cache))))
+(defn generate [spec grammar lexicon index]
+  (first (take 1 (generate-all spec grammar lexicon index))))
 
 (defn generate-all-with-model [spec {grammar :grammar
                                      index :index
@@ -40,47 +40,48 @@
                 (flatten (vals lexicon))
                 index))))
 
-(defn generate-all [spec grammar lexicon cache]
-  (cond (and (or (seq? spec)
-                 (vector? spec))
-             (not (empty? spec)))
-        (lazy-cat (generate-all (first spec) grammar lexicon cache)
-                  (generate-all (rest spec) grammar lexicon cache))
-        true
-        (do
-          (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
-          (log/debug (str "generate(details): " (show-spec spec)))
-          (-> (lightning-bolt grammar
-                              lexicon
-                              spec 0 cache)
-              ;; TODO: allow more than a fixed maximum depth of generation (here, 4 levels from top of tree).
-              (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)
-              (add-complements-to-bolts [:head :head :comp]       :top grammar lexicon cache)
-              (add-complements-to-bolts [:head :comp]             :top grammar lexicon cache)
-              (add-complements-to-bolts [:comp]                   :top grammar lexicon cache)))))
-
+(defn generate-all [spec grammar lexicon index]
+  (filter #(not (fail? %))
+          (cond (and (or (seq? spec)
+                         (vector? spec))
+                     (not (empty? spec)))
+                (lazy-cat (generate-all (first spec) grammar lexicon index)
+                          (generate-all (rest spec) grammar lexicon index))
+                true
+                (do
+                  (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
+                  (log/debug (str "generate(details): " (show-spec spec)))
+                  (-> (lightning-bolt grammar
+                                      lexicon
+                                      spec 0 index)
+                      ;; TODO: allow more than a fixed maximum depth of generation (here, 4 levels from top of tree).
+                      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon index)
+                      (add-complements-to-bolts [:head :head :comp]       :top grammar lexicon index)
+                      (add-complements-to-bolts [:head :comp]             :top grammar lexicon index)
+                      (add-complements-to-bolts [:comp]                   :top grammar lexicon index))))))
+  
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
-(defn lightning-bolt [grammar lexicon spec & [ depth cache parent]]
+(defn lightning-bolt [grammar lexicon spec & [ depth index parent]]
   "Returns a lazy-sequence of all possible trees given a spec, where
 there is only one child for each parent, and that single child is the
 head of its parent. generate (above) 'decorates' each returned lightning bolt
 of this function with complements."
-  (log/debug (str "lighting-bolt@" depth))
+  (log/debug (str "lighting-bolt@" depth ": grammar:" (string/join ", " (map :rule grammar))))
   (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
-        cache (if (future? cache) @cache cache)
+        index (if (future? index) @index index)
         lexicon (if (future? lexicon) @lexicon lexicon)
         depth (if depth depth 0)
         ;; TODO: unifyc is expensive: factor out into a let.
         candidate-parents (lazy-shuffle (filter #(not (fail? %))
                                                 (map (fn [rule]
                                                        (unifyc spec rule))
-                                                     (if parent (get-head-phrases-of parent cache)
+                                                     (if parent (get-head-phrases-of parent index)
                                                          grammar))))
         debug (log/debug (str "parent: " (if parent (:rule parent)
                                              "(no parent)")))
         debug (log/debug (str "lexical head candidates:"
                               (if parent
-                                (fo (get-lex parent :head cache spec))
+                                (fo (get-lex parent :head index spec))
                                 "(no head candidates)")))
         debug (log/debug (str "grammar size: " (.size grammar)))
         debug (log/debug (str "candidate-parents size: " (if (nil? candidate-parents)
@@ -96,7 +97,7 @@ of this function with complements."
     (if (seq candidate-parents)
       (let [lexical ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
             (mapcat (fn [parent]
-                      (overh parent (lazy-shuffle (get-lex parent :head cache spec))))
+                      (overh parent (lazy-shuffle (get-lex parent :head index spec))))
                     candidate-parents)
 
             phrasal ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
@@ -107,9 +108,11 @@ of this function with complements."
                                (lightning-bolt grammar lexicon
                                                (get-in parent [:head])
                                                (+ 1 depth)
-                                               cache parent)))
+                                               index parent)))
                       candidate-parents))]
         (log/debug (str "first parent: " (fo-ps (first candidate-parents))))
+        (log/debug (str "lightning-bolt phrasal result: " (string/join ", " (fo-ps phrasal))))
+        (log/debug (str "lightning-bolt lexical result: " (string/join ", " (fo-ps lexical))))
         (if (= (rand-int 2) 0)
           (lazy-cat lexical phrasal)
           (lazy-cat phrasal lexical))))))
@@ -144,12 +147,13 @@ of this function with complements."
             (if (not (nil? semantics)) (log/debug (str "  with semantics:" semantics)))))
         (log/trace (str " immediate parent:" (get-in immediate-parent [:rule])))
         (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
-        (let [shuffled-candidate-complements (lazy-shuffle complement-candidate-lexemes)
+        (let [shuffled-candidate-lexical-complements (lazy-shuffle complement-candidate-lexemes)
               return-val
               (filter (fn [result]
-                        (not (fail? result)))
+                        (or true
+                        (not (fail? result))))
                       (map (fn [complement]
-                             (log/trace (str "add-complement: " (fo-ps bolt) " with complement: " (fo complement)))
+                             (log/debug (str "add-complement: " (fo-ps bolt) " with complement: " (fo complement) " at path: " path))
                              (let [result
                                    (unifyc bolt
                                            (path-to-map path
@@ -157,26 +161,31 @@ of this function with complements."
                                    is-fail? (fail? result)]
                                (if is-fail?
                                  (do
-                                   (log/trace (str "add-complement: " (fo-ps bolt) " + " complement " =(FAIL)=> " result))
+                                   (log/debug (str "add-complement: " (fo-ps bolt) " + " (fo complement) " =(FAIL)=> " result))
                                    (log/trace (str "fail-path-between:" (fail-path-between (strip-refs (get-in bolt path))
                                                                                            (strip-refs complement)))))
 
-                                 (log/trace (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
+                                 (log/debug (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
                                                                                                                 (fo-ps result)
                                                                                                                 ":fail"))))
                                (if is-fail? :fail result)))
                      
-                           ;; lazy-sequence of complements to pass one-by-one to the above (map)'s function.
-                           (let [phrasal (generate spec grammar lexicon cache)]
+                           ;; lazy-sequence of phrasal complements to pass one-by-one to the above (map)'s function.
+                           (let [phrasal-complements (generate-all spec grammar lexicon cache)]
+                             (log/debug (str "add-complements: generated phrasal complements: "
+                                             (string/join ", " (map fo-ps phrasal-complements))))
                              (if (= (rand-int 2) 0)
-                               (lazy-cat shuffled-candidate-complements phrasal)
-                               (lazy-cat phrasal shuffled-candidate-complements)))))]
+                               (lazy-cat shuffled-candidate-lexical-complements phrasal-complements)
+                               (lazy-cat phrasal-complements shuffled-candidate-lexical-complements)))))]
           (let [first-return-val-formatted (fo-ps (first return-val))
                 run-time (- (System/currentTimeMillis) start-time)]
-            (if (seq return-val)
+            (if (not (empty? (seq return-val)))
               (log/debug (str " add-complement took " run-time " msec: " (fo-ps from-bolt) " => " first-return-val-formatted))
+
+              ;; else, no complements could be added to this bolt.
               (do
-                (log/warn (str " add-complement took " run-time " msec, but found no complement for " (fo-ps from-bolt) ". Complements tried were: " (vec (map fo complement-candidate-lexemes))))
+                (log/warn (str " add-complement took " run-time " msec, but found no lexical complements for " (fo-ps from-bolt) ". Complements tried were: " (vec (map fo complement-candidate-lexemes))))
+                ;; TODO: show warn about not finding ny phrasal complements, as well as not finding any lexical complements.
                 (log/debug (str " fail-paths:"))
                 (vec (map (fn [lexeme]
                             (log/debug (str " path in bolt: " path))
