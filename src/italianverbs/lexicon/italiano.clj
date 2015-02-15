@@ -996,10 +996,10 @@
 
       "il"
       (unifyc determiner
-             {:synsem {:cat :det
-                       :def :def
-                       :gender :masc
-                       :number :sing}})
+              {:synsem {:cat :det
+                        :def :def
+                        :gender :masc
+                        :number :sing}})
 
       "imparare" (trans-intrans {:synsem {:sem {:pred :imparare}}})
       "incontrare" (trans-intrans {:synsem {:sem {:pred :incontrare}}})
