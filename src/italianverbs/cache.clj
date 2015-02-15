@@ -1,7 +1,6 @@
 (ns italianverbs.cache
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [get get-in merge resolve find parents])
   (:require
-   [clojure.core :exclude [get-in]]
 
    ;; TODO: comment is misleading in that we never call core/get-in from this file.
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
@@ -97,9 +96,11 @@
        (spec-to-phrases (rest specs) all-phrases)))
     {}))
 
+;; TODO: remove: callers should use over/over instead
 (defn over [parents child1 & [child2]]
   (over/over parents child1 child2))
 
+;; TODO: remove: callers should use over/overh instead
 (defn overh [parent head]
   (if (seq? parent)
     (mapcat (fn [each-parent]
@@ -122,6 +123,7 @@
             (log/trace (str "survivors are empty."))))
         result))))
 
+;; TODO: remove: callers should use over/overc instead
 (defn overc [parent comp]
   (if (not (seq? comp))
     (do (log/trace (str "comp is not a seq; returning over/overc directly."))
