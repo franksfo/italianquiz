@@ -127,6 +127,25 @@
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
 
+(def medium
+  (future
+    (let [lexicon
+          (into {}
+                (for [[k v] @lexicon]
+                  (let [filtered-v
+                        (filter #(or true
+                                     (= (get-in % [:synsem :cat]) :verb)
+                                     (= (get-in % [:synsem :propernoun]) true)
+                                     (= (get-in % [:synsem :pronoun]) true))
+                                v)]
+                    (if (not (empty? filtered-v))
+                      [k filtered-v]))))]
+      {:enrich enrich
+       :grammar grammar
+       :lexicon lexicon
+       :index (create-index grammar (flatten (vals lexicon)) head-principle)
+       })))
+
 (defn matching-head-lexemes [spec]
   (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
     (if (= pred-of-head :top)

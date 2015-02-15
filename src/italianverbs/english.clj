@@ -76,7 +76,7 @@
                        (= (:rule %) "s-future")
                        (= (:rule %) "s-imperfetto")
                        (= (:rule %) "s-past")
-                     (= (:rule %) "s-aux"))
+                       (= (:rule %) "s-aux"))
                   grammar)
 
           lexicon
@@ -94,6 +94,23 @@
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)
        })))
+
+(def medium
+  (future
+    (let [lexicon
+          (into {}
+                (for [[k v] @lexicon]
+                  (let [filtered-v
+                        (filter #(or true
+                                     (= (get-in % [:synsem :cat]) :verb)
+                                     (= (get-in % [:synsem :propernoun]) true)
+                                     (= (get-in % [:synsem :pronoun]) true))
+                                v)]
+                    (if (not (empty? filtered-v))
+                      [k filtered-v]))))]
+      {:grammar grammar
+       :lexicon lexicon
+       :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
 
 (defn inflection [inflection]
   "turn a keyword describing an inflection (e.g. past, present, future) into a specification."
