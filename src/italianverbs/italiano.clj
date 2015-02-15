@@ -148,15 +148,16 @@
        })))
 
 (defn enrich [spec]
-  (let [against-pred (against-pred spec)
-        against-comp (map (fn [spec]
+  (let [against-pred (against-pred spec)]
+    (if true against-pred
+        (let [against-comp (map (fn [spec]
                             (against-comp spec))
                           (if (seq? against-pred)
                             (seq (set against-pred))
                             against-pred))]
-    (if (seq? against-comp)
-      (seq (set against-comp))
-      against-comp)))
+          (if (seq? against-comp)
+            (seq (set against-comp))
+            against-comp)))))
 
 (defn against-pred [spec]
   (let [pred (get-in spec [:synsem :sem :pred] :top)]
