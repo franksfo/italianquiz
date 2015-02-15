@@ -101,6 +101,10 @@
   (first (unify/lazy-shuffle (lookup-in spec (vals lexicon)))))
 
 (declare enrich)
+(declare against-pred)
+(declare against-comp)
+(declare matching-head-lexemes)
+(declare matching-comp-lexemes)
 
 (def small
   (future
@@ -122,7 +126,8 @@
                                 v)]
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))]
-      {:enrich enrich
+      {:name "small"
+       :enrich enrich
        :grammar grammar
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
@@ -132,31 +137,26 @@
     (let [lexicon
           (into {}
                 (for [[k v] @lexicon]
-                  (let [filtered-v
-                        (filter #(or true
-                                     (= (get-in % [:synsem :cat]) :verb)
-                                     (= (get-in % [:synsem :propernoun]) true)
-                                     (= (get-in % [:synsem :pronoun]) true))
-                                v)]
+                  (let [filtered-v v]
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))]
-      {:enrich enrich
+      {:name "medium"
+       :enrich enrich
        :grammar grammar
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)
        })))
 
-(defn matching-head-lexemes [spec]
-  (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
-    (if (= pred-of-head :top)
-      spec
-      (mapcat (fn [lexemes]
-                (mapcat (fn [lexeme]
-                          (if (= pred-of-head
-                                 (get-in lexeme [:synsem :sem :pred] :top))
-                            (list lexeme)))
-                        lexemes))
-              (vals @lexicon)))))
+(defn enrich [spec]
+  (let [against-pred (against-pred spec)
+        against-comp (map (fn [spec]
+                            (against-comp spec))
+                          (if (seq? against-pred)
+                            (seq (set against-pred))
+                            against-pred))]
+    (if (seq? against-comp)
+      (seq (set against-comp))
+      against-comp)))
 
 (defn against-pred [spec]
   (let [pred (get-in spec [:synsem :sem :pred] :top)]
@@ -171,6 +171,31 @@
                     (list result))))
               (matching-head-lexemes spec)))))
 
+;; TODO: not currently used: needs to be called from within (enrich).
+(defn against-comp [spec]
+  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
+    (if (= :top pred-of-comp)
+      spec
+      (mapcat (fn [lexeme]
+                (let [result (unify spec
+                                    {:comp {:synsem {:agr (strip-refs (get-in lexeme [:synsem :agr] :top))
+                                                     :sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}})]
+                  (if (not (fail? result))
+                    (list result))))
+              (matching-comp-lexemes spec)))))
+
+(defn matching-head-lexemes [spec]
+  (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
+    (if (= pred-of-head :top)
+      spec
+      (mapcat (fn [lexemes]
+                (mapcat (fn [lexeme]
+                          (if (= pred-of-head
+                                 (get-in lexeme [:synsem :sem :pred] :top))
+                            (list lexeme)))
+                        lexemes))
+              (vals @lexicon)))))
+
 (defn matching-comp-lexemes [spec]
   (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
     (if (= pred-of-comp :top)
@@ -182,24 +207,3 @@
                             (list lexeme)))
                         lexemes))
               (vals @lexicon)))))
-
-;; TODO: not currently used: needs to be called from within (enrich).
-(defn against-comp [spec]
-  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
-    (if (= :top pred-of-comp)
-      spec
-      (mapcat (fn [lexeme]
-                (unify spec
-                       {:comp {:synsem {:agr (strip-refs (get-in lexeme [:synsem :agr] :top))
-                                        :sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}}
-                       ))
-              (matching-comp-lexemes spec)))))
-
-(defn enrich [spec]
-  (let [against-pred (against-pred spec)]
-    (if (seq? against-pred)
-      (seq (set against-pred))
-      against-pred)))
-
-
-
