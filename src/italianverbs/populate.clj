@@ -21,9 +21,11 @@
 ;; (populate 1 {:synsem {:infl :present :sem {:pred :chiedere :subj {:pred :lei}}}})
 ;;(do (truncate)  (populate 1 {:synsem {:sem {:pred :chiedere :subj {:pred :lei}}}}))
 
-(defn populate [num & [ spec ]]
+(defn populate [num & [ spec source-model target-model]]
   (let [spec (if spec spec :top)
         debug (log/debug (str "spec(1): " spec))
+        source-model (if source-model source-model it/small)
+        target-model (if target-model target-model en/small)
         spec (cond
               (not (= :notfound (get-in spec [:synsem :sem :subj] :notfound)))
               (unify/unify spec
@@ -40,7 +42,7 @@
         ]
     (dotimes [n num]
       (let [language-1-sentence (engine/generate spec
-                                                 it/small :do-enrich true)
+                                                 source-model :do-enrich true)
 
             language-1-sentence (cond
                                  (not (= :notfound (get-in language-1-sentence [:synsem :sem :subj] :notfound)))
@@ -59,7 +61,7 @@
 
             language-2-sentence (engine/generate {:synsem {:sem semantics
                                                            :subcat '()}}
-                                                 en/small :do-enrich true)
+                                                 target-model :do-enrich true)
 
             language-1-surface (morph/fo language-1-sentence)
             language-2-surface (morph/fo language-2-sentence)
@@ -85,7 +87,7 @@
                           "?,?)")
                      [language-1-surface
                       "it"
-                      "small"]])
+                      (:name source-model)]])
 
         (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
                           "'" (json/write-str (unify/strip-refs language-2-sentence)) "'"
@@ -95,7 +97,7 @@
                           "?,?)")
                      [language-2-surface
                       "en"
-                      "small"]])))))
+                      (:name target-model)]])))))
 
 (defn -main [& args]
   (if (not (nil? (first args)))
@@ -119,3 +121,5 @@
       (populate 20 {:synsem {:sem {:pred :essere}}})
 
 ))
+
+;; (do (truncate)(populate 10 {:synsem {:sem {:pred :mangiare}}} it/medium en/medium))
