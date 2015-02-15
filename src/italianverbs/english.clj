@@ -90,7 +90,8 @@
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))
           ]
-      {:grammar grammar
+      {:name "small"
+       :grammar grammar
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)
        })))
@@ -100,15 +101,11 @@
     (let [lexicon
           (into {}
                 (for [[k v] @lexicon]
-                  (let [filtered-v
-                        (filter #(or true
-                                     (= (get-in % [:synsem :cat]) :verb)
-                                     (= (get-in % [:synsem :propernoun]) true)
-                                     (= (get-in % [:synsem :pronoun]) true))
-                                v)]
+                  (let [filtered-v v]
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))]
-      {:grammar grammar
+      {:name "medium"
+       :grammar grammar
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
 
