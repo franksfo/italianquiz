@@ -1,5 +1,5 @@
 (ns italianverbs.morphology
-  (:refer-clojure :exclude [get-in merge resolve]))
+  (:refer-clojure :exclude [get get-in merge resolve]))
 
 (require '[clojure.core :as core])
 (require '[clojure.string :as string])
