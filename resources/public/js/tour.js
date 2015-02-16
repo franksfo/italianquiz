@@ -2,8 +2,16 @@
 
 var scope = 45; // how much to show from left to right in tryptich.
 
+var Firenze = [
+
+ [ 43.775276,11.248805,88.47 ],  // Fiori in Piazza Stazione
+ [ 43.773583,11.251905,78.59 ]
+
+
+];
+
 // latitude and longitude paths of tour through Napoli
-var tour_path = [
+var Napoli = [
     [40.8526231,         14.2722163],  // Napoli Centrali train station
     [40.85318758861975,  14.271989576518536],
     [40.853398582562534, 14.27162479609251],
@@ -44,8 +52,9 @@ var tour_path = [
     [40.852027109923384, 14.251636974513529],
     [40.8527980595754,   14.251583330333233],
     [40.85322816443017,  14.251540414988995] // Museo Archeologico Nazionale
-
 ];
+
+var tour_path = Napoli;
 
 var encouragements = [
     "Bene!",
