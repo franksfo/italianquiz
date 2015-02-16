@@ -403,10 +403,10 @@
 
    "birra"
    (unifyc agreement-noun
-          drinkable-noun
-          feminine-noun
-          {:synsem {:sem {:pred :birra
-                          :artifact true}}})
+           drinkable-noun
+           feminine-noun
+           {:synsem {:sem {:pred :birra
+                           :artifact true}}})
 
 
    "braccio"
@@ -794,20 +794,20 @@
 
       "donna"
       (unifyc agreement-noun
-             common-noun
-             countable-noun
-             feminine-noun
-             {:synsem {:sem {:human true
-                             :pred :donna
-                             :child false}}})
-
+              common-noun
+              countable-noun
+              feminine-noun
+              {:synsem {:sem {:human true
+                              :pred :donna
+                              :child false}}})
+      
       "dopodomani"
       (unifyc sentential-adverb
-             {:synsem {:cat :sent-modifier
-                       :sem {:pred :dopodomani}
-                       :subcat {:1 {:infl :futuro
-                                    :sem {:tense :future}
-                                    :subcat '()}}}})
+              {:synsem {:cat :sent-modifier
+                        :sem {:pred :dopodomani}
+                        :subcat {:1 {:infl :futuro
+                                     :sem {:tense :future}
+                                     :subcat '()}}}})
 
       "dormire"
       (intrans
