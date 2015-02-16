@@ -49,8 +49,7 @@
 (def routes
   (compojure/routes
    (GET "/" request
-        (is-admin request
-                  {:body (body "Editor: Top-level" (home-page request) request)
+        (is-admin {:body (body "Editor: Top-level" (home-page request) request)
                    :status 200
                    :headers headers}))
 
@@ -60,42 +59,37 @@
          :headers {"Location" "/editor"}})
   
    (GET "/create" request
-        (is-admin request
-                  (create-form request)))
+        (is-admin (create-form request)))
 
    (POST "/create" request
-         (is-admin request
-          (create request)))
+         (is-admin (create request)))
 
    (GET "/read" request
-        (is-admin request
+        (is-admin
          {:body (read-request request)
           :headers headers}))
 
    (POST "/update/:game" request
-        (is-admin request
+        (is-admin
          (update request)))
 
    (GET "/delete/:game" request
-        (is-admin request
-                  {:headers headers
-                   :body (delete-form request)}))
+        (is-admin
+         {:headers headers
+          :body (delete-form request)}))
 
    (POST "/delete/:game" request
-        (is-admin request
-                  (delete request)))
+        (is-admin (delete request)))
 
    ;; alias for '/read' (above)
    (GET "/:game" request
-        (is-admin request
-                  {:body (read-request request)
+        (is-admin {:body (read-request request)
                    :headers headers
                    :status 200}))
 
    ;; which game(s) will be active (more than one are possible).
    (POST "/use" request
-         (is-admin request
-                   (set-as-default request)))))
+         (is-admin (set-as-default request)))))
 
 (def all-inflections
   (map #(string/replace-first (str %) ":" "")

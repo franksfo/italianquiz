@@ -19,19 +19,21 @@
        :headers {"Location" "/game"}}))
 
 (defn haz-admin []
-  (if (not (nil? (friend/current-authentication)))
-    (not (nil?
-          (:italianverbs.core/admin
-           (:roles (friend/current-authentication)))))))
+  (log/info (str "haz-admin: current-authentication: " (friend/current-authentication)))
+  (and (not (nil? (friend/current-authentication)))
+       (not (nil?
+             (:italianverbs.core/admin
+              (:roles (friend/current-authentication)))))))
 
-(defmacro is-admin [request if-admin]
+;; TODO: should be a macro, so that 'if-admin' is not evaluated unless (haz-admin) is true.
+(defn is-admin [if-admin]
   (if (haz-admin)
     if-admin
     {:status 302
      :headers {"Location" "/login"}}))
 
-;; TODO: should be a macro
-(defn is-authenticated [request if-authenticated]
+;; TODO: should also be a macro.
+(defn is-authenticated [if-authenticated]
   (if (not (nil? (friend/current-authentication)))
     if-authenticated
     {:status 302

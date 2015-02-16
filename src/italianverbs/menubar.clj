@@ -62,12 +62,10 @@
                      (= current-url "/editor")
                      (and (not (nil? current-url))
                           (re-find #"/editor" current-url)))
-                 :show? true
+                 :show? haz-admin?
                  :current-url current-url 
-                 :text "List and tenses" 
-                 :url-for-this-item "/editor"
-                 :requires-admin false
-                 :requires-authentication false})
+                 :text "Lists and tenses" 
+                 :url-for-this-item "/editor"})
 
       (menuitem {:selected?
                  (or (and (not (nil? current-url))
