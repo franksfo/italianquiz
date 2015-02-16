@@ -27,7 +27,9 @@
 (declare generate-questions-form)
 (declare new-test-form)
 (declare select)
+(declare show)
 (declare show-as-rows)
+(declare show-one)
 (declare validate-new-test)
 (def new-test-format
   {:fields [{:name :name :label "Test's Name"}]
