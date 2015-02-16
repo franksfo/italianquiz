@@ -9,7 +9,7 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [formative.core :as f]
    [formative.parse :as fp]
-   [italianverbs.auth :refer [get-user-id haz-admin is-authenticated]]
+   [italianverbs.auth :refer [get-user-id haz-admin is-admin is-authenticated]]
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
@@ -41,14 +41,14 @@
   (compojure/routes
 
    (GET "/" request
-        (is-authenticated request
-                          {:status 200
-                           :body (html/page "Tests" 
-                                            (show request (haz-admin))
-                                            request)}))
+        (is-admin request
+                  {:status 200
+                   :body (html/page "Tests" 
+                                    (show request (haz-admin))
+                                    request)}))
 
    (GET "/:class" request
-        (is-authenticated request
+        (is-admin request
                           {:body (html/page "Tests" (show-one
                                                      (:test (:route-params request))
                                                      (haz-admin)

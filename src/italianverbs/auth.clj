@@ -24,6 +24,13 @@
           (:italianverbs.core/admin
            (:roles (friend/current-authentication)))))))
 
+(defmacro is-admin [request if-admin]
+  (if (haz-admin)
+    if-admin
+    {:status 302
+     :headers {"Location" "/login"}}))
+
+;; TODO: should be a macro
 (defn is-authenticated [request if-authenticated]
   (if (not (nil? (friend/current-authentication)))
     if-authenticated

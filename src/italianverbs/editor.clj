@@ -7,7 +7,7 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [formative.core :as f]
    [formative.parse :as fp]
-   [italianverbs.auth :as auth]
+   [italianverbs.auth :refer [is-admin is-authenticated]]
    [italianverbs.english_rt :as en]
    [italianverbs.html :as html]
    [italianverbs.italiano_rt :as it]
@@ -49,9 +49,10 @@
 (def routes
   (compojure/routes
    (GET "/" request
-        {:body (body "Editor: Top-level" (home-page request) request)
-         :status 200
-         :headers headers})
+        (is-admin request
+                  {:body (body "Editor: Top-level" (home-page request) request)
+                   :status 200
+                   :headers headers}))
 
    ;; alias for '/editor' (above)
    (GET "/home" request
@@ -59,35 +60,42 @@
          :headers {"Location" "/editor"}})
   
    (GET "/create" request
-        {:body (create-form request)
-         :headers headers})
+        (is-admin request
+                  (create-form request)))
 
    (POST "/create" request
-        (create request))
+         (is-admin request
+          (create request)))
 
    (GET "/read" request
-        {:body (read-request request)
-         :headers headers})
+        (is-admin request
+         {:body (read-request request)
+          :headers headers}))
 
    (POST "/update/:game" request
-         (update request))
+        (is-admin request
+         (update request)))
 
    (GET "/delete/:game" request
-        {:headers headers
-         :body (delete-form request)})
+        (is-admin request
+                  {:headers headers
+                   :body (delete-form request)}))
 
    (POST "/delete/:game" request
-        (delete request))
+        (is-admin request
+                  (delete request)))
 
    ;; alias for '/read' (above)
    (GET "/:game" request
-        {:body (read-request request)
-         :headers headers
-         :status 200})
+        (is-admin request
+                  {:body (read-request request)
+                   :headers headers
+                   :status 200}))
 
    ;; which game(s) will be active (more than one are possible).
    (POST "/use" request
-         (set-as-default request))))
+         (is-admin request
+                   (set-as-default request)))))
 
 (def all-inflections
   (map #(string/replace-first (str %) ":" "")
@@ -147,7 +155,7 @@
    title
    (html
     [:div {:class "major"}
-     [:h2 "Group Editor"]
+     [:h2 "Verb List Editor"]
      content])
    request
    {:css "/css/editor.css"
@@ -258,8 +266,6 @@
            [:div.delete
             [:button {:onclick (str "javascript:window.location.href = '/editor/delete/' + '" game-id "';")}
              "Delete" ]]
-
-
            (links request :read))
           request)))
 
@@ -394,7 +400,7 @@
         [:table.striped
          [:tr 
           [:th  {:style "padding-right:1em"} "Use?"]
-          [:th "Group"]]
+          [:th "Verb List"]]
           
          (map (fn [each]
                 [:tr 
@@ -406,10 +412,15 @@
                        ]]
                  [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
               games)]
+
+        links
         
         [:div {:style "width:100%;float:left;margin-top:0.5em"}
          [:input {:type "submit"
-                  :value "Select groups to use"}]]
+                  :value "Select verb lists to use"}]]
+
+
+
 
 
        [:div  {:style "width:100%"}
@@ -498,8 +509,8 @@
      [:div {:class "links"}
 
       ;; TODO: vary these links depending on context (which can be obtained by loooking in request).
-      [:span [:a {:href (str "/editor/" (string/replace-first (str :create) ":" ""))} "Create new group"]]
-      [:span [:a {:href (str "/editor/" (string/replace-first (str :home) ":" ""))} "Show all groups"]]
+      [:span [:a {:href (str "/editor/" (string/replace-first (str :create) ":" ""))} "Create new list"]]
+      [:span [:a {:href (str "/editor/" (string/replace-first (str :home) ":" ""))} "Show all lists"]]
 
       ])))
 
