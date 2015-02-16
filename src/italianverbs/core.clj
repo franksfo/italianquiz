@@ -16,9 +16,11 @@
    [environ.core :refer [env]]
    [hiccup.page :as h]
    [italianverbs.auth :as auth :refer [confirm-and-create-user get-user-id haz-admin is-authenticated]]
+   [italianverbs.class :as class]
    [italianverbs.editor :as editor]
    [italianverbs.html :as html]
    [italianverbs.session :as session]
+   [italianverbs.studenttest :as studenttest]
    [italianverbs.tour :as tour]
    [italianverbs.verb :as verb]
    [ring.adapter.jetty :as jetty]
@@ -36,12 +38,17 @@
        {:status 302
         :headers {"Location" "/tour"}})
 
+  (context "/class" []
+           class/routes)
 
   (context "/editor" []
            editor/routes)
 
   (context "/gen" []
            verb/routes)
+
+  (context "/test" []
+           studenttest/routes)
 
   (context "/tour" []
            tour/routes)
@@ -51,6 +58,11 @@
         :body (html/page "Welcome to Verbcoach"
                          (html/about)
                          request)})
+
+  (GET "/login" request
+       (resp/redirect "/"))
+  (GET "/login/" request
+       (resp/redirect "/"))
 
   (POST "/login" request
         (resp/redirect "/"))
@@ -84,6 +96,12 @@
 (def users (atom {"franco" {:username "franco"
                             :password (creds/hash-bcrypt "franco")
                             :roles #{::user ::admin}}
+
+                  "michael" {:username "michael"
+                             :password (creds/hash-bcrypt "marcheschi")
+                             :roles #{::user ::admin}}
+
+
                   "gino" {:username "gino"
                           :password (creds/hash-bcrypt "gino")
                           :roles #{::user}}}))

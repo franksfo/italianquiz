@@ -6,8 +6,10 @@
    [clj-time.format :as fmt]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [formative.core :as f]
    [formative.parse :as fp]
+   [italianverbs.auth :refer [get-user-id haz-admin is-authenticated]]
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
@@ -31,6 +33,25 @@
   {:fields [{:name :name :label "Test's Name"}]
    :validations [[:required [:name]]
                  [:min-length 0 :groups "Select one or more groups"]]})
+
+
+(def routes
+  (compojure/routes
+
+   (GET "/" request
+        (is-authenticated request
+                          {:status 200
+                           :body (html/page "Tests" 
+                                            (show request (haz-admin))
+                                            request)}))
+
+   (GET "/:class" request
+        (is-authenticated request
+                          {:body (html/page "Tests" (show-one
+                                                     (:test (:route-params request))
+                                                     (haz-admin)
+                                                     (get-user-id db/fetch))
+                                            request)}))))
 
 (defn insert-questions [test-params test-id index]
   (let [index-as-keyword (keyword (str index))]
