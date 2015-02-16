@@ -3,8 +3,17 @@
 (require '[italianverbs.pos :as pos])
 (require '[italianverbs.unify :refer (unifyc)])
 
-(def feminine-noun (:feminine pos/noun))
-(def masculine-noun (:masculine pos/noun))
+
+(def noun-agreement
+  (let [agr (ref :top)]
+    {:italiano {:agr agr}
+     :synsem {:agr agr}}))
+
+(def feminine-noun (unifyc
+                    noun-agreement (:feminine pos/noun)))
+
+(def masculine-noun (unifyc
+                     noun-agreement (:masculine pos/noun)))
 
 (def adjective
   (unifyc pos/adjective
