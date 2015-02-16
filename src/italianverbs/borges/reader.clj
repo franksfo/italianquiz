@@ -6,6 +6,10 @@
    [italianverbs.korma :as korma]
    [italianverbs.unify :as unify :refer [deserialize strip-refs unify]]])
 
+;; Configure database's 'expression' table to find the expressions.
+;; requires Postgres 9.4 or higher for JSONb operator '@>' support.
+
+;; TODO: (generate) is misleading since they are querying a table to find sentences, not generating sentences from scratch.
 (declare generate)
 
 (defn generate-using-db [spec language-name]
@@ -14,7 +18,6 @@
     (log/debug (str "spec pre-borges/generate:" spec))
     (generate spec language-name)))
 
-;; requires Postgres 9.4 or higher for JSONb operator '@>' support.
 (defn generate [spec language]
   "find a sentence in the library matching 'spec' in a given language."
   (let [spec (unify spec
@@ -46,6 +49,33 @@
         (deserialize (read-string (:serialized (nth results index-of-result))))
         (do (log/error "Nothing found in database that matches search: " json-spec)
             (throw (Exception. (str "Nothing found in database that matches search: " json-spec))))))))
+
+(defn generate-all [spec language]
+  "find all sentences in the library matching 'spec' in a given language."
+  (let [spec (unify spec
+                    {:synsem {:subcat '()}})
+
+        ;; normalize for JSON lookup
+        json-input-spec (if (= :top spec)
+                          {}
+                          spec)
+        
+        json-spec (json/write-str (strip-refs json-input-spec))
+        ]
+    (log/debug (str "looking for expressions in language: " language " with spec: " spec))
+    (log/debug (str "SQL: "
+                   (str "SELECT surface FROM expression WHERE language='" language "' AND structure @> "
+                        "'" json-spec "'")))
+
+    (let [results (db/exec-raw [(str "SELECT serialized::text 
+                                        FROM expression 
+                                       WHERE language=? AND structure @> "
+                                     "'" json-spec "'")
+                                [language]]
+                               :results)]
+      (map (fn [result]
+             (deserialize (read-string (:serialized result))))
+           results))))
 
 ;; thanks to http://schinckel.net/2014/05/25/querying-json-in-postgres/ for his good info.
 
