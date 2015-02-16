@@ -1,7 +1,6 @@
 (ns italianverbs.over
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [get get-in merge resolve find parents])
   (:require
-   [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
 
    [clojure.set :refer :all]
