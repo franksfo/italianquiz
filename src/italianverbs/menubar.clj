@@ -49,7 +49,7 @@
                      (= current-url "/cloud")
                      (and (not (nil? current-url))
                           (re-find #"/cloud" current-url)))
-                 :show? true
+                 :show? false
                  :current-url current-url 
                  :text "Cloud Game" 
                  :url-for-this-item "/cloud"

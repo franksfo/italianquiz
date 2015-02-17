@@ -9,17 +9,19 @@
 ;; Configure database's 'expression' table to find the expressions.
 ;; requires Postgres 9.4 or higher for JSONb operator '@>' support.
 
-;; TODO: (generate) is misleading since they are querying a table to find sentences, not generating sentences from scratch.
+;; TODO: calling functions in here 'generate-X' is misleading
+;; since they are querying a table to find sentences, not generating sentences from scratch.
 (declare generate)
 
-(defn generate-using-db [spec language-name]
+(defn generate-using-db [spec source-language target-language]
   (let [spec (unify spec
                     {:synsem {:subcat '()}})]
     (log/debug (str "spec pre-borges/generate:" spec))
-    (generate spec language-name)))
+    (generate spec source-language target-language)))
 
-(defn generate [spec language]
-  "find a sentence in the library matching 'spec' in a given language."
+(defn generate [spec source-language target-language]
+  "find a sentence in the library matching 'spec' in a given source language, where there is a
+   semantic counterpart in the target language."
   (let [spec (unify spec
                     {:synsem {:subcat '()}})
 
@@ -30,23 +32,34 @@
         
         json-spec (json/write-str (strip-refs json-input-spec))
         ]
-    (log/debug (str "looking for expressions in language: " language " with spec: " spec))
-    (log/debug (str "SQL: "
-                   (str "SELECT surface FROM expression WHERE language='" language "' AND structure @> "
-                        "'" json-spec "'")))
+    (log/debug (str "looking for expressions in language: " source-language " with spec: " spec))
+    (log/debug (str "SELECT source.serialized::text AS source,
+                            target.serialized::text AS target
+                       FROM expression AS source
+                 INNER JOIN expression AS target
+                         ON source.structure->'synsem'->'sem' =
+                            target.structure->'synsem'->'sem'
+                      WHERE source.language='" source-language "'
+                        AND target.language='" target-language "'
+                        AND source.structure @> '" json-spec "'"))
 
-    (let [results (db/exec-raw [(str "SELECT serialized::text 
-                                        FROM expression 
-                                       WHERE language=? AND structure @> "
-                                     "'" json-spec "'")
-                                [language]]
+    (let [results (db/exec-raw [(str "SELECT source.serialized::text AS source,
+                                             target.serialized::text AS target
+                                        FROM expression AS source
+                                  INNER JOIN expression AS target
+                                          ON source.structure->'synsem'->'sem' =
+                                             target.structure->'synsem'->'sem'
+                                       WHERE source.language=? 
+                                         AND target.language=?
+                                         AND source.structure @> '" json-spec "'")
+                                [source-language target-language]]
                                :results)
           size-of-results (.size results)
           index-of-result (rand-int (.size results))
           debug (log/debug (str "number of results:" size-of-results))
           debug (log/debug (str "index of result:" index-of-result))]
       (if (not (empty? results))
-        (deserialize (read-string (:serialized (nth results index-of-result))))
+        (deserialize (read-string (:source (nth results index-of-result))))
         (do (log/error "Nothing found in database that matches search: " json-spec)
             (throw (Exception. (str "Nothing found in database that matches search: " json-spec))))))))
 

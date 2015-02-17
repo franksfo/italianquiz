@@ -139,8 +139,10 @@
         chosen-inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))
         debug (log/info (str "chosen-inflection: " chosen-inflection))
         spec
-        {:synsem {:sem {:pred pred}
-                  :cat :verb
+;        {:synsem {:sem {:pred pred}
+;                  :cat :verb
+;                  :subcat '()}}
+        {:synsem {:cat :verb
                   :subcat '()}}
         spec (additional-generation-constraints spec)
 
@@ -151,7 +153,11 @@
 
         ;; TODO: use runtime to decide which language and grammar rather than
         ;; hard-coded en/small.
-        question (generate-using-db spec "en")
+        question-and-answer (generate-using-db spec "en" "it")
+        debug (log/info (str "tour: q&a/q: " (:source question-and-answer)))
+        debug (log/info (str "tour: q&a/a: " (:target question-and-answer)))
+        question (:source question-and-answer)
+        answer (:answer question-and-answer)
         form (html-form question)]
 
     (log/info "generate-question: question(fo): " (fo question))
@@ -194,7 +200,7 @@
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (generate-using-db to-generate "it")
+        answer (generate-using-db to-generate "it" "it")
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically
