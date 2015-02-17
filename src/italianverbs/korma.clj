@@ -259,8 +259,8 @@ on a table."
                           :host "localhost"
                           :port "5432"}))
 
-(def heroku (postgres {:db "ddb134r1j9l37p"
-                       :user "vozlyexfiyoqnl"
+(def heroku (postgres {:db "da462qp5944o6t"
+                       :user "pbsobjbfsvvwna"
                        :password (env :postgres-secret)
                        :host "ec2-184-73-251-115.compute-1.amazonaws.com"
                        :port "5432"
