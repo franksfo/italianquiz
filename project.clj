@@ -49,10 +49,8 @@
   ;; in your environment so that 'lein ring server[-headless]' can work.
   ;; See src/italianverbs/korma.clj for a list of supported
   ;; POSTGRES_ENVs.
-  :profiles {:dev {:dependencies [[ring-mock "0.1.3"]
-                                  [org.clojure/tools.nrepl "0.2.0-beta10"]]}
-             :production {:env {:production true
-                                :postgres-env "heroku-dev"}}
+  :profiles {:workstation {:env {:postgres-env "workstation"}}
+             :production {:env {:postgres-env "heroku"}}
              :travis-ci {:env {:postgres-env "travis-ci"}}}
 
   ;; italianverbs.core/app is defined in src/italianverbs/core.clj.
