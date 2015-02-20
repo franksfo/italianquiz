@@ -4,7 +4,7 @@
    [clojure.tools.logging :as log]
    [korma.core :as db]
    [italianverbs.korma :as korma]
-   [italianverbs.unify :as unify :refer [deserialize strip-refs unify]]])
+   [italianverbs.unify :as unify :refer [deserialize ref? strip-refs unify]]])
 
 ;; Configure database's 'expression' table to find the expressions.
 ;; requires Postgres 9.4 or higher for JSONb operator '@>' support.
@@ -20,12 +20,18 @@
     (generate spec source-language target-language)))
 
 (defn generate [spec source-language target-language]
-  "find a sentence in the library matching 'spec' in a given source language, where there is a
-   semantic counterpart in the target language."
+  "Return a set of semantically-equivalent expressions, for a given spec in the target language, and
+   and a single expression in the source language that is also semantically equivalent to each of them.
+   To rephrase, both the set of expressions in the target language and the single expression in the source
+   language will share identical semantics. Another implementation might instead implement
+   the case where the source language semantics is not identical to that of the target-language semantics,
+   but rather contains it, or, in other words, that the source-language expression is possibly more general
+   than that of the target language."
+  (log/debug (str "generate target language set with spec: " spec))
   (let [spec (unify spec
                     {:synsem {:subcat '()}})
 
-        ;; normalize for JSON lookup
+        ;; normalize for JSON lookup: convert a spec which is simply :top to be {}.
         json-input-spec (if (= :top spec)
                           {}
                           spec)
@@ -33,6 +39,46 @@
         json-spec (json/write-str (strip-refs json-input-spec))
         ]
     (log/debug (str "looking for expressions in language: " source-language " with spec: " spec))
+
+    ;; get the structure of a random expression in the target language that matches the specification _spec_.
+    (let [results (db/exec-raw [(str "SELECT target.serialized::text AS target,surface
+                                        FROM expression AS target
+                                       WHERE target.language=? 
+                                         AND target.structure @> '" json-spec "'")
+                                [target-language]]
+                               :results)
+          size-of-results (.size results)
+          index-of-result (rand-int (.size results))
+          debug (log/debug (str "number of results:" size-of-results))
+          debug (log/debug (str "index of result:" index-of-result))
+          result (if (not (empty? results)) (nth results index-of-result))]
+      (if true
+        ;; now get all the target expressions that are semantically equivalent to this expression's semantics.
+        (let [result (deserialize (read-string (:target result)))
+              ;; TODO: allow queries that have refs - might be useful for modeling anaphora and binding.
+              json-semantics (json/write-str (strip-refs (get-in result [:synsem :sem])))]
+          (let [source-expression (db/exec-raw [(str "SELECT surface
+                                                        FROM expression AS source
+                                                       WHERE source.language=?
+                                                         AND source.structure->'synsem'->'sem' = '" json-semantics "' LIMIT 1")
+                                      [source-language]]
+                                     :results)
+
+                target-expressions (db/exec-raw [(str "SELECT 
+                                                     DISTINCT surface
+                                                         FROM expression AS target
+                                                        WHERE target.language=?
+                                                          AND target.structure->'synsem'->'sem' = '" json-semantics "'")
+                                      [target-language]]
+                                     :results)]
+            {:source (first (map :surface source-expression))
+             :targets (map :surface target-expressions)}
+
+          ))
+
+
+        (do
+
     (log/debug (str "SELECT source.serialized::text AS source,
                             target.serialized::text AS target
                        FROM expression AS source
@@ -57,11 +103,15 @@
           size-of-results (.size results)
           index-of-result (rand-int (.size results))
           debug (log/debug (str "number of results:" size-of-results))
-          debug (log/debug (str "index of result:" index-of-result))]
+          debug (log/debug (str "index of result:" index-of-result))
+          result (if (not (empty? results)) (nth results index-of-result))
+          debug (log/debug (str "result: " result))
+          ]
       (if (not (empty? results))
-        (deserialize (read-string (:source (nth results index-of-result))))
+        {(keyword source-language) (deserialize (read-string (:source (nth results index-of-result))))
+         (keyword target-language) (deserialize (read-string (:target (nth results index-of-result))))}
         (do (log/error "Nothing found in database that matches search: " json-spec)
-            (throw (Exception. (str "Nothing found in database that matches search: " json-spec))))))))
+            (throw (Exception. (str "Nothing found in database that matches search: " json-spec)))))))))))
 
 (defn generate-all [spec language]
   "find all sentences in the library matching 'spec' in a given language."
@@ -118,7 +168,7 @@
 (defn generate-question-and-correct-set [source-language target-language]
   "generate a question and a set of possible correct answers, given request."
   {:question "I went"
-   :answer-set ["io ho vado","ho vado"]})
+   :answer-set ["io sono andato","sono andato"]})
 
 (defn contains [spec]
   "Find the sentences in English that match the spec, and the set of Italian sentences that each English sentence contains."
