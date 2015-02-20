@@ -10,7 +10,6 @@
     [italianverbs.korma :as korma]
     [italianverbs.lexiconfn :as lexfn]
     [italianverbs.morphology :as morph :refer [fo]]
-    [italianverbs.tour :as tour]
     [italianverbs.unify :as unify :refer [get-in]]
     [korma.core :as k]
     ))
