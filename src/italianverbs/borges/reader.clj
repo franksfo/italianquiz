@@ -52,66 +52,26 @@
           debug (log/debug (str "number of results:" size-of-results))
           debug (log/debug (str "index of result:" index-of-result))
           result (if (not (empty? results)) (nth results index-of-result))]
-      (if true
-        ;; now get all the target expressions that are semantically equivalent to this expression's semantics.
-        (let [result (deserialize (read-string (:target result)))
-              ;; TODO: allow queries that have refs - might be useful for modeling anaphora and binding.
-              json-semantics (json/write-str (strip-refs (get-in result [:synsem :sem])))]
-          (let [source-expression (db/exec-raw [(str "SELECT surface
-                                                        FROM expression AS source
-                                                       WHERE source.language=?
-                                                         AND source.structure->'synsem'->'sem' = '" json-semantics "' LIMIT 1")
-                                      [source-language]]
-                                     :results)
-
-                target-expressions (db/exec-raw [(str "SELECT 
-                                                     DISTINCT surface
-                                                         FROM expression AS target
-                                                        WHERE target.language=?
-                                                          AND target.structure->'synsem'->'sem' = '" json-semantics "'")
-                                      [target-language]]
-                                     :results)]
-            {:source (first (map :surface source-expression))
-             :targets (map :surface target-expressions)}
-
-          ))
-
-
-        (do
-
-    (log/debug (str "SELECT source.serialized::text AS source,
-                            target.serialized::text AS target
-                       FROM expression AS source
-                 INNER JOIN expression AS target
-                         ON source.structure->'synsem'->'sem' =
-                            target.structure->'synsem'->'sem'
-                      WHERE source.language='" source-language "'
-                        AND target.language='" target-language "'
-                        AND source.structure @> '" json-spec "'"))
-
-    (let [results (db/exec-raw [(str "SELECT source.serialized::text AS source,
-                                             target.serialized::text AS target
-                                        FROM expression AS source
-                                  INNER JOIN expression AS target
-                                          ON source.structure->'synsem'->'sem' =
-                                             target.structure->'synsem'->'sem'
-                                       WHERE source.language=? 
-                                         AND target.language=?
-                                         AND source.structure @> '" json-spec "'")
-                                [source-language target-language]]
-                               :results)
-          size-of-results (.size results)
-          index-of-result (rand-int (.size results))
-          debug (log/debug (str "number of results:" size-of-results))
-          debug (log/debug (str "index of result:" index-of-result))
-          result (if (not (empty? results)) (nth results index-of-result))
-          debug (log/debug (str "result: " result))
-          ]
-      (if (not (empty? results))
-        {(keyword source-language) (deserialize (read-string (:source (nth results index-of-result))))
-         (keyword target-language) (deserialize (read-string (:target (nth results index-of-result))))}
-        (do (log/error "Nothing found in database that matches search: " json-spec)
-            (throw (Exception. (str "Nothing found in database that matches search: " json-spec)))))))))))
+      ;; now get all the target expressions that are semantically equivalent to this expression's semantics.
+      (let [result (deserialize (read-string (:target result)))
+            ;; TODO: allow queries that have refs - might be useful for modeling anaphora and binding.
+            json-semantics (json/write-str (strip-refs (get-in result [:synsem :sem])))]
+        (let [source-expression (db/exec-raw [(str "SELECT surface
+                                                      FROM expression AS source
+                                                      WHERE source.language=?
+                                                        AND source.structure->'synsem'->'sem' = '" json-semantics "' LIMIT 1")
+                                              [source-language]]
+                                             :results)
+              
+              target-expressions (db/exec-raw [(str "SELECT 
+                                                   DISTINCT surface
+                                                       FROM expression AS target
+                                                      WHERE target.language=?
+                                                        AND target.structure->'synsem'->'sem' = '" json-semantics "'")
+                                               [target-language]]
+                                              :results)]
+          {:source (first (map :surface source-expression))
+           :targets (map :surface target-expressions)})))))
 
 (defn generate-all [spec language]
   "find all sentences in the library matching 'spec' in a given language."
