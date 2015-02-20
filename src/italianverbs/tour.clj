@@ -18,6 +18,7 @@
 (declare evaluate)
 (declare generate-answers)
 (declare generate-question)
+(declare generate-q-and-a)
 (declare tour)
 (declare get-meaning)
 
@@ -34,6 +35,10 @@
          {:status 200
           :headers {"Content-Type" "text/html;charset=utf-8"}
           :body (evaluate request)})
+
+
+   (GET "/generate-q-and-a" request
+        (generate-q-and-a request))
 
    (GET "/generate-answers" request
         (generate-answers request))
@@ -206,10 +211,11 @@
         true
         spec))
 
-(defn generate-pair [request]
+(defn generate-q-and-a [request]
   "generate a question and a set of possible correct answers, given request."
   ;; TODO: combine generate-question and generate-answer into one.
-  (generate-question-and-correct-set "en" "it"))
+  (let [pair (generate-question-and-correct-set {:synsem {:essere true}} "en" "it")]
+    pair))
 
 (defn generate-question [request]
   (let [verb-group (choose-random-verb-group)

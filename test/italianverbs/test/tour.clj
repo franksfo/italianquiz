@@ -5,6 +5,7 @@
    [italianverbs.engine :refer [generate]]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer [fo]]
+   [italianverbs.borges.reader :refer [generate-using-db generate-question-and-correct-set]]
    [italianverbs.tour :refer :all]
    [italianverbs.unify :refer (fail? get-in strip-refs unify)]
    [korma.core :as k]))
