@@ -22,12 +22,9 @@
 
 (defn generate-question-and-correct-set [spec source-language target-language]
   "Return a set of semantically-equivalent expressions, for a given spec in the target language, and
-   and a single expression in the source language that is also semantically equivalent to each of them.
-   To rephrase, both the set of expressions in the target language and the single expression in the source
-   language will share identical semantics. Another implementation might instead implement
-   the case where the source language semantics is not identical to that of the target-language semantics,
-   but rather contains it, or, in other words, that the source-language expression is possibly more general
-   than that of the target language."
+   and a single expression in the source language that contains the semantics shared by this set.
+   To rephrase, the set of expressions in the target language share an identical semantics, and the single expression in the source
+   language contains that semantics."
   (log/debug (str "generate target language set with spec: " spec))
   (let [spec (unify spec
                     {:synsem {:subcat '()}})
@@ -54,7 +51,13 @@
           debug (log/debug (str "index of result:" index-of-result))
           initial-result (nth results index-of-result)
           ]
-      ;; now get all the target expressions that are semantically equivalent to this expression's semantics.
+      ;; Now get all the target expressions that are semantically equivalent to this expression's semantics,
+      ;; and a single source expression whose semantics contain that same semantics.
+      ;; TODO: consider selecting source where semantics contains that semantics, OR is contained by that semantics.
+      ;; Both possiblities might be necessary if the lexicon of the source language and target language differ in how
+      ;; much semantic information are encoded in entries for specific lexemes. For example, 'to go' in English specifies
+      ;; {activity: true}, whereas 'andare' in English does not. This might be a bug in the Italian lexicon, but
+      ;; this database lookup should be able to handle bugs like this.
       (let [result (deserialize (read-string (:target initial-result)))
             ;; TODO: allow queries that have refs - might be useful for modeling anaphora and binding.
             json-semantics (json/write-str (strip-refs (get-in result [:synsem :sem])))]
@@ -68,14 +71,14 @@
                                     FROM (SELECT surface, source.structure->'synsem'->'sem' AS sem
                                             FROM expression AS source
                                            WHERE source.language=?
-                                             AND source.structure->'synsem'->'sem' = '" json-semantics "' LIMIT 1) AS source
-                              INNER JOIN (SELECT surface, target.structure->'synsem'->'sem' AS sem
+                                             AND source.structure->'synsem'->'sem' @> '" json-semantics "' LIMIT 1) AS source
+                              INNER JOIN (SELECT DISTINCT surface, target.structure->'synsem'->'sem' AS sem
                                             FROM expression AS target
                                            WHERE target.language=?
                                              AND target.structure->'synsem'->'sem' = '" json-semantics "') AS target 
                                               ON (source.surface IS NOT NULL) 
                                              AND (target.surface IS NOT NULL) 
-                                             AND (source.sem = target.sem)")
+                                             AND (source.sem @> target.sem)")
                             [source-language target-language]]
                            :results)]
           (if (nil? (first (map :source results)))
