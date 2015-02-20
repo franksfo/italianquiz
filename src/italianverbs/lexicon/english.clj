@@ -273,6 +273,9 @@
 
    "escape" (trans-intrans {:synsem {:sem {:pred :escape}}})
 
+   "exist" (intrans {:synsem {:cat :verb
+                              :sem {:pred :exist}}})
+
    "finish" (trans-intrans {:synsem {:cat :verb
                                      :sem {:pred :finish}}})
 
