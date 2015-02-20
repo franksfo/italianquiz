@@ -14,6 +14,7 @@
    [italianverbs.unify :refer (get-in merge strip-refs unify)]
    [korma.core :as k]))
 
+(declare direction-chooser)
 (declare evaluate)
 (declare generate-answers)
 (declare generate-question)
@@ -39,6 +40,90 @@
 
    (GET "/generate-question" request
         (generate-question request))))
+
+(defn tour []
+  [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
+
+  [:div#game
+
+   [:svg {:id "svgarena"}]
+
+   [:div#rainforest
+
+    [:div#wordbar
+
+     [:div#q1 "wordbar"]
+
+     [:div#q2 "not used"]
+
+     [:div#q3 "yet"]
+
+     ]
+     
+    (direction-chooser)
+     
+    [:div#kilos {:style "z-index:4"}
+     "Score:"
+     [:span#scorevalue
+      "0"
+      ]
+     ]
+
+     ;; map is separate from the triptych street view
+    [:div#map ]
+
+    [:div#sidebyside {:style "z-index:2"}
+
+     [:div#streetview_left
+      [:img#streetviewimageleft
+       {:src ""}] ;; src value is filled in with Javascript.
+     ]
+
+     [:div#streetview
+      [:img#streetviewimage
+       {:src ""}] ;; src value is filled in with Javascript.
+     ]
+
+     [:div#streetviewright
+      [:img#streetviewimageright
+       {:src ""}] ;; src value is filled in with Javascript.
+     ]]
+
+    ] ;; end of :div#rainforest
+
+   [:div#tourgameform
+
+    [:div#tourquestion
+     ""
+     ]
+
+    [:input {:id "gameinput" :size "30"}]
+
+    [:div#userprogresscontainer
+     [:div#userprogress 
+      ]]
+
+    [:div#correctanswer 
+     ]
+
+    [:table#navigation
+     [:tr
+      [:td [:input {:id "lat" :size "5"}]]
+      [:td [:input {:id "long" :size "5"}]]
+      [:td [:input {:id "offset" :size "5"}]]
+      [:td [:input {:id "quadrant" :size "5" :val ""  }]]
+      [:td [:input {:id "heading" :size "5"}]]]
+
+     [:tr
+      [:td [:input {:id "lat1" :size "5"}]]
+      [:td [:input {:id "long1" :size "5"}]]
+      ]
+     ]
+
+    ] ;; end of :div #gameform
+   ] ;; end of :div #game
+
+) ;; end of (defn)
 
 (def game-pairs
   [{:source "en"
@@ -274,91 +359,6 @@
 
 
                 ]])})))
-
-(defn tour []
-  [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
-
-  [:div#game
-
-   [:svg {:id "svgarena"}]
-
-   [:div#rainforest
-
-    [:div#wordbar
-
-     [:div#q1 "wordbar"]
-
-     [:div#q2 "not used"]
-
-     [:div#q3 "yet"]
-
-     ]
-     
-    (direction-chooser)
-     
-    [:div#kilos {:style "z-index:4"}
-     "Score:"
-     [:span#scorevalue
-      "0"
-      ]
-     ]
-
-     ;; map is separate from the triptych street view
-    [:div#map ]
-
-    [:div#sidebyside {:style "z-index:2"}
-
-     [:div#streetview_left
-      [:img#streetviewimageleft
-       {:src ""}] ;; src value is filled in with Javascript.
-     ]
-
-     [:div#streetview
-      [:img#streetviewimage
-       {:src ""}] ;; src value is filled in with Javascript.
-     ]
-
-     [:div#streetviewright
-      [:img#streetviewimageright
-       {:src ""}] ;; src value is filled in with Javascript.
-     ]]
-
-    ] ;; end of :div#rainforest
-
-   [:div#tourgameform
-
-    [:div#tourquestion
-     ""
-     ]
-
-    [:input {:id "gameinput" :size "30"}]
-
-    [:div#userprogresscontainer
-     [:div#userprogress 
-      ]]
-
-    [:div#correctanswer 
-     ]
-
-    [:table#navigation
-     [:tr
-      [:td [:input {:id "lat" :size "5"}]]
-      [:td [:input {:id "long" :size "5"}]]
-      [:td [:input {:id "offset" :size "5"}]]
-      [:td [:input {:id "quadrant" :size "5" :val ""  }]]
-      [:td [:input {:id "heading" :size "5"}]]]
-
-     [:tr
-      [:td [:input {:id "lat1" :size "5"}]]
-      [:td [:input {:id "long1" :size "5"}]]
-      ]
-     ]
-
-    ] ;; end of :div #gameform
-   ] ;; end of :div #game
-
-) ;; end of (defn)
-
 
 (defn get-meaning [input-map]
   "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
