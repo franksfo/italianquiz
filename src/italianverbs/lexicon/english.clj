@@ -217,7 +217,7 @@
                              :synsem {:cat :verb
                                       :sem {:pred :decide}}})
 
-   "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
+   "desire"  (trans-intrans {:synsem {:sem {:pred :desire}}})
 
    "dine"  (intrans {:synsem {:sem {:pred :cenare
                                     :subj {:human true}}}})
