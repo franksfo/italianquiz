@@ -277,6 +277,8 @@
    "exist" (intrans {:synsem {:cat :verb
                               :sem {:pred :exist}}})
 
+   "express" (trans-intrans {:synsem {:sem {:pred :express}}})
+
    "finish" (trans-intrans {:synsem {:cat :verb
                                      :sem {:pred :finish}}})
 
