@@ -1,14 +1,17 @@
 (ns italianverbs.test.tour
   (:refer-clojure :exclude [get-in])
   (:require
+   [clojure.data.json :as json]
    [clojure.test :refer :all]
    [italianverbs.engine :refer [generate]]
+   [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer [fo]]
    [italianverbs.borges.reader :refer [generate-using-db generate-question-and-correct-set]]
+   [italianverbs.borges.writer :refer [fill populate]]
    [italianverbs.tour :refer :all]
    [italianverbs.unify :refer (fail? get-in strip-refs unify)]
-   [korma.core :as k]))
+   [korma.core :as db]))
 
 ;; TODO: need a shim to return fixtures (simulated database results)
 (deftest tour-generate
