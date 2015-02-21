@@ -40,62 +40,62 @@
 
         ]
     (dotimes [n num]
-      (let [language-1-sentence (engine/generate spec
+      (let [source-language-sentence (engine/generate spec
                                                  source-model :do-enrich true)
 
-            language-1-sentence (cond
-                                 (not (= :notfound (get-in language-1-sentence [:synsem :sem :subj] :notfound)))
-                                 (let [subj (lexfn/sem-impl (unify/get-in language-1-sentence
+            source-language-sentence (cond
+                                 (not (= :notfound (get-in source-language-sentence [:synsem :sem :subj] :notfound)))
+                                 (let [subj (lexfn/sem-impl (unify/get-in source-language-sentence
                                                                           [:synsem :sem :subj]))]
                                    (log/debug (str "subject constraints: " subj))
-                                   (unify/unify language-1-sentence
+                                   (unify/unify source-language-sentence
                                                 {:synsem {:sem {:subj subj}}}))
 
                                  true
-                                 language-1-sentence)
+                                 source-language-sentence)
             
-            semantics (unify/strip-refs (get-in language-1-sentence [:synsem :sem] :top))
+            semantics (unify/strip-refs (get-in source-language-sentence [:synsem :sem] :top))
 
             debug (log/debug (str "semantics: " semantics))
 
-            language-2-sentence (engine/generate {:synsem {:sem semantics
+            target-language-sentence (engine/generate {:synsem {:sem semantics
                                                            :subcat '()}}
                                                  target-model :do-enrich true)
 
-            language-1-surface (morph/fo language-1-sentence)
-            language-2-surface (morph/fo language-2-sentence)
+            source-language-surface (morph/fo source-language-sentence)
+            target-language-surface (morph/fo target-language-sentence)
 
-            debug (log/debug (str "lang-1 surface: " language-1-surface))
-            debug (log/debug (str "lang-2 surface: " language-2-surface))
+            debug (log/debug (str "lang-1 surface: " source-language-surface))
+            debug (log/debug (str "lang-2 surface: " target-language-surface))
 
             ;; TODO: provide more diagnostics about what the problem was.
-            error (if (or (= language-1-surface "") (nil? language-1-surface))
-                    (do (log/error (str "surface of language-1 was null with semantics: " semantics ))
+            error (if (or (= source-language-surface "") (nil? source-language-surface))
+                    (do (log/error (str "surface of source language was null with semantics: " semantics ))
                         (throw (Exception. (str "surface of language-1 was null with semantics: " semantics )))))
 
-            error (if (or (= language-2-surface "") (nil? language-2-surface))
-                    (do (log/error (str "surface of language-2 was null with semantics: " semantics))
+            error (if (or (= target-language-surface "") (nil? target-language-surface))
+                    (do (log/error (str "surface of target language was null with semantics: " semantics))
                         (throw (Exception. (str "surface of language-2 was null with semantics: " semantics )))))
 
             ]
 
         (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
-                          "'" (json/write-str (unify/strip-refs language-1-sentence)) "'"
+                          "'" (json/write-str (unify/strip-refs source-language-sentence)) "'"
                           ","
-                          "'" (str (unify/serialize language-1-sentence)) "'"
+                          "'" (str (unify/serialize source-language-sentence)) "'"
                           ","
                           "?,?)")
-                     [language-1-surface
+                     [source-language-surface
                       "it"
                       (:name source-model)]])
 
         (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
-                          "'" (json/write-str (unify/strip-refs language-2-sentence)) "'"
+                          "'" (json/write-str (unify/strip-refs target-language-sentence)) "'"
                           ","
-                          "'" (str (unify/serialize language-2-sentence)) "'"
+                          "'" (str (unify/serialize target-language-sentence)) "'"
                           ","
                           "?,?)")
-                     [language-2-surface
+                     [target-language-surface
                       "en"
                       (:name target-model)]])))))
 
