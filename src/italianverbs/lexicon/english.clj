@@ -219,6 +219,8 @@
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desire}}})
 
+   "develop" (trans-intrans {:synsem {:sem {:pred :develop}}})
+
    "dine"  (intrans {:synsem {:sem {:pred :cenare
                                     :subj {:human true}}}})
 
@@ -281,6 +283,9 @@
 
    "finish" (trans-intrans {:synsem {:cat :verb
                                      :sem {:pred :finish}}})
+
+   "form" {:synsem {:cat :verb
+                    :sem {:pred :form}}}
 
    "game" {:synsem {:cat :noun
                     :sem {:pred :game
@@ -391,6 +396,19 @@
    "insure" {:synsem {:cat :verb
                       :sem {:pred :insure}}}
 
+   "is missed" (intrans {:synsem {:sem {:pred :mancare}}
+                         :english {:participle {:english "is missed"
+                                                :2sing "are missed"
+                                                :3plur "are missed"}
+                                   :past {:english "was missed"
+                                          :2sing "were missed"
+                                          :2plur "were missed"
+                                          :3plur "were missed"}
+                                   :present {:2sing "are missed"
+                                             :2plur "are missed"
+                                             :3plur "are missed"}}})
+
+
    "it (♂)"
    {:synsem {:cat :noun
               :pronoun true
@@ -430,6 +448,12 @@
                      :sem {:pred :leave-behind
                            :obj {:place false}}}}
 
+   "listen to"  (trans-intrans {:synsem {:sem {:pred :listen-to}}
+                                :english {:participle "listening to"
+                                          :past "listened to"
+                                          :present {:3sing "listens to"}}})
+
+
    "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
                                :english {:participle "looking for"
                                          :past "looked for"
@@ -439,6 +463,7 @@
                               :english {:participle "looking up"
                                         :past "looked up"
                                         :present {:3sing "looks up"}}})
+
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}}
                          {:subj {:human true}})
 
@@ -611,6 +636,9 @@
                    :pred :loro}
              :subcat '()}}
 
+   "throw" (trans-intrans
+            {:synsem {:english {:past "threw"}
+                      :sem {:pred :throw}}})
 
    "throw out"
    (trans-intrans {:synsem {:sem {:pred :throw-out}}
