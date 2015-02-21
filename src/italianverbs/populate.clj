@@ -68,11 +68,12 @@
             debug (log/debug (str "lang-1 surface: " language-1-surface))
             debug (log/debug (str "lang-2 surface: " language-2-surface))
 
-            error (if (nil? language-1-surface)
+            ;; TODO: provide more diagnostics about what the problem was.
+            error (if (or (= language-1-surface "") (nil? language-1-surface))
                     (do (log/error (str "surface of language-1 was null with semantics: " semantics ))
                         (throw (Exception. (str "surface of language-1 was null with semantics: " semantics )))))
 
-            error (if (nil? language-2-surface)
+            error (if (or (= language-2-surface "") (nil? language-2-surface))
                     (do (log/error (str "surface of language-2 was null with semantics: " semantics))
                         (throw (Exception. (str "surface of language-2 was null with semantics: " semantics )))))
 
