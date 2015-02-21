@@ -52,7 +52,7 @@
           (log/error (str "nothing found in both source and target that matches spec: " spec))
           (throw (Exception. (str "nothing found in both source and target that matches spec: " spec))))
 
-        ;; choose a random expression in the target language.
+        ;; choose a random expression from the results of the above.
         (let [size-of-results (.size results)
               index-of-result (rand-int (.size results))
               debug (log/debug (str "number of target results:" size-of-results))
@@ -61,6 +61,7 @@
               debug (log/debug (str "target-expression is nil?" (nil? target-expression)))
               debug (log/debug (str "target-expression is: " target-expression))
               ]
+
           ;; Now get all the target expressions that are semantically equivalent to this expression's semantics,
           ;; and a single source expression whose semantics contain that same semantics.
           ;; TODO: consider selecting source where semantics contains that semantics, OR is contained by that semantics.
