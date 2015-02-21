@@ -288,37 +288,24 @@ var answer_info = {};
 
 function create_tour_question() {
 
-    // We use this function as the callback after we generate a question, so that
-    // the answer is a function of the question. that is, we generate a question,
-    // then generate the correct possible answers. The server will reply with all of 
-    // the correct answers, but for most games, the user needs only to respond with one of them.
-    // The server's set of correct answers are stored in the global answer_info variable.
-    //
-    // We evaluate the user's guess against this set in submit_user_guess().
-
     $("#gameinput").css("background","white");
     $("#gameinput").css("color","black");
 
-    update_tour_answer_fn = function(content) {
-	answer_info  = jQuery.parseJSON(content);
-	// TODO: update #correctanswer0, #correctanswer1, etc.. for each possible correct answer, rather
-	// than just the first one.
-	// TODO: use JSON array here rather than poor-man's CSV (i.e. the split(",") here.).
-	$("#correctanswer").html(answer_info.answer.split(",")[0]);
-    }
-
-    update_tour_question = function (content) {
-	var evaluated = jQuery.parseJSON(content);
-	var question = evaluated.full_question;
+    // We use this function as the callback after we 
+    // generate a question-and-answers pair.
+    update_tour_q_and_a = function (content) {
+	// question is .source; answers are in .targets.
+	var q_and_a = jQuery.parseJSON(content);
+	var question = q_and_a.source;
 	log(INFO,"Updating tour with question:" + question);
 	$("#tourquestion").html(question);
 
-	$.ajax({
-	    cache: false,
-	    dataType: "html",
-	    url: "/tour/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
-	    success: update_tour_answer_fn
+	// update answers with all targets.
+	var i=0;
+	$.each(q_and_a.targets, function(index,value) {
+	    $("#answer"+i").html(value);
 	});
+
     }
 
     // generate a question by calling /tour/generate-question on the server.
@@ -328,8 +315,8 @@ function create_tour_question() {
     $.ajax({
 	cache: false,
         dataType: "html",
-        url: "/tour/generate-question",
-        success: update_tour_question
+        url: "/tour/generate-q-and-a",
+        success: update_tour_q_and_a
     });
 }
 
