@@ -572,6 +572,11 @@
                                        :synsem {:cat :verb
                                                 :sem {:pred :take-advantage-of}}})
 
+   "talk"
+   (intrans
+    {:synsem {:sem {:pred :talk
+                    :subj {:human true}}}})
+
    "teach"  (trans-intrans {:synsem {:sem {:pred :teach}}
                             :english {:past "taught"}})
 
