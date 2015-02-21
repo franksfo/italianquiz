@@ -35,6 +35,8 @@
     (if (:obj opts) {:synsem {:sem {:obj (:obj opts)}}}
         :top))
 
+   ;; TODO: in english lexicon, we need to remove the :obj before unifying with intransitive-unspecified-obj - 
+   ;; why not here in Italian?
    (unifyc
     spec
     (if (:subj opts)
@@ -1293,9 +1295,8 @@
               {:synsem {:obj {:speakable true}}})
       (unifyc common1 intransitive intransitive-unspecified-obj)
 
-      (unifyc common2 transitive
-              {:synsem {:obj {:speakable true}}})
       (unifyc common2 intransitive intransitive-unspecified-obj)))
+
    "portare" (trans-intrans {:synsem {:sem {:pred :portare}}})
    "prendere" (trans-intrans
                {:synsem {:sem {:pred :prendere}}
