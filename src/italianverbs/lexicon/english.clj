@@ -1,15 +1,16 @@
 (ns italianverbs.lexicon.english)
 
-(require '[italianverbs.lexiconfn :refer (unify)])
-(require '[italianverbs.pos :refer (adjective animal
+(require '[italianverbs.lexiconfn :refer [unify]])
+(require '[italianverbs.pos :refer [adjective animal
                                     cat-of-pronoun common-noun
                                     comparative
                                     countable-noun determiner
                                     drinkable-noun
                                     non-comparative-adjective noun
                                     pronoun-acc sentential-adverb
-                                    verb verb-aux)])
+                                    verb verb-aux]])
 (require '[italianverbs.pos.english :refer :all])
+(require '[italianverbs.unify :refer [dissoc-paths]])
 
 (defn intrans [spec]
   (unify intransitive
@@ -26,7 +27,7 @@
         :top))
 
    (unify
-    spec
+    (dissoc-paths spec [[:synsem :sem :obj]])
     (if (:subj opts)
       {:synsem {:sem {:subj (:subj opts)}}}
       :top)
