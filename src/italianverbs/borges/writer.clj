@@ -57,18 +57,16 @@
                                  language-1-sentence)
             
             semantics (unify/strip-refs (get-in language-1-sentence [:synsem :sem] :top))
-
             debug (log/debug (str "semantics: " semantics))
+
+            language-1-surface (morph/fo language-1-sentence)
+            debug (log/debug (str "lang-1 surface: " language-1-surface))
 
             language-2-sentence (engine/generate {:synsem {:sem semantics
                                                            :subcat '()}}
                                                  en/small
                                                  :enrich true)
-
-            language-1-surface (morph/fo language-1-sentence)
             language-2-surface (morph/fo language-2-sentence)
-
-            debug (log/debug (str "lang-1 surface: " language-1-surface))
             debug (log/debug (str "lang-2 surface: " language-2-surface))
 
             error (if (nil? language-1-surface)
@@ -80,6 +78,12 @@
                         (throw (Exception. (str "surface of language-2 was null with semantics: " semantics )))))
 
             ]
+
+        (if (= language-1-surface "")
+          (throw (Exception. (str "could not generate a sentence in Italian for this semantics: " semantics))))          
+
+        (if (= language-2-surface "")
+          (throw (Exception. (str "could not generate a sentence in English for this semantics: " semantics))))
 
         (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
                           "'" (json/write-str (unify/strip-refs language-1-sentence)) "'"
