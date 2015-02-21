@@ -1,10 +1,11 @@
 (ns italianverbs.korma
   (:refer-clojure :exclude [test])
-  (:use [korma db core])
   (:require [clj-time.coerce :as c]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [italianverbs.unify :refer (unify fail?)]))
+            [italianverbs.unify :refer (unify fail?)]
+            [korma.core :refer :all]
+            [korma.db :refer :all]))
 
 (require '[environ.core :refer [env]])
 
