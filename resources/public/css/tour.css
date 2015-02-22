@@ -5,8 +5,6 @@
 #correctanswer {
     white-space:nowrap;
     display:none;
-    position:absolute;
-    right:0;
 }
 
 button#non_so {
