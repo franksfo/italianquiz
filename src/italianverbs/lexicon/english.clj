@@ -687,7 +687,8 @@
 
    "win"  (trans-intrans {:synsem {:sem {:pred :win
                                          :subj {:human true}}}
-                          :english {:past "won"}})
+                          :english {:past "won"
+                                    :participle "winning"}})
 
    "woman"
    (unify agreement-noun
