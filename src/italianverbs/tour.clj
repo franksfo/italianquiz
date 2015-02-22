@@ -15,12 +15,8 @@
    [korma.core :as k]))
 
 (declare direction-chooser)
-(declare evaluate)
-(declare generate-answers)
-(declare generate-question)
 (declare generate-q-and-a)
 (declare tour)
-(declare get-meaning)
 
 (def routes
   (compojure/routes
@@ -31,20 +27,8 @@
                                                 :jss ["/js/gen.js"
                                                       "/js/leaflet.js"
                                                       "/js/tour.js"]})})
-   (POST "/evaluate" request
-         {:status 200
-          :headers {"Content-Type" "text/html;charset=utf-8"}
-          :body (evaluate request)})
-
-
    (GET "/generate-q-and-a" request
-        (generate-q-and-a request))
-
-   (GET "/generate-answers" request
-        (generate-answers request))
-
-   (GET "/generate-question" request
-        (generate-question request))))
+        (generate-q-and-a request))))
 
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.
@@ -227,162 +211,4 @@
                "Expires" "0"}
      :body (write-str
             pair)}))
-
-(defn generate-question [request]
-  (let [verb-group (choose-random-verb-group)
-        possible-preds (get-possible-preds verb-group)
-        possible-inflections (get-possible-inflections verb-group)
-        pred (if (not (= :null (get-in request [:params :pred] :null)))
-               (keyword (get-in request [:params :pred]))
-               (nth possible-preds (rand-int (.size possible-preds))))
-        debug (log/info (str "generate-question: pred: " pred))
-        debug (log/info (str "verb-group: " verb-group))
-        debug (log/info (str "possible-inflections: " (string/join "," possible-inflections)))
-        chosen-inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))
-        debug (log/info (str "chosen-inflection: " chosen-inflection))
-        spec
-;        {:synsem {:sem {:pred pred}
-;                  :cat :verb
-;                  :subcat '()}}
-        {:synsem {:cat :verb
-                  :subcat '()}}
-        spec (additional-generation-constraints spec)
-
-        ;; TODO: use runtime to decide which language rather than
-        ;; hard-coded en/inflection.
-        spec (unify spec
-                    (en/inflection chosen-inflection))
-
-        ;; TODO: use runtime to decide which language and grammar rather than
-        ;; hard-coded en/small.
-        question-and-answer (generate-using-db spec "en" "it")
-        debug (log/info (str "tour: q&a/q: " (:source question-and-answer)))
-        debug (log/info (str "tour: q&a/a: " (:target question-and-answer)))
-        question (:source question-and-answer)
-        answer (:answer question-and-answer)
-        form (html-form question)]
-
-    (log/info "generate-question: question(fo): " (fo question))
-
-    {:status 200
-     :headers {"Content-Type" "application/json;charset=utf-8"
-               
-               "Cache-Control" "no-cache, no-store, must-revalidate"
-               "Pragma" "no-cache"
-               "Expires" "0"}
-     :body (write-str
-            {:left_context_of_question (:left_context_source form)
-             :full_question (fo question)
-             :question (:head_of_source form)
-             :right_context_of_question (:right_context_source form)
-             :semantics (strip-refs (get-meaning question))})}))
-
-;; This is the counterpart to (generate-question) immediately above: it generates
-;; an expression that the user should be learning.
-(defn generate-answers [request]
-  "generate a single sentence according to the semantics of the request."
-  ;; TODO: generate more than one answer, possibly.
-  (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
-  (let [semantics (read-str (get-in request [:params :semantics])
-                            :key-fn keyword
-                            :value-fn (fn [k v]
-                                        (cond (string? v)
-                                              (keyword v)
-                                              :else v)))
-        debug (log/debug (str "semantics: " semantics))
-
-        more-constraints {:synsem {:subcat '()}}
-
-        to-generate (merge semantics more-constraints)
-
-        to-generate (additional-generation-constraints to-generate)
-
-        debug (log/info (str "(answer)to-generate: " to-generate))
-
-        ;; TODO: for now, we are hard-wired to generate an answer in Italian,
-        ;; but function should accept an input parameter to determine which language should be
-        ;; used.
-        answer (generate-using-db to-generate "it" "it")
-
-        ;; used to group questions by some common feature - in this case,
-        ;; we'll use the pred since this is a way of cross-linguistically
-        ;; grouping verbs with the same meaning together.
-        group_by (get-in answer [:synsem :sem :pred])
-
-        debug (log/info (str "generate-answers: group_by: " group_by))
-
-        debug (log/info (str "generate-answers: answers: " (remove-parens (fo answer))))
-        ]
-
-    (if (not (= "true" (get-in request [:params :debug])))
-      {:status 200
-       :headers {"Content-Type" "application/json;charset=utf-8"}
-       :body
-       (write-str
-        {:cloud_id (get-in request [:params :cloud_id])
-         :group_by group_by
-
-         ;; left-context is given here because the user should be able to omit
-         ;; this without penalty.
-         :left_context_of_answer (remove-parens (fo (get-in answer [:comp])))
-
-         ;; here we combine all of the possible answers,
-         ;; using punctuation within the string as means of delimitation (a comma).
-         ;; TODO: use a JSON array instead, and also, remove the use of (remove-parens),
-         ;; since this is another way that punctuation being abused to serialize data structures.
-         :answer (string/join ", "
-                              (list 
-                               (remove-parens (fo answer))))
-         :semantics semantics
-         :right_context_of_answer ""})}
-
-      {:status 200
-       :headers {"Content-Type" "text/html;charset=utf-8"
-                 "Cache-Control" "no-cache, no-store, must-revalidate"
-                 "Pragma" "no-cache"
-                 "Expires" "0"}
-       :body (html
-              [:head
-               [:title "tour: answers debug"]
-               (include-css "/css/fs.css")
-               (include-css "/css/layout.css")
-               (include-css "/css/quiz.css")
-               (include-css "/css/style.css")
-               (include-css "/css/debug.css")
-               ]
-              [:body
-               [:div
-
-                [:div.major
-                 [:h2 "input"]
-
-                 (tablize {:semantics (read-str (get-in request [:params :semantics])
-                                                :key-fn keyword
-                                                :value-fn (fn [k v]
-                                                            (cond (string? v)
-                                                                  (keyword v)
-                                                                  :else v)))})
-                 
-
-                 ]
-
-                [:div.major
-                 [:h2 "output"]
-                 (tablize {:answer-full answer
-                           :left-context-of-answer (remove-parens (fo (get-in answer [:comp])))
-                           :answer (string/join ", "
-                                                (list
-                                                 (remove-parens (fo answer))))})]
-
-
-                ]])})))
-
-(defn get-meaning [input-map]
-  "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
-  (if (seq? input-map)
-    (map get-meaning
-         input-map)
-    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
-              :sem (get-in input-map [:synsem :sem] :top)
-              :subcat (get-in input-map [:synsem :subcat] :top)}}))
 
