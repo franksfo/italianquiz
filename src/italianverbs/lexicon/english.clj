@@ -435,7 +435,7 @@
     (trans-intrans {:synsem {:sem {:pred :tenere}}
                     :english {:past "kept"}})
     (trans-intrans {:synsem {:sem {:pred :keep-safe}}
-                    :english {:note "keep something safe"
+                    :english {:note "(something safe)"
                               :past "kept"}}))
 
    "key" {:synsem {:cat :noun
