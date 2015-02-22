@@ -604,7 +604,8 @@
                     :subj {:human true}}}})
 
    "teach"  (trans-intrans {:synsem {:sem {:pred :teach}}
-                            :english {:past "taught"}})
+                            :english {:past "taught"
+                                      :present {:3sing "teaches"}}})
 
    "telephone" (trans-intrans {:synsem {:sem {:pred :telefonare}}})
 
