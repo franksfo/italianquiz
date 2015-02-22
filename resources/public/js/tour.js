@@ -447,9 +447,26 @@ function update_map(question,correct_answer) {
 	fillColor: 'green',
 	fillOpacity: 0.5
     }).addTo(map).bindPopup(question + " &rarr; <i>" + correct_answer + "</i><br/>" + "<tt>["+current_lat+","+current_long+"]</tt>")
-
-    heading = get_heading(tour_path,step);
     step = step + direction;
+
+    navigate_to(step,true);
+}
+
+function non_so() {
+    $("#correctanswer").css("display","block");
+    $("#correctanswer").fadeOut(1000,function () {$("#correctanswer").css("display","none");});
+    if ((direction == 1) && (step > 1)) {
+	step = step - 1;
+    }
+    if (direction == -1) {
+	step = step + 1;
+    }
+    navigate_to(step,false);
+}
+
+function navigate_to(step,do_encouragement) {
+    heading = get_heading(tour_path,step);
+
     current_lat = tour_path[step][0];
     current_long = tour_path[step][1];
 
@@ -466,9 +483,11 @@ function update_map(question,correct_answer) {
    
     // update the marker too:
     marker.setLatLng(tour_path[step]);
-    var encouragement = Math.floor(Math.random()*encouragements.length);
-    marker.setPopupContent("<b>" + encouragements[encouragement] + 
-			   "</b> " + step + "/" + tour_path.length);
+    if (do_encouragement == true) {
+	var encouragement = Math.floor(Math.random()*encouragements.length);
+	marker.setPopupContent("<b>" + encouragements[encouragement] + 
+			       "</b> " + step + "/" + tour_path.length);
+    }
 
     // update streetview:
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
@@ -478,9 +497,4 @@ function update_map(question,correct_answer) {
 
     var heading_right = heading + scope;
    $("#streetviewimageright").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_right+"&pitch=10");
-}
-
-function non_so() {
-    $("#correctanswer").css("display","block");
-    $("#correctanswer").fadeOut(1000,function () {$("#correctanswer").css("display","none");});
 }
