@@ -7,7 +7,7 @@
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.core :refer (html)]
    [hiccup.page :refer (include-css html5)]
-   [italianverbs.borges.reader :refer [generate-using-db generate-question-and-correct-set]]
+   [italianverbs.borges.reader :refer [generate-question-and-correct-set]]
    [italianverbs.english_rt :as en]
    [italianverbs.html :as html :refer (page tablize)]
    [italianverbs.morphology :refer (fo remove-parens)]
