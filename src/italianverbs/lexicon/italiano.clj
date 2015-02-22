@@ -835,13 +835,13 @@
                  {:synsem {:essere true
                            :sem {:pred :enter}}})
 
-      "esistere" {:synsem {:cat :verb
-                           :essere true
-                           :sem {:pred :exist}}}
+      "esistere" (intrans {:synsem {:cat :verb
+                                    :essere true
+                                    :sem {:pred :exist}}})
 
-      "esprimere" {:italiano {:passato "espresso"}
-                   :synsem {:cat :verb
-                            :sem {:pred :express}}}
+      "esprimere" (trans-intrans {:italiano {:passato "espresso"}
+                                  :synsem {:cat :verb
+                                           :sem {:pred :express}}})
 
       "essere"
       (let [essere-common 
