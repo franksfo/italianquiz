@@ -478,6 +478,9 @@ function update_map(question,correct_answer) {
 
     var heading_right = heading + scope;
    $("#streetviewimageright").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_right+"&pitch=10");
+}
 
-
+function non_so() {
+    $("#correctanswer").css("display","block");
+    $("#correctanswer").fadeOut(1000,function () {$("#correctanswer").css("display","none");});
 }

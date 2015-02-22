@@ -3,10 +3,18 @@
 }
 
 #correctanswer {
-    display:none; 
+    white-space:nowrap;
+    display:none;
+    position:absolute;
+    right:0;
+}
+
+button#non_so {
+    float:right;
 }
 
 #userprogresscontainer {
+    float:left;
     margin-top:0.25em;
     font-size:200%;
     width:10em;
@@ -26,7 +34,7 @@
 #tourquestion {
     white-space:nowrap;
     text-align:center;
-    width:10em;
+    width:20em;
     margin:2px;
     padding:2px;
     border:1px solid blue;

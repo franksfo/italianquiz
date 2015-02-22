@@ -46,6 +46,8 @@
    (GET "/generate-question" request
         (generate-question request))))
 
+;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
+;; routing requests to responses.
 (defn tour []
   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
 
@@ -110,6 +112,8 @@
 
     [:div#correctanswer 
      ]
+
+    [:button {:id "non_so" :onclick "non_so();"}  "Non So"]
 
     [:table#navigation
      [:tr
