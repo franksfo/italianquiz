@@ -285,6 +285,7 @@ function tour_loop() {
 }
 
 var answer_info = {};
+var correct_answers = [];
 
 function create_tour_question() {
 
@@ -302,10 +303,17 @@ function create_tour_question() {
 
 	// update answers with all targets.
 	var i=0;
-	$.each(q_and_a.targets, function(index,value) {
-	    $("#answer"+i").html(value);
-	});
+	$("#correctanswer").html("");
 
+	log(INFO,"TARGETS ARE: " + q_and_a.targets);
+	correct_answers = q_and_a.targets;
+
+	$.each(q_and_a.targets, function(index,value) {
+	    log(INFO,"TARGET INDEX IS: " + index);
+	    log(INFO,"TARGET VALUE IS: " + value);
+	    $("#correctanswer").append("<div id='answer_"+i+"'>" + value + "</div>");
+	    i++;
+	});
     }
 
     // generate a question by calling /tour/generate-question on the server.
@@ -324,40 +332,39 @@ function decrement_remaining_tour_question_time() {
     log(INFO,"decrement remaining time..");
 }
 
-function submit_user_guess(form_input_id) {
-    var guess = $("#"+form_input_id).val();
-    guess = guess.trim();
+function submit_user_guess(guess,correct_answer) {
     log(INFO,"submit_user_guess() guess: " + guess);
-
-    log(INFO,"ANSWER INFO: " + answer_info.answer);
-    var matched = false;
-    // A given question may have more than one possible right answer, separated by commas.
-    // TODO: server should use a javascript array rather than embedding an array within a string
-    // as is the case currently.
-    var answers = answer_info.answer.split(",");
-
-    var i;
-    for (i = 0; i < answers.length; i++) {
-	var answer_text = answers[i];
-	answer_text = answer_text.trim();
-	log(INFO,"Comparing: '" + answer_text + "' with your guess: '" + guess + "'");
+    if (guess == correct_answer) {
+	log(INFO,"You got one right!");
+	update_map($("#tourquestion").html(), guess);
+	$("#gameinput").html("");
+	$("#gameinput").css("background","transparent");
+	$("#gameinput").css("color","lightblue");
 	
-	if (answer_text.toLowerCase() === guess.toLowerCase() && answer_text != '') {
-	    log(INFO,"You got one right!");
-	    update_map($("#tourquestion").html(), guess);
-	    $("#gameinput").html("");
-	    $("#gameinput").css("background","transparent");
-	    $("#gameinput").css("color","lightblue");
-
-	    increment_map_score(); // here the 'score' is in kilometri (distance traveled)
-	    // TODO: score should vary depending on the next 'leg' of the trip.
-	    // go to next question.
-	    return tour_loop();
-	}
+	increment_map_score(); // here the 'score' is in kilometri (distance traveled)
+	// TODO: score should vary depending on the next 'leg' of the trip.
+	// go to next question.
+	return tour_loop();
     }
     log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
-
     return false;
+}
+
+function longest_correct_answer(prefix,answers) {
+    log(INFO,"lca: input prefix: " + prefix);
+    log(INFO,"lca: answers: " + answers);
+    var longest_length = 0;
+    var answer = "";
+    $.each(answers,function(index,value) {
+	log(INFO,"checking prefix: " + prefix + " against answer: " + value);
+	if (value.substring(0,prefix.length) == prefix) {
+	    if (value.length > longest_length) {
+		answer = value;
+		longest_length = value.length;
+	    }
+	}
+    });
+    return answer;
 }
 
 function increment_map_score() {
@@ -371,51 +378,65 @@ function user_keypress() {
 	log(INFO,"You hit the key: " + event.keyCode);
 	log(INFO,"updating your progress - so far you are at: " + $("#gameinput").val());
 	    
-	/* update the feedback box so users know how they are doing */
-	if ($("#correctanswer").html().length > 0) {
-	    var common = common_prefix($("#gameinput").val(),$("#correctanswer").html());
-	    $("#gameinput").val(common);
+	// Find the longest common prefix of the user's guess and the set of possible answers.
+	// The common prefix might be an empty string (e.g. before a user starts answering).
+	var common = common_prefix($("#gameinput").val(),correct_answers);
 
-	    log(INFO,"common length: " + common.trim().length);
-	    log(INFO,"answer length: " + $("#correctanswer").html().length);
+	log(INFO,"common prefix: " + common.trim());
+	log(INFO,"common length: " + common.trim().length);
+	log(INFO,"correct answers: " + correct_answers);
 
-	    var percent = (common.trim().length / $("#correctanswer").html().length) * 100;
+	// update the user's input with this prefix (shared with one or more correct answer).
+	$("#gameinput").val(common);
 
-	    log(INFO,"percent: " + percent);
+	var correct_answer = longest_correct_answer(common,correct_answers);
+
+	log(INFO,"answer prefix: " + correct_answer);
+	log(INFO,"answer length: " + correct_answer.length);
+
+	var max_length = 0;
+
+	// find the length of the longest match between what the possible correct answers and what the user has typed so far.
+
+	var percent = (common.trim().length / correct_answer.length) * 100;
+	
+	log(INFO,"percent: " + percent);
+	
+	$("#userprogress").css("width",percent+"%");
+	
+	if ((common.trim() != '') && (common.toLowerCase() == correct_answer.toLowerCase())) {
+	    /* user got it right - 'flash' their answer and submit the answer for them. */
+	    $("#gameinput").css("background","lime");
 	    
-	    $("#userprogress").css("width",percent+"%");
-	    
-	    if ((common.trim() != '') && (common.toLowerCase() == $("#correctanswer").html().toLowerCase())) {
-		/* user got it right - 'flash' their answer and submit the answer for them. */
-		$("#gameinput").css("background","lime");
-
-		setTimeout(function(){
-	            submit_user_guess('gameinput');
-		    // reset userprogress bar
-		    $("#userprogress").css("width","0");
-		}, 1000);
-	    }
-	} else {
-	    log(WARN,"No answer from server yet, or server answer was empty.");
+	    setTimeout(function(){
+		log(INFO,"submitting correct answer: " + correct_answer);
+	        submit_user_guess(common,correct_answer);
+		// reset userprogress bar
+		$("#userprogress").css("width","0");
+	    }, 1000);
 	}
     });
 }
 
-function common_prefix(user_guess,correct_answer) {
-    var i;
+function common_prefix(user_guess,correct_answers) {
     var prefix = "";
-    var case_sensitive_correct_answer = correct_answer;
-    user_guess = user_guess.toLowerCase();
-    correct_answer = correct_answer.trim().toLowerCase();
-    for (i = 0; i < user_guess.length; i++) {
-	var user_char = user_guess[i];
-	var correct_char = correct_answer[i];
-	if (user_char == correct_char) {
-	    prefix = prefix + case_sensitive_correct_answer[i];
-	} else {
-	    break;
+
+    $.each(correct_answers,function(index,value) {
+	var correct_answer = value;
+	var case_sensitive_correct_answer = correct_answer;
+	user_guess = user_guess.toLowerCase();
+	correct_answer = correct_answer.trim().toLowerCase();
+	var i;
+	for (i = 0; i < user_guess.length; i++) {
+	    var user_char = user_guess[i];
+	    var correct_char = correct_answer[i];
+	    if (user_char == correct_char) {
+		prefix = prefix + case_sensitive_correct_answer[i];
+	    } else {
+		break;
+	    }
 	}
-    }
+    });
     return prefix;
 }
 
