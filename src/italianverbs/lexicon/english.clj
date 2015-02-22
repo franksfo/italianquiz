@@ -401,7 +401,6 @@
                                    :future "be missed"
                                    :conditional "be missed"
                                    :past {:english "was missed"
-                                          :1sing "were missed"
                                           :2sing "were missed"
                                           :2plur "were missed"
                                           :3plur "were missed"}
