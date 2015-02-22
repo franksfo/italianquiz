@@ -6,6 +6,7 @@
    [italianverbs.engine :refer [generate]]
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
+   [italianverbs.morphology.english :as enm]
    [italianverbs.morphology.italiano :as itm]
    [italianverbs.morphology :refer [fo]]
    [italianverbs.populate :refer :all]
@@ -43,3 +44,6 @@
                AND en.surface IS NULL 
           ORDER BY pred;")
 
+;; You can diagnose problems with, e.g.:
+;;
+;; (def foo (generate {:synsem {:cat :verb :sem {:pred :dormire}}} @en/small))

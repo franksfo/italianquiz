@@ -397,14 +397,16 @@
                       :sem {:pred :insure}}}
 
    "is missed" (intrans {:synsem {:sem {:pred :mancare}}
-                         :english {:participle {:english "is missed"
-                                                :2sing "are missed"
-                                                :3plur "are missed"}
+                         :english {:participle "being missed"
+                                   :future "be missed"
+                                   :conditional "be missed"
                                    :past {:english "was missed"
+                                          :1sing "were missed"
                                           :2sing "were missed"
                                           :2plur "were missed"
                                           :3plur "were missed"}
                                    :present {:2sing "are missed"
+                                             :3sing "is missed"
                                              :2plur "are missed"
                                              :3plur "are missed"}}})
 

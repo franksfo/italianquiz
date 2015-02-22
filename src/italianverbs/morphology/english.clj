@@ -141,8 +141,17 @@
    (= true (get-in word '(:a :hidden)))
    (get-string-1 (get-in word '(:b)))
 
+
    (= true (get-in word '(:b :hidden)))
    (get-string-1 (get-in word '(:a)))
+
+   ;; TODO: s/futuro/future/
+   (and (= (get-in word '(:infl)) :conditional)
+        (get-in word '(:english))
+        (not (nil? (get-in word '(:agr :number))))
+        (not (nil? (get-in word '(:agr :person))))
+        (string? (get-in word [:conditional])))
+   (str "would " (get-in word [:conditional]))
 
    (and (= (get-in word '(:infl)) :conditional)
         (get-in word '(:english))
@@ -153,6 +162,13 @@
      (str "would " stem))
 
    ;; TODO: s/futuro/future/
+   (and (= (get-in word '(:infl)) :futuro)
+        (get-in word '(:english))
+        (not (nil? (get-in word '(:agr :number))))
+        (not (nil? (get-in word '(:agr :person))))
+        (string? (get-in word [:future])))
+   (str "will " (get-in word [:future]))
+
    (and (= (get-in word '(:infl)) :futuro)
         (get-in word '(:english))
         (not (nil? (get-in word '(:agr :number))))
@@ -236,18 +252,35 @@
         (map? (get-in word '(:past))))
    (let [number (get-in word '(:agr :number))
          person (get-in word '(:agr :person))]
-     (cond (and (= person :1st) (= number :sing))
-           (get-in word '(:past :1sing))
-           (and (= person :2nd) (= number :sing))
-           (get-in word '(:past :2sing))
-           (and (= person :3rd) (= number :sing))
+     (cond (and (= person :1st) (= number :sing)
+                (string? (get-in word '(:past :1sing))))
+           (get-in word '[:past :1sing])
+
+           (and (= person :2nd) (= number :sing)
+                (string? (get-in word [:past :2sing])))
+           (get-in word '[:past :2sing])
+
+           (and (= person :3rd) (= number :sing)
+                (string? (get-in word [:past :3sing])))
            (get-in word '(:past :3sing))
-           (and (= person :1st) (= number :plur))
+
+           (and (= person :1st) (= number :plur)
+                (string? (get-in word [:past :1plur])))
            (get-in word '(:past :1plur))
-           (and (= person :2nd) (= number :plur))
+
+           (and (= person :2nd) (= number :plur)
+                (string? (get-in word [:past :2plur])))
            (get-in word '(:past :2plur))
-           (and (= person :3rd) (= number :plur))
+
+           (and (= person :3rd) (= number :plur)
+                (string? (get-in word [:past :3plur])))
            (get-in word '(:past :3plur))
+
+           ;; default
+           (string? (get-in word [:past :english]))
+           (get-in word [:past :english])
+
+
            true word)) ;; not enough agreement specified to conjugate.
 
    ;; regular past
