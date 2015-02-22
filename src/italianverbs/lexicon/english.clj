@@ -390,11 +390,11 @@
                    :pred :io}
              :subcat '()}}
 
-   "increase" {:synsem {:cat :verb
-                        :sem {:pred :increase}}}
+   "increase" (trans-intrans {:synsem {:cat :verb
+                                       :sem {:pred :increase}}})
 
-   "insure" {:synsem {:cat :verb
-                      :sem {:pred :insure}}}
+   "insure" (trans-intrans {:synsem {:cat :verb
+                                      :sem {:pred :insure}}})
 
    "is missed" (intrans {:synsem {:sem {:pred :mancare}}
                          :english {:participle "being missed"
