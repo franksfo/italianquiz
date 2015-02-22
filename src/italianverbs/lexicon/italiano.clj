@@ -954,14 +954,14 @@
 
       "evitare" (trans-intrans {:synsem {:sem {:pred :avoid}}})
 
-      "finire" {:italiano {:boot-stem1 "finisc"
-                           :boot-stem2 "fin"}
-                :synsem {:cat :verb
-                         :sem {:pred :finish}}}
+      "finire" (trans-intrans {:italiano {:boot-stem1 "finisc"
+                                          :boot-stem2 "fin"}
+                               :synsem {:cat :verb
+                                        :sem {:pred :finish}}})
 
-      "formare" {:italiano "formare"
-                 :synsem {:cat :verb
-                          :sem {:pred :form}}}
+      "formare" (trans-intrans {:italiano "formare"
+                                :synsem {:cat :verb
+                                         :sem {:pred :form}}})
 
       "frequentare" (trans-intrans {:synsem {:sem {:pred :frequentare}}})
 
