@@ -354,12 +354,13 @@ function longest_prefix_and_correct_answer(user_input,correct_answers) {
     log(INFO,"user input: " + user_input);
     log(INFO,"correct_answers: " + correct_answers);
     var prefix = "";
+    var longest_answer = "";
     $.each(correct_answers,function(index,value) {
 	var i;
-	for (i = 1; i <= user_input.length; i++) {
-	    if (value.substring(0,i) == user_input.substring(0,i)) {
+	for (i = 0; i <= user_input.length; i++) {
+	    if (value.substring(0,i).toLowerCase() == user_input.substring(0,i).toLowerCase()) {
 		if (i > prefix.length) {
-		    prefix = user_input.substring(0,i);
+		    prefix = value.substring(0,i);
 		    longest_answer = value;
 		}
 	    }
