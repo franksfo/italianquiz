@@ -4,6 +4,7 @@
    [clojure.core :as core]
    [italianverbs.borges.writer]
    [italianverbs.engine :refer :all]
+   [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.unify :refer (get get-in)]))
 
