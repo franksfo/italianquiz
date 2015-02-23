@@ -982,7 +982,7 @@
 
       "giocare" (trans-intrans {:synsem {:sem {;:obj {:games true}
                                                :pred :giocare}}
-                                :italiano {:futuro-stem "gioch"}})
+                                :italiano {:futuro-stem "giocher"}})
 
       "guadagnare" (trans-intrans {:synsem {:sem {:pred :earn}}})
 
