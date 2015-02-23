@@ -488,13 +488,17 @@
    "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
    "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
 
+   ;; TODO: 3sing present exception used below to avoid "playies" is not an exception: it's a rule: y->ys.
+   ;; the exceptional case is when "ys" is not used (e.g. "tries").
    "play" (concat
 
            (trans-intrans {:comment "We are talking about playing games or sports."
+                           :english {:present {:3sing "plays"}}
                            :synsem {:sem {:pred :giocare}}})
 ;                                          :obj {:games true}}}})
 
            (trans-intrans {:comment "We are talking about playing music or sounds."
+                           :english {:present {:3sing "plays"}}
                            :synsem {:sem {:pred :suonare}}}))
 ;                                          :obj {:music true}}}}))
 
