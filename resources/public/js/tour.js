@@ -462,6 +462,7 @@ function non_so() {
 	step = step + 1;
     }
     navigate_to(step,false);
+    $("#scorevalue").html(parseInt($("#scorevalue").html()) - 100);
 }
 
 function navigate_to(step,do_encouragement) {
