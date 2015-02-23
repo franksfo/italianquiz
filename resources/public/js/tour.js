@@ -425,28 +425,6 @@ function user_keypress() {
     });
 }
 
-function common_prefix(user_guess,correct_answers) {
-    var prefix = "";
-
-    $.each(correct_answers,function(index,value) {
-	var correct_answer = value;
-	var case_sensitive_correct_answer = correct_answer;
-	user_guess = user_guess.toLowerCase();
-	correct_answer = correct_answer.trim().toLowerCase();
-	var i;
-	for (i = 0; i < user_guess.length; i++) {
-	    var user_char = user_guess[i];
-	    var correct_char = correct_answer[i];
-	    if (user_char == correct_char) {
-		prefix = prefix + case_sensitive_correct_answer[i];
-	    } else {
-		break;
-	    }
-	}
-    });
-    return prefix;
-}
-
 function update_map(question,correct_answer) {    
     L.circle([current_lat, 
 	      current_long], 10, {
