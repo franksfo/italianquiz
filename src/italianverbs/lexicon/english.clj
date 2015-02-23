@@ -502,8 +502,8 @@
                            :synsem {:sem {:pred :suonare}}}))
 ;                                          :obj {:music true}}}}))
 
-   "preserve" {:synsem {:cat :verb
-                        :sem {:pred :preserve}}}
+   "preserve" (trans-intrans {:synsem {:cat :verb
+                                       :sem {:pred :preserve}}})
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
    (trans-intrans {:english {:past "read (past)"}
@@ -643,8 +643,8 @@
              :subcat '()}}
 
    "throw" (trans-intrans
-            {:synsem {:english {:past "threw"}
-                      :sem {:pred :throw}}})
+            {:english {:past "threw"}
+             :synsem {:sem {:pred :throw}}})
 
    "throw out"
    (trans-intrans {:synsem {:sem {:pred :throw-out}}
