@@ -96,7 +96,7 @@
     [:div#correctanswer 
      ]
 
-    [:button {:id "non_so" :onclick "non_so();"}  "Non So"]
+    [:button {:id "non_so" :onclick "non_so();"}  "Non lo so"]
 
     [:table#navigation
      [:tr
@@ -201,13 +201,23 @@
 (defn generate-q-and-a [request]
   "generate a question and a set of possible correct answers, given request."
   ;; TODO: combine generate-question and generate-answer into one.
-  (let [pair (generate-question-and-correct-set :top "en" "it")]
-    {:status 200
-     :headers {"Content-Type" "application/json;charset=utf-8"
-               
-               "Cache-Control" "no-cache, no-store, must-revalidate"
-               "Pragma" "no-cache"
-               "Expires" "0"}
-     :body (write-str
-            pair)}))
+  (try (let [pair (generate-question-and-correct-set :top "en" "it")]
+         {:status 200
+          :headers {"Content-Type" "application/json;charset=utf-8"
+                    "Cache-Control" "no-cache, no-store, must-revalidate"
+                    "Pragma" "no-cache"
+                    "Expires" "0"}
+          :body (write-str
+                 pair)})
+       (catch Exception e
+         {:status 500
+          :headers {"Content-Type" "application/json;charset=utf-8"
+                    "Cache-Control" "no-cache, no-store, must-revalidate"
+                    "Pragma" "no-cache"
+                    "Expires" "0"}
+          :body (write-str {:exception e})})))
+
+
+         
+       
 
