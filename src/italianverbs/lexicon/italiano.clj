@@ -837,8 +837,8 @@
 
       "esistere" (intrans {:synsem {:cat :verb
                                     :essere true
-                                    :sem {:pred :exist}
-                                    :italiano {:passato "esistito"}}})
+                                    :sem {:pred :exist}}
+                           :italiano {:passato "esistito"}})
 
       "esprimere" (trans-intrans {:italiano {:passato "espresso"}
                                   :synsem {:cat :verb
