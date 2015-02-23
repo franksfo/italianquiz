@@ -491,3 +491,35 @@ td.num {
 table.striped tr:nth-of-type(odd) {
   background-color:ghostwhite;
 }
+
+
+.flag {
+    margin:1em;
+    border:0px solid black;
+    width:auto;
+    height:auto;
+    float:left;
+}
+
+.flag img {
+    width:100px;
+}
+
+.language {
+    text-align:center;
+    font-size:larger;
+    width:100%;
+}
+
+.intro {
+    text-align:center;
+    margin-top:1em;
+    margin-left:1em;
+    padding:1em;
+    background:#caecae;
+    width:95%;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:4px solid #caecae;
+}
