@@ -329,7 +329,7 @@ function create_tour_question() {
 }
 
 function decrement_remaining_tour_question_time() {
-    log(INFO,"decrement remaining time..");
+    log(DEBUG,"decrement remaining time..");
 }
 
 function submit_user_guess(guess,correct_answer) {
@@ -350,21 +350,25 @@ function submit_user_guess(guess,correct_answer) {
     return false;
 }
 
-function longest_correct_answer(prefix,answers) {
-    log(INFO,"lca: input prefix: " + prefix);
-    log(INFO,"lca: answers: " + answers);
-    var longest_length = 0;
-    var answer = "";
-    $.each(answers,function(index,value) {
-	log(INFO,"checking prefix: " + prefix + " against answer: " + value);
-	if (value.substring(0,prefix.length) == prefix) {
-	    if (value.length > longest_length) {
-		answer = value;
-		longest_length = value.length;
+function longest_prefix_and_correct_answer(user_input,correct_answers) {
+    log(INFO,"user input: " + user_input);
+    log(INFO,"correct_answers: " + correct_answers);
+    var prefix = "";
+    $.each(correct_answers,function(index,value) {
+	var i;
+	for (i = 1; i <= user_input.length; i++) {
+	    if (value.substring(0,i) == user_input.substring(0,i)) {
+		if (i > prefix.length) {
+		    prefix = user_input.substring(0,i);
+		    longest_answer = value;
+		}
 	    }
 	}
     });
-    return answer;
+    log(INFO,"longest correct answer: " + longest_answer);
+    log(INFO,"prefix: " + prefix);
+    return {"prefix":prefix,
+	    "correct_answer":longest_answer};
 }
 
 function increment_map_score() {
@@ -376,20 +380,23 @@ function increment_map_score() {
 function user_keypress() {
     $("#gameinput").keyup(function(event){
 	log(INFO,"You hit the key: " + event.keyCode);
-	log(INFO,"updating your progress - so far you are at: " + $("#gameinput").val());
+	var user_input = $("#gameinput").val();
+	log(INFO,"updating your progress - so far you are at: " + user_input);
 	    
 	// Find the longest common prefix of the user's guess and the set of possible answers.
-	// The common prefix might be an empty string (e.g. before a user starts answering).
-	var common = common_prefix($("#gameinput").val(),correct_answers);
+	// The common prefix might be an empty string (e.g. if user_input is empty before user starts answering).
+	var prefix_and_correct_answer = longest_prefix_and_correct_answer(user_input,correct_answers);
+	var prefix = prefix_and_correct_answer.prefix;
+	var correct_answer = prefix_and_correct_answer.correct_answer;
+	log(INFO,"longest prefix: " + prefix);
+	log(INFO,"longest correct_answer: " + correct_answer);
 
-	log(INFO,"common prefix: " + common.trim());
-	log(INFO,"common length: " + common.trim().length);
-	log(INFO,"correct answers: " + correct_answers);
+	log(INFO,"common prefix: " + prefix.trim());
+	log(INFO,"common length: " + prefix.trim().length);
 
 	// update the user's input with this prefix (shared with one or more correct answer).
-	$("#gameinput").val(common);
+	$("#gameinput").val(prefix);
 
-	var correct_answer = longest_correct_answer(common,correct_answers);
 
 	log(INFO,"answer prefix: " + correct_answer);
 	log(INFO,"answer length: " + correct_answer.length);
@@ -398,19 +405,19 @@ function user_keypress() {
 
 	// find the length of the longest match between what the possible correct answers and what the user has typed so far.
 
-	var percent = (common.trim().length / correct_answer.length) * 100;
+	var percent = (prefix.length / correct_answer.length) * 100;
 	
 	log(INFO,"percent: " + percent);
 	
 	$("#userprogress").css("width",percent+"%");
 	
-	if ((common.trim() != '') && (common.toLowerCase() == correct_answer.toLowerCase())) {
+	if ((prefix != '') && (prefix.toLowerCase() == correct_answer.toLowerCase())) {
 	    /* user got it right - 'flash' their answer and submit the answer for them. */
 	    $("#gameinput").css("background","lime");
 	    
 	    setTimeout(function(){
 		log(INFO,"submitting correct answer: " + correct_answer);
-	        submit_user_guess(common,correct_answer);
+	        submit_user_guess(prefix,correct_answer);
 		// reset userprogress bar
 		$("#userprogress").css("width","0");
 	    }, 1000);
