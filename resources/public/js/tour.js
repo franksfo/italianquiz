@@ -439,7 +439,7 @@ function update_map(question,correct_answer) {
 
 function non_so() {
     $("#correctanswer").css("display","block");
-    $("#correctanswer").fadeOut(1000,function () {$("#correctanswer").css("display","none");});
+    $("#correctanswer").fadeOut(3000,function () {$("#correctanswer").css("display","none");});
     if ((direction == 1) && (step > 1)) {
 	step = step - 1;
     }
