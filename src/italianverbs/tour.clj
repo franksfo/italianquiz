@@ -200,22 +200,21 @@
 
 (defn generate-q-and-a [request]
   "generate a question and a set of possible correct answers, given request."
-  (try (let [spec (get (:form-params request) "spec" :top)
-             debug
-             (log/debug (str "generate-q-and-a for spec: " spec))
-             pair 
-             (generate-question-and-correct-set spec "en" "it")]
-         {:status 200
-          :headers {"Content-Type" "application/json;charset=utf-8"
-                    "Cache-Control" "no-cache, no-store, must-revalidate"
-                    "Pragma" "no-cache"
-                    "Expires" "0"}
-          :body (write-str
-                 pair)})
-       (catch Exception e
-         {:status 500
-          :headers {"Content-Type" "application/json;charset=utf-8"
-                    "Cache-Control" "no-cache, no-store, must-revalidate"
-                    "Pragma" "no-cache"
-                    "Expires" "0"}
-          :body (write-str {:exception e})})))
+  (let [headers {"Content-Type" "application/json;charset=utf-8"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"
+                 "Pragma" "no-cache"
+                 "Expires" "0"}]
+    (try (let [spec (get (:form-params request) "spec" :top)
+               debug
+               (log/debug (str "generate-q-and-a for spec: " spec))
+               pair 
+               (generate-question-and-correct-set spec "en" "it")]
+           {:status 200
+            :headers headers
+            :body (write-str
+                   pair)})
+         (catch Exception e
+           {:status 500
+            :headers headers
+            :body (write-str {:exception (str e)})}))))
+
