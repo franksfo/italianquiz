@@ -37,6 +37,7 @@
         json-spec (json/write-str (strip-refs json-input-spec))
         ]
     (log/debug (str "looking for expressions in language: " target-language " with spec: " spec))
+    (log/debug (str "looking for expressions in language: " target-language " with json-spec: " json-spec))
 
     ;; get the structure of a random expression in the target language that matches the specification _spec_.
     (let [results (db/exec-raw [(str "SELECT target.serialized::text AS target,target.surface
@@ -44,6 +45,7 @@
                                        WHERE target.language=?
                                          AND target.structure IS NOT NULL
                                          AND target.surface != ''
+                                         AND target.structure @> '" json-spec "'
 ")
                                 [target-language]]
                                :results)]
@@ -76,10 +78,8 @@
             (log/debug (str "json-semantics:" json-semantics))
 
             (let [results
-                  (db/exec-raw [(str "SELECT source.surface 
-                                      AS source,
-                                         target.surface 
-                                      AS target 
+                  (db/exec-raw [(str "SELECT source.surface AS source,
+                                         target.surface AS target 
                                     FROM (SELECT surface, source.structure->'synsem'->'sem' AS sem
                                             FROM expression AS source
                                            WHERE source.language=?
@@ -129,20 +129,6 @@
              (deserialize (read-string (:serialized result))))
            results))))
 
-(defn get-meaning [input-map]
-  "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
-  (if (seq? input-map)
-    (map get-meaning
-         input-map)
-    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
-              :sem (get-in input-map [:synsem :sem] :top)
-              :subcat (get-in input-map [:synsem :subcat] :top)}}))
-
-(defn generate-question-and-correct-set-mockup [source-language target-language]
-  "generate a question and a set of possible correct answers, given request."
-  {:question "I went"
-   :answer-set ["io sono andato","sono andato"]})
-
 (defn contains [spec]
   "Find the sentences in English that match the spec, and the set of Italian sentences that each English sentence contains."
     (let [spec (if (= :top spec)
@@ -168,3 +154,11 @@
 
 ;; (map #(str (get-in % [:en]) " / " (get-in % [:it]) " | ") (contains {:synsem {:sem {:pred :mangiare :subj {:pred :noi}}}}))
 
+(defn get-meaning [input-map]
+  "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
+  (if (seq? input-map)
+    (map get-meaning
+         input-map)
+    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
+              :sem (get-in input-map [:synsem :sem] :top)
+              :subcat (get-in input-map [:synsem :subcat] :top)}}))
