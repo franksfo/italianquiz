@@ -17,6 +17,9 @@
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
+(def *login-enabled* false)
+(def *menubar-enabled* false)
+
 (defn verb-row [italian]
   (html
    [:tr
@@ -861,8 +864,6 @@
       [:th "Password"][:td [:input {:type "password" :name "password" :size "10"}]]
       [:td [:input {:type "submit" :class "button" :value "Login"}]]]]]]])
 
-
-
 (defn page-body [content req & [ title options]]
   (let [title (if title title "default page title")]
     (log/debug (str "page-body with options: " options))
@@ -870,9 +871,10 @@
      (pretty-head title (:js options) (:jss options) (:css options))
      (pretty-body
       options
-      (if-let [identity (friend/identity req)]
-        (logged-in-content req identity)
-        login-form)
+      (if *login-enabled*
+        (if-let [identity (friend/identity req)]
+          (logged-in-content req identity)
+          login-form))
 
        content))))
       
@@ -888,12 +890,14 @@
   (let [haz-admin (not (nil? (:italianverbs.core/admin (:roles (friend/current-authentication)))))]
     (page-body 
      (html
-      [:div#top
-       (menubar/menubar (session/request-to-session request)
-                        (if request (get request :uri))
-                        (friend/current-authentication)
-                        (request-to-suffixes request))]
 
+      (if *menubar-enabled*
+
+        [:div#top
+         (menubar/menubar (session/request-to-session request)
+                          (if request (get request :uri))
+                          (friend/current-authentication)
+                          (request-to-suffixes request))])
 
 ;      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
 ;       (str "can-haz admin:" haz-admin)]
