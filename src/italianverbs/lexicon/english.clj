@@ -284,8 +284,8 @@
    "finish" (trans-intrans {:synsem {:cat :verb
                                      :sem {:pred :finish}}})
 
-   "form" {:synsem {:cat :verb
-                    :sem {:pred :form}}}
+   "form" (trans-intrans {:synsem {:cat :verb
+                                   :sem {:pred :form}}})
 
    "game" {:synsem {:cat :noun
                     :sem {:pred :game
@@ -334,7 +334,7 @@
                                                  :1plur "have to"
                                                  :2plur "have to"
                                                  :3plur "have to"}
-                                       :future "will have to"
+                                       :future "have to"
                                        :participle "having to"
                                        :past "had to"}})
 
