@@ -58,3 +58,6 @@
 
 ;; number of distinct english <-> italiano translation pairs
 ;; SELECT count(*) FROM (SELECT DISTINCT english.surface AS en, italiano.surface AS it FROM italiano INNER JOIN english ON italiano.synsem->'sem' = english.synsem->'sem' ORDER BY english.surface) AS foo;
+
+;; another view of showing all en <-> it translation pairs
+;; SELECT DISTINCT en.surface AS en, it.surface AS it, it.structure->'synsem'->'sem'->'pred' AS pred FROM expression AS en INNER JOIN expression AS it ON (en.structure->'synsem'->'sem') @> (it.structure->'synsem'->'sem') AND en.language='en' AND en.language='en' WHERE it.language='it' ORDER BY pred LIMIT 3000;
