@@ -200,8 +200,11 @@
 
 (defn generate-q-and-a [request]
   "generate a question and a set of possible correct answers, given request."
-  ;; TODO: combine generate-question and generate-answer into one.
-  (try (let [pair (generate-question-and-correct-set :top "en" "it")]
+  (try (let [spec (get (:form-params request) "spec" :top)
+             debug
+             (log/debug (str "generate-q-and-a for spec: " spec))
+             pair 
+             (generate-question-and-correct-set spec "en" "it")]
          {:status 200
           :headers {"Content-Type" "application/json;charset=utf-8"
                     "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -216,8 +219,3 @@
                     "Pragma" "no-cache"
                     "Expires" "0"}
           :body (write-str {:exception e})})))
-
-
-         
-       
-
