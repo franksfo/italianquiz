@@ -695,15 +695,43 @@
        ]]]]))
 
 (defn about []
-   [:div {:class "major"} [:h2 "Welcome to Verbcoach."]
+   [:div {:style "width:100%; height: 500px;"   :class "major"} [:h2 "Welcome to Verbcoach."]
 
-    [:div
-     [:p
-     
-      "This site helps to learn Latin-based languages by \"coaching\" to conjugate verbs."
+    [:div.intro 
 
-      ]]
-    ])
+     "The best place on the web to learn how to conjugate verbs."
+
+     ]
+
+;   [:p 
+;    "You can use this website just by clicking on the language you want to ;practice, or you can login using your existing Google account (enter your g;oogle username and password)."
+;    ]
+
+    [:div.flag
+
+     [:a {:href "/tour"}
+      [:img {:src "/png/Flag_of_Italy.svg.png" }]]
+
+     [:a {:href "/gamechooser"}
+      [:div.language "Italiano"]
+      ]
+     ]
+
+    [:div.flag {:style "float:right"}
+
+     [:img {:src "/png/Flag_of_Spain.svg.png" }]
+
+     [:div.language {:style "color:#ccc"} "Español"]
+
+
+     [:i {:style "text-align:center;color:#ccc"} "Coming soon" ]
+
+     ]
+
+
+])
+
+
 
 (defn includes-js [includes]
   (if (not (empty? includes))
@@ -823,13 +851,17 @@
   (-> identity friend/current-authentication :roles))
 
 (def login-form
+  [:div 
+
   [:div {:class "login major"}
    [:form {:method "POST" :action "/login"}
     [:table
      [:tr
       [:th "User"][:td [:input {:type "text" :name "username" :size "10"}]]
       [:th "Password"][:td [:input {:type "password" :name "password" :size "10"}]]
-      [:td [:input {:type "submit" :class "button" :value "Login"}]]]]]])
+      [:td [:input {:type "submit" :class "button" :value "Login"}]]]]]]])
+
+
 
 (defn page-body [content req & [ title options]]
   (let [title (if title title "default page title")]

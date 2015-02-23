@@ -36,7 +36,7 @@
   (GET "/" request
        ;; response map
        {:status 302
-        :headers {"Location" "/tour"}})
+        :headers {"Location" "/about"}})
 
   (context "/class" []
            class/routes)
@@ -55,6 +55,7 @@
 
   (GET "/about" request
        {:status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
         :body (html/page "Welcome to Verbcoach"
                          (html/about)
                          request)})
