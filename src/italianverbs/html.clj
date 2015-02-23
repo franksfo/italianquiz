@@ -17,8 +17,8 @@
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
-(def *login-enabled* false)
-(def *menubar-enabled* false)
+(def login-enabled false)
+(def menubar-enabled false)
 
 (defn verb-row [italian]
   (html
@@ -871,7 +871,7 @@
      (pretty-head title (:js options) (:jss options) (:css options))
      (pretty-body
       options
-      (if *login-enabled*
+      (if login-enabled
         (if-let [identity (friend/identity req)]
           (logged-in-content req identity)
           login-form))
@@ -891,7 +891,7 @@
     (page-body 
      (html
 
-      (if *menubar-enabled*
+      (if menubar-enabled
 
         [:div#top
          (menubar/menubar (session/request-to-session request)
