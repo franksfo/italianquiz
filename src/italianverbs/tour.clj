@@ -214,7 +214,10 @@
             :body (write-str
                    pair)})
          (catch Exception e
-           {:status 500
-            :headers headers
-            :body (write-str {:exception (str e)})}))))
+           (do
+             (log/error (str "attempt to (generate-question-and-correct-set) threw an error: " e))
+             {:status 500
+              :headers headers
+              :body (write-str {:exception (str e)})})))))
+
 
