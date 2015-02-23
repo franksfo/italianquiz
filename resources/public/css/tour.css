@@ -53,6 +53,11 @@ button#non_so {
     height:5em;
 }
 
+#tourgameform button {
+    font-size:smaller;
+    whitespace:nowrap;
+}
+
 #sidebyside > div {
     float:left;
     width:33%;
