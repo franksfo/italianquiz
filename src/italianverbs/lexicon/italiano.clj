@@ -1226,7 +1226,7 @@
                           :pred :madre
                           :child false}}})
 
-   "mancare" (trans-intrans {:italian {:futuro-stem "manch"}
+   "mancare" (trans-intrans {:italiano {:futuro-stem "manch"}
                              :synsem {:sem {:pred :mancare}}})
 
    "mandare" (trans-intrans {:synsem {:sem {:pred :mandare}}})
