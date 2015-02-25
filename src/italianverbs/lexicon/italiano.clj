@@ -498,8 +498,8 @@
                           :pred :cane}}})
 
 
-   "capire" {:italian {:boot-stem1 "capisc"
-                       :boot-stem2 "cap"}
+   "capire" {:italiano {:boot-stem1 "capisc"
+                        :boot-stem2 "cap"}
              :synsem {:cat :verb
                       :sem {:pred :understand}}}
 
@@ -651,7 +651,7 @@
                                 :comparative false
                                 :human true}}}))]
 
-      "correre" (trans-intrans {:italian {:passato "corso"}
+      "correre" (trans-intrans {:italiano {:passato "corso"}
                                 :synsem {:cat :verb
                                          :sem {:pred :run}}})
 
@@ -1226,7 +1226,8 @@
                           :pred :madre
                           :child false}}})
 
-   "mancare" (trans-intrans {:synsem {:sem {:pred :mancare}}})
+   "mancare" (trans-intrans {:italian {:futuro-stem "manch"}
+                             :synsem {:sem {:pred :mancare}}})
 
    "mandare" (trans-intrans {:synsem {:sem {:pred :mandare}}})
 
