@@ -40,6 +40,9 @@ button#non_so {
 }
 
 div.accents {
+    padding:0.25em;
+    margin:0.25em;
+    width:1em;
     float:left;
 }
 
@@ -90,7 +93,7 @@ button.accented {
 }
 
 #tourgameform input {
-    margin:4px;
+    margin:0.5em;
     font-size:250%;
 }
 
