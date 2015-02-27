@@ -29,12 +29,39 @@
    (GET "/generate-q-and-a" request
         (generate-q-and-a request))))
 
+(defn generate-q-and-a [request]
+  "generate a question and a set of possible correct answers, given request."
+  (let [headers {"Content-Type" "application/json;charset=utf-8"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"
+                 "Pragma" "no-cache"
+                 "Expires" "0"}]
+    (try (let [spec (get (:form-params request) "spec" :top)
+               debug
+               (log/debug (str "generate-q-and-a for spec: " spec))
+               pair 
+               (generate-question-and-correct-set spec "en" "it")]
+           {:status 200
+            :headers headers
+            :body (write-str
+                   pair)})
+         (catch Exception e
+           (do
+             (log/error (str "attempt to (generate-question-and-correct-set) threw an error: " e))
+             {:status 500
+              :headers headers
+              :body (write-str {:exception (str e)})})))))
+
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.
 (defn tour []
   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
 
   [:div#game
+
+   [:div#correctanswer 
+    " "
+    ]
+
 
    [:svg {:id "svgarena"}]
 
@@ -87,16 +114,22 @@
      ""
      ]
 
-    [:input {:id "gameinput" :size "30"}]
+    [:div#gameinputdiv
+      [:input {:id "gameinput" :size "30"}]
+     
+     [:div.accents
+      [:button.accented {:onclick "add_a_grave();"} "&agrave;"]
+      [:button.accented {:onclick "add_e_grave();"} "&egrave;"]
+      [:button.accented {:onclick "add_o_grave();"} "&ograve;"]
+      ]
+
+      [:button {:id "non_so" :onclick "non_so();"}  "Non lo so"]
+
+     ]
 
     [:div#userprogresscontainer
      [:div#userprogress 
       ]]
-
-    [:div#correctanswer 
-     ]
-
-    [:button {:id "non_so" :onclick "non_so();"}  "Non lo so"]
 
     [:table#navigation
      [:tr
@@ -197,27 +230,3 @@
                 :comp {:phrasal false}})
         true
         spec))
-
-(defn generate-q-and-a [request]
-  "generate a question and a set of possible correct answers, given request."
-  (let [headers {"Content-Type" "application/json;charset=utf-8"
-                 "Cache-Control" "no-cache, no-store, must-revalidate"
-                 "Pragma" "no-cache"
-                 "Expires" "0"}]
-    (try (let [spec (get (:form-params request) "spec" :top)
-               debug
-               (log/debug (str "generate-q-and-a for spec: " spec))
-               pair 
-               (generate-question-and-correct-set spec "en" "it")]
-           {:status 200
-            :headers headers
-            :body (write-str
-                   pair)})
-         (catch Exception e
-           (do
-             (log/error (str "attempt to (generate-question-and-correct-set) threw an error: " e))
-             {:status 500
-              :headers headers
-              :body (write-str {:exception (str e)})})))))
-
-
