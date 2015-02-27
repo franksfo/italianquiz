@@ -377,52 +377,69 @@ function increment_map_score() {
     $("#scorevalue").html(parseInt($("#scorevalue").html()) + score);
 }
 
+function add_a_grave(the_char) {
+    $("#gameinput").val($("#gameinput").val() + "à");
+    update_user_input();
+}
+
+function add_e_grave(the_char) {
+    $("#gameinput").val($("#gameinput").val() + "è");
+    update_user_input();
+}
+function add_o_grave(the_char) {
+    $("#gameinput").val($("#gameinput").val() + "ò");
+    update_user_input();
+}
+
+function update_user_input() {
+    var user_input = $("#gameinput").val();
+    log(INFO,"updating your progress - so far you are at: " + user_input);
+
+    // Find the longest common prefix of the user's guess and the set of possible answers.
+    // The common prefix might be an empty string (e.g. if user_input is empty before user starts answering).
+    var prefix_and_correct_answer = longest_prefix_and_correct_answer(user_input,correct_answers);
+    var prefix = prefix_and_correct_answer.prefix;
+    var correct_answer = prefix_and_correct_answer.correct_answer;
+    log(INFO,"longest prefix: " + prefix);
+    log(INFO,"longest correct_answer: " + correct_answer);
+
+    log(INFO,"common prefix: " + prefix.trim());
+    log(INFO,"common length: " + prefix.trim().length);
+
+    // update the user's input with this prefix (shared with one or more correct answer).
+    $("#gameinput").val(prefix);
+
+    log(INFO,"answer prefix: " + correct_answer);
+    log(INFO,"answer length: " + correct_answer.length);
+
+    var max_length = 0;
+
+    // find the length of the longest match between what the possible correct answers and what the user has typed so far.
+
+    var percent = (prefix.length / correct_answer.length) * 100;
+	
+    log(INFO,"percent: " + percent);
+	
+    $("#userprogress").css("width",percent+"%");
+	
+    if ((prefix != '') && (prefix.toLowerCase() == correct_answer.toLowerCase())) {
+	/* user got it right - 'flash' their answer and submit the answer for them. */
+	$("#gameinput").css("background","lime");
+	
+	setTimeout(function(){
+	    log(INFO,"submitting correct answer: " + correct_answer);
+	    submit_user_guess(prefix,correct_answer);
+	    // reset userprogress bar
+	    $("#userprogress").css("width","0");
+	    }, 1000);
+    }
+}
+
 // http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
 function user_keypress() {
     $("#gameinput").keyup(function(event){
 	log(INFO,"You hit the key: " + event.keyCode);
-	var user_input = $("#gameinput").val();
-	log(INFO,"updating your progress - so far you are at: " + user_input);
-	    
-	// Find the longest common prefix of the user's guess and the set of possible answers.
-	// The common prefix might be an empty string (e.g. if user_input is empty before user starts answering).
-	var prefix_and_correct_answer = longest_prefix_and_correct_answer(user_input,correct_answers);
-	var prefix = prefix_and_correct_answer.prefix;
-	var correct_answer = prefix_and_correct_answer.correct_answer;
-	log(INFO,"longest prefix: " + prefix);
-	log(INFO,"longest correct_answer: " + correct_answer);
-
-	log(INFO,"common prefix: " + prefix.trim());
-	log(INFO,"common length: " + prefix.trim().length);
-
-	// update the user's input with this prefix (shared with one or more correct answer).
-	$("#gameinput").val(prefix);
-
-
-	log(INFO,"answer prefix: " + correct_answer);
-	log(INFO,"answer length: " + correct_answer.length);
-
-	var max_length = 0;
-
-	// find the length of the longest match between what the possible correct answers and what the user has typed so far.
-
-	var percent = (prefix.length / correct_answer.length) * 100;
-	
-	log(INFO,"percent: " + percent);
-	
-	$("#userprogress").css("width",percent+"%");
-	
-	if ((prefix != '') && (prefix.toLowerCase() == correct_answer.toLowerCase())) {
-	    /* user got it right - 'flash' their answer and submit the answer for them. */
-	    $("#gameinput").css("background","lime");
-	    
-	    setTimeout(function(){
-		log(INFO,"submitting correct answer: " + correct_answer);
-	        submit_user_guess(prefix,correct_answer);
-		// reset userprogress bar
-		$("#userprogress").css("width","0");
-	    }, 1000);
-	}
+	update_user_input();
     });
 }
 
@@ -449,6 +466,7 @@ function non_so() {
     }
     navigate_to(step,false);
     $("#scorevalue").html(parseInt($("#scorevalue").html()) - 100);
+    $("#gameinput").focus();
 }
 
 function navigate_to(step,do_encouragement) {
