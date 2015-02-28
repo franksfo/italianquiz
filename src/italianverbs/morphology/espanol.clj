@@ -183,7 +183,7 @@
      (get-in word [:espanol])
 
      ;; TODO: all of the rules that handle exceptions should be removed:
-     ;; exceptions are dealt with at compile-time now, via italianverbs.lexicon.espanol/exception-generator
+     ;; exceptions are dealt with at compile-time now, via italianverbs.morphology.espanol/exception-generator
 
      ;; handle lexical exceptions (plural feminine adjectives):
      (and

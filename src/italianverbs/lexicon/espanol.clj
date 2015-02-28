@@ -24,6 +24,7 @@
 
                      "abandonar" {:synsem {:cat :verb
                                            :sem {:pred :abandon}}}
+
                      "acabar" {:synsem {:cat :verb
                                         :sem {:pred :finish}}}
                      "aceptar" {:synsem {:cat :verb
@@ -116,6 +117,9 @@
 
                      "desear" {:synsem {:cat :verb
                                         :sem {:pred :desire}}}
+
+                     "dormir" {:synsem {:cat :verb
+                                        :sem {:pred :dormire}}}
 
                      "echar" {:synsem {:cat :verb
                                        :sem {:pred :throw-out}}}
@@ -276,7 +280,30 @@
                      "vender" {:synsem {:cat :verb
                                         :sem {:pred :??}}}
                      "vivir" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}})
+                                       :sem {:pred :??}}}
+
+                     "yo"       [{:synsem {:cat :noun
+                                           :pronoun true
+                                           :case :nom
+                                           :agr {:gender :fem
+                                                 :person :1st
+                                                 :number :sing}
+                                           :sem {:human true
+                                                 :pred :io}
+                                           :subcat '()}}
+
+                                 {:synsem {:cat :noun
+                                           :pronoun true
+                                           :case :nom
+                                           :agr {:gender :masc
+                                                 :person :1st
+                                                 :number :sing}
+                                           :sem {:human true
+                                                 :pred :io}
+                                           :subcat '()}}]
+
+                     })
+
 
 
 

@@ -6,6 +6,7 @@
     [clojure.tools.logging :as log]
     [italianverbs.engine :as engine]
     [italianverbs.english :as en]
+    [italianverbs.espanol :as es]
     [italianverbs.italiano :as it]
     [italianverbs.korma :as korma]
     [italianverbs.lexiconfn :as lexfn]
