@@ -104,18 +104,6 @@
 
 
    [:svg {:id "svgarena"}]
-
-   [:div#rainforest
-
-    [:div#wordbar
-
-     [:div#q1 "wordbar"]
-
-     [:div#q2 "not used"]
-
-     [:div#q3 "yet"]
-
-     ]
      
     (direction-chooser)
      
@@ -129,24 +117,10 @@
      ;; map is separate from the triptych street view
     [:div#map ]
 
-    [:div#sidebyside {:style "z-index:2"}
-
-     [:div#streetview_left
-      [:img#streetviewimageleft
-       {:src ""}] ;; src value is filled in with Javascript.
-     ]
-
-     [:div#streetview
-      [:img#streetviewimage
-       {:src ""}] ;; src value is filled in with Javascript.
-     ]
-
-     [:div#streetviewright
-      [:img#streetviewimageright
-       {:src ""}] ;; src value is filled in with Javascript.
-     ]]
-
-    ] ;; end of :div#rainforest
+   [:div#streetview
+    [:img#streetviewimage
+     {:src ""}] ;; src value is filled in with Javascript.
+    ]
 
    [:div#tourgameform
 

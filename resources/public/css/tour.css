@@ -3,14 +3,21 @@
     -webkit-border-radius:5px;
     border-radius:5px;
     border:1px solid #18ab29;
-    position:absolute;
     border: 0px dashed green;
-    top:25%;
-    left:25%;
     float:right;
-    width:auto;
     background:ivory;
-    padding:1%;
+    position:absolute;
+    right:10px;
+    top:100px;
+    padding:0.5em;
+    width:35%;
+    margin-right:1em;
+}
+
+#streetview {
+    position:absolute;
+    left:80px;
+    top:50px;
 }
 
 #tourgameform form input[type="text"] {
@@ -18,8 +25,8 @@
 }
 
 #correctanswer {
-    font-size:250%;
-    position:fixed;
+    font-size:200%;
+    position:absolute;
     left:40%;
     top:40%;
     white-space:nowrap;
@@ -42,7 +49,7 @@ button#non_so {
 div.accents {
     padding:0.25em;
     margin:0.25em;
-    width:1em;
+    width:auto;
     float:left;
 }
 
@@ -88,24 +95,14 @@ button.accented {
     background:lightgreen;
 }
 
-#sidebyside {
-    width:100%;
-}
-
 #tourgameform input {
     margin:0.5em;
-    font-size:250%;
-}
-
-#sidebyside > div {
-    float:left;
-    width:33%;
-    border:0px dashed blue;
+    font-size:150%;
 }
 
 #map {
     width:100%;
-    height:40%;
+    height:400px;
 }
 
 #navigation {
@@ -137,6 +134,3 @@ button.accented {
     top:1px;
 }
 
-#gameinputdiv {
-    width:100%;
-}

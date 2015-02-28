@@ -240,27 +240,9 @@ function start_tour() {
     }).addTo(map).bindPopup("start")
 
     var popup = L.popup();
-    
-    function onMapClick(e) {
-	popup
-	    .setLatLng(e.latlng)
-	    .setContent("[" + e.latlng.lat + "," + e.latlng.lng + "]")
-	    .openOn(map);
-	$("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=500x500&location="+e.latlng.lat+","+e.latlng.lng+"&fov=90&heading="+heading+"&pitch=10");
 
-    }
-    
-    map.on('click', onMapClick);
-
-    // update streetview:
-    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
-
-    var heading_left = heading - scope;
-   $("#streetviewimageleft").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_left+"&pitch=10");
-
-    var heading_right = heading + scope;
-   $("#streetviewimageright").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_right+"&pitch=10");
-
+    // set streetview to the first location we are at:
+    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=275x275&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
 
     $("#heading").val(heading);
     $("#lat").val(current_lat);
@@ -498,11 +480,7 @@ function navigate_to(step,do_encouragement) {
     }
 
     // update streetview:
-    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=275x275&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
 
-    var heading_left = heading - scope;
-   $("#streetviewimageleft").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_left+"&pitch=10");
-
-    var heading_right = heading + scope;
-   $("#streetviewimageright").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading_right+"&pitch=10");
 }
+
