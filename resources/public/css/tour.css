@@ -12,6 +12,8 @@
     padding:0.5em;
     width:35%;
     margin-right:1em;
+    opacity:0.85;
+    filter:alpha(opacity=85); /* For IE8 and earlier */
 }
 
 #streetview {
@@ -88,8 +90,8 @@ button.accented {
     border-radius:5px;
     white-space:nowrap;
     text-align:center;
-    width:50%;
-    margin-left:25%;
+    width:75%;
+    margin-left:12%;
     padding:2px;
     border:1px solid red;
     background:lightgreen;
@@ -147,3 +149,10 @@ button.accented {
     color:green;
     z-index:2;
 }
+
+#gameinputdiv {
+    float:left;
+    width:95%;
+    margin-left:5%;
+}
+
