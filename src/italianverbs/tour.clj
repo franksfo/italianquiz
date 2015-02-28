@@ -25,7 +25,7 @@
      (GET "/it" request
           {:headers headers
            :status 200
-           :body (page "Map Tour" (tour "it") request {:onload "start_tour();"
+           :body (page "Map Tour" (tour "it") request {:onload "start_tour('it');"
                                                        :css ["/css/tour.css"]
                                                        :jss ["/js/gen.js"
                                                              "/js/leaflet.js"
@@ -34,7 +34,7 @@
      (GET "/es" request
           {:status 200
            :headers headers
-           :body (page "Map Tour" (tour "es") request {:onload "start_tour();"
+           :body (page "Map Tour" (tour "es") request {:onload "start_tour('es');"
                                                        :css ["/css/tour.css"]
                                                        :jss ["/js/gen.js"
                                                              "/js/leaflet.js"
@@ -64,8 +64,8 @@
           {:status 302
            :headers {"Location" "/tour/it/generate-q-and-a"}}))))
 
-(defn generate-q-and-a [language request]
-  "generate a question and a set of possible correct answers, given request."
+(defn generate-q-and-a [target-language request]
+  "generate a question in English and a set of possible correct answers in the target language, given parameters in request"
   (let [headers {"Content-Type" "application/json;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
                  "Pragma" "no-cache"
@@ -74,7 +74,7 @@
                debug
                (log/debug (str "generate-q-and-a for spec: " spec))
                pair 
-               (generate-question-and-correct-set spec "en" language)]
+               (generate-question-and-correct-set spec "en" target-language)]
            {:status 200
             :headers headers
             :body (write-str
@@ -96,6 +96,14 @@
         (= language "es")
         [:div.accents
          [:button.accented {:onclick "add_n_tilde();"} "&ntilde;"]]
+        true
+        ""))
+
+(defn dont-know [language]
+  (cond (= language "it")
+        "Non lo so"
+        (= language "es")
+        "No se"
         true
         ""))
 
@@ -141,7 +149,7 @@
      
      (accent-characters language)
 
-      [:button {:id "non_so" :onclick "non_so();"}  "Non lo so"]
+      [:button {:id "non_so" :onclick "non_so();"}  (dont-know language)]
 
     [:div#userprogresscontainer
      [:div#userprogress 

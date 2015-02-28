@@ -79,7 +79,7 @@ var quadrant = get_quadrant(tour_path,step);
 var heading = get_heading(tour_path,0);
 var current_zoom = 17;
 
-function start_tour() {
+function start_tour(target_language) {
     map = L.map('map').setView([current_lat, current_long], current_zoom);
 
     L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
@@ -114,11 +114,11 @@ function start_tour() {
     $("#long1").val(tour_path[step+1][1]);
     
     user_keypress();
-    tour_loop();
+    tour_loop(target_language);
 }
 
-function tour_loop() {
-    create_tour_question();
+function tour_loop(target_language) {
+    create_tour_question(target_language);
     $("#gameinput").focus();
     $("#gameinput").val("");
     
@@ -131,7 +131,7 @@ function tour_loop() {
 var answer_info = {};
 var correct_answers = [];
 
-function create_tour_question() {
+function create_tour_question(target_language) {
 
     $("#gameinput").css("background","white");
     $("#gameinput").css("color","black");
@@ -149,12 +149,12 @@ function create_tour_question() {
 	var i=0;
 	$("#correctanswer").html("");
 
-	log(INFO,"TARGETS ARE: " + q_and_a.targets);
+	log(DEBUG,"TARGETS ARE: " + q_and_a.targets);
 	correct_answers = q_and_a.targets;
 
 	$.each(q_and_a.targets, function(index,value) {
-	    log(INFO,"TARGET INDEX IS: " + index);
-	    log(INFO,"TARGET VALUE IS: " + value);
+	    log(DEBUG,"TARGET INDEX IS: " + index);
+	    log(DEBUG,"TARGET VALUE IS: " + value);
 	    $("#correctanswer").append("<div id='answer_"+i+"'>" + value + "</div>");
 	    i++;
 	});
@@ -167,7 +167,7 @@ function create_tour_question() {
     $.ajax({
 	cache: false,
         dataType: "html",
-        url: "/tour/generate-q-and-a",
+        url: "/tour/" + target_language + "/generate-q-and-a",
         success: update_tour_q_and_a
     });
 }

@@ -51,8 +51,8 @@
                                :results)]
       (if (empty? results)
         (do
-          (log/error (str "nothing found in both source and target that matches spec: " spec))
-          (throw (Exception. (str "nothing found in both source and target that matches spec: " spec))))
+          (log/error (str "nothing found in target language: " target-language " that matches spec: " spec))
+          (throw (Exception. (str "nothing found in target language: " target-language " that matches spec: " spec))))
 
         ;; choose a random expression from the results of the above.
         (let [size-of-results (.size results)
