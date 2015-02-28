@@ -129,13 +129,11 @@
      ]
 
     [:div#gameinputdiv
-      [:input {:id "gameinput" :size "30"}]
+      [:input {:id "gameinput" :size "20"}]]
      
      (accent-characters language)
 
       [:button {:id "non_so" :onclick "non_so();"}  "Non lo so"]
-
-     ]
 
     [:div#userprogresscontainer
      [:div#userprogress 
