@@ -22,7 +22,7 @@
 (defn fill [num & [spec]]
   "wipe out current table and replace with (populate num spec)"
   (truncate)
-  (populate num spec))
+  (populate num en/small it/small spec))
 
 (defn populate [num source-language-model target-language-model & [ spec ]]
   (let [spec (if spec spec :top)
@@ -43,7 +43,7 @@
         ]
     (dotimes [n num]
       (let [target-language-sentence (engine/generate spec
-                                                 target-language-model :enrich true)
+                                                      target-language-model :enrich true)
 
             target-language-sentence (cond
                                  (not (= :notfound (get-in target-language-sentence [:synsem :sem :subj] :notfound)))

@@ -5,6 +5,7 @@
    [italianverbs.borges.writer]
    [italianverbs.engine :refer :all]
    [italianverbs.english :as en]
+   [italianverbs.espanol :as es]
    [italianverbs.italiano :as it]
    [italianverbs.unify :refer (get get-in)]))
 
