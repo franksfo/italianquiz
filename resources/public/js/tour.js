@@ -380,15 +380,18 @@ function increment_map_score() {
 function add_a_grave(the_char) {
     $("#gameinput").val($("#gameinput").val() + "à");
     update_user_input();
+    $("#gameinput").focus();
 }
 
 function add_e_grave(the_char) {
     $("#gameinput").val($("#gameinput").val() + "è");
     update_user_input();
+    $("#gameinput").focus();
 }
 function add_o_grave(the_char) {
     $("#gameinput").val($("#gameinput").val() + "ò");
     update_user_input();
+    $("#gameinput").focus();
 }
 
 function update_user_input() {

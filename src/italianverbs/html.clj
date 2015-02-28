@@ -712,22 +712,22 @@
 
     [:div.flag
 
-     [:a {:href "/tour"}
+     [:a {:href "/tour/it"}
       [:img {:src "/png/Flag_of_Italy.svg.png" }]]
 
-     [:a {:href "/gamechooser"}
+     [:a {:href "/tour/it"}
       [:div.language "Italiano"]
       ]
      ]
 
     [:div.flag {:style "float:right"}
 
-     [:img {:src "/png/Flag_of_Spain.svg.png" }]
+     [:a {:href "/tour/es"}
+      [:img {:src "/png/Flag_of_Spain.svg.png" }]]
 
-     [:div.language {:style "color:#ccc"} "Español"]
-
-
-     [:i {:style "text-align:center;color:#ccc"} "Coming soon" ]
+     [:a {:href "/tour/es"}
+      [:div.language "Español"]
+      ]
 
      ]
 

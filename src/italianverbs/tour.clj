@@ -18,18 +18,51 @@
 (declare tour)
 
 (def routes
-  (compojure/routes
-   (GET "/" request
-        {:status 200
-         :body (page "Map Tour" (tour) request {:onload "start_tour();"
-                                                :css ["/css/tour.css"]
-                                                :jss ["/js/gen.js"
-                                                      "/js/leaflet.js"
-                                                      "/js/tour.js"]})})
-   (GET "/generate-q-and-a" request
-        (generate-q-and-a request))))
+  (let [headers {"Content-Type" "text/html;charset=utf-8"}]
 
-(defn generate-q-and-a [request]
+    (compojure/routes
+
+     (GET "/it" request
+          {:headers headers
+           :status 200
+           :body (page "Map Tour" (tour "it") request {:onload "start_tour();"
+                                                       :css ["/css/tour.css"]
+                                                       :jss ["/js/gen.js"
+                                                             "/js/leaflet.js"
+                                                             "/js/tour.js"]})})
+     (GET "/es" request
+          {:status 200
+           :headers headers
+           :body (page "Map Tour" (tour "es") request {:onload "start_tour();"
+                                                       :css ["/css/tour.css"]
+                                                       :jss ["/js/gen.js"
+                                                             "/js/leaflet.js"
+                                                             "/js/tour.js"]})})
+
+     (GET "/it/generate-q-and-a" request
+          (generate-q-and-a "it" request))
+
+     (GET "/es/generate-q-and-a" request
+          (generate-q-and-a "es" request))
+
+     (GET "/es" request
+          {:status 302
+           :headers {"Location" "/es/tour"}})
+
+     (GET "/it" request
+          {:status 302
+           :headers {"Location" "/it/tour"}})
+
+     ;; below URLs are for backwards-compatibility:
+     (GET "/" request
+          {:status 302
+           :headers {"Location" "/it/tour"}})
+
+     (GET "/generate-q-and-a" request
+          {:status 302
+           :headers {"Location" "/tour/it/generate-q-and-a"}}))))
+
+(defn generate-q-and-a [language request]
   "generate a question and a set of possible correct answers, given request."
   (let [headers {"Content-Type" "application/json;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -39,7 +72,7 @@
                debug
                (log/debug (str "generate-q-and-a for spec: " spec))
                pair 
-               (generate-question-and-correct-set spec "en" "it")]
+               (generate-question-and-correct-set spec "en" language)]
            {:status 200
             :headers headers
             :body (write-str
@@ -51,9 +84,16 @@
               :headers headers
               :body (write-str {:exception (str e)})})))))
 
+(defn accent-characters [language]
+  [:div.accents
+   [:button.accented {:onclick "add_a_grave();"} "&agrave;"]
+   [:button.accented {:onclick "add_e_grave();"} "&egrave;"]
+   [:button.accented {:onclick "add_o_grave();"} "&ograve;"]
+   ])
+
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.
-(defn tour []
+(defn tour [language]
   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
 
   [:div#game
@@ -117,11 +157,7 @@
     [:div#gameinputdiv
       [:input {:id "gameinput" :size "30"}]
      
-     [:div.accents
-      [:button.accented {:onclick "add_a_grave();"} "&agrave;"]
-      [:button.accented {:onclick "add_e_grave();"} "&egrave;"]
-      [:button.accented {:onclick "add_o_grave();"} "&ograve;"]
-      ]
+     (accent-characters language)
 
       [:button {:id "non_so" :onclick "non_so();"}  "Non lo so"]
 
