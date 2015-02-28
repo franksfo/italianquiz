@@ -47,16 +47,16 @@
 
      (GET "/es" request
           {:status 302
-           :headers {"Location" "/es/tour"}})
+           :headers {"Location" "/tour/es"}})
 
      (GET "/it" request
           {:status 302
-           :headers {"Location" "/it/tour"}})
+           :headers {"Location" "/tour/it"}})
 
      ;; below URLs are for backwards-compatibility:
      (GET "/" request
           {:status 302
-           :headers {"Location" "/it/tour"}})
+           :headers {"Location" "/tour/it"}})
 
      (GET "/generate-q-and-a" request
           {:status 302
