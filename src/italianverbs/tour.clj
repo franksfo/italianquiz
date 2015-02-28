@@ -29,6 +29,7 @@
                                                        :css ["/css/tour.css"]
                                                        :jss ["/js/gen.js"
                                                              "/js/leaflet.js"
+                                                             "/js/it.js"
                                                              "/js/tour.js"]})})
      (GET "/es" request
           {:status 200
@@ -37,6 +38,7 @@
                                                        :css ["/css/tour.css"]
                                                        :jss ["/js/gen.js"
                                                              "/js/leaflet.js"
+                                                             "/js/es.js"
                                                              "/js/tour.js"]})})
 
      (GET "/it/generate-q-and-a" request
@@ -85,11 +87,17 @@
               :body (write-str {:exception (str e)})})))))
 
 (defn accent-characters [language]
-  [:div.accents
-   [:button.accented {:onclick "add_a_grave();"} "&agrave;"]
-   [:button.accented {:onclick "add_e_grave();"} "&egrave;"]
-   [:button.accented {:onclick "add_o_grave();"} "&ograve;"]
-   ])
+  (cond (= language "it")
+        [:div.accents
+         [:button.accented {:onclick "add_a_grave();"} "&agrave;"]
+         [:button.accented {:onclick "add_e_grave();"} "&egrave;"]
+         [:button.accented {:onclick "add_o_grave();"} "&ograve;"]
+         ]
+        (= language "es")
+        [:div.accents
+         [:button.accented {:onclick "add_n_tilde();"} "&ntilde;"]]
+        true
+        ""))
 
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.

@@ -799,6 +799,8 @@
      (include-js (nth jss 1)))
    (if (and jss (> (.size jss) 2))
      (include-js (nth jss 2)))
+   (if (and jss (> (.size jss) 3))
+     (include-js (nth jss 3)))
    ;; and so on..?
 
    (if (string? css_set)
