@@ -134,3 +134,16 @@ button.accented {
     top:1px;
 }
 
+#kilos {
+    border-radius:8px;
+    padding:1px;
+    width:10em;
+    float:right;
+    position:absolute;
+    top:5%;
+    left:75%;
+    border:2px solid lightblue;
+    background:ivory;
+    color:green;
+    z-index:2;
+}
