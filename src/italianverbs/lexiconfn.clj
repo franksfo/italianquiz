@@ -749,9 +749,13 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
         ;; 4. generate exceptions
         ;; problem: merge is overwriting values: use a collator that accumulates values.
-        exceptions (listify (reduce #(merge-with concat %1 %2)
-                                    (map #(listify %)
-                                         (exception-generator lexicon-stage-3))))
+        exceptions (listify 
+                    (let [tmp (map #(listify %)
+                                   (exception-generator lexicon-stage-3))]
+                      (if (empty? tmp)
+                        nil
+                        (reduce #(merge-with concat %1 %2)
+                                tmp))))
 
         lexicon
         (merge-with concat lexicon-stage-3 exceptions)]
