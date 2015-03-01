@@ -9,6 +9,7 @@
    [italianverbs.espanol :as es]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer :all]
+   [italianverbs.morphology.espanol :as esm]
    [italianverbs.unify :refer [get get-in strip-refs]]))
 
 ;; (populate 1 {:synsem {:infl :futuro :sem {:pred :chiedere :subj {:pred :lei}}}})
@@ -30,7 +31,7 @@
 
 
 (def spanish-sentence
-  (engine/generate {:synsem {:infl :present :sem {:pred :dormire :aspect :progressive}}} @es/small))
+  (fo (engine/generate {:synsem {:infl :present :sem {:pred :dormire :aspect :progressive}}} @es/small)))
 
 (deftest spanish-working
   (and (is (not (nil? spanish-sentence)))
