@@ -89,13 +89,13 @@
 (defn accent-characters [language]
   (cond (= language "it")
         [:div.accents
-         [:button.accented {:onclick "add_a_grave();"} "&agrave;"]
-         [:button.accented {:onclick "add_e_grave();"} "&egrave;"]
-         [:button.accented {:onclick "add_o_grave();"} "&ograve;"]
+         [:button.accented {:onclick "add_a_grave('" language "');"} "&agrave;"]
+         [:button.accented {:onclick "add_e_grave('" language "');"} "&egrave;"]
+         [:button.accented {:onclick "add_o_grave('" language "');"} "&ograve;"]
          ]
         (= language "es")
         [:div.accents
-         [:button.accented {:onclick "add_n_tilde();"} "&ntilde;"]]
+         [:button.accented {:onclick "add_n_tilde('" language "');"} "&ntilde;"]]
         true
         ""))
 

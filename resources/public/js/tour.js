@@ -113,7 +113,7 @@ function start_tour(target_language) {
     $("#lat1").val(tour_path[step+1][0]);
     $("#long1").val(tour_path[step+1][1]);
     
-    user_keypress();
+    user_keypress(target_language);
     tour_loop(target_language);
 }
 
@@ -160,10 +160,7 @@ function create_tour_question(target_language) {
 	});
     }
 
-    // generate a question by calling /tour/generate-question on the server.
-    // The server's response to this causes the above update_tour_question() to be
-    // executed here in the client's Javascript interpreter, which in turn causes
-    // the client to make a call to the server for /tour/generate-answers.
+    // generate a question by calling /tour/<language>/generate-q-and-a on the server.
     $.ajax({
 	cache: false,
         dataType: "html",
@@ -176,7 +173,7 @@ function decrement_remaining_tour_question_time() {
     log(DEBUG,"decrement remaining time..");
 }
 
-function submit_user_guess(guess,correct_answer) {
+function submit_user_guess(guess,correct_answer,target_language) {
     log(INFO,"submit_user_guess() guess: " + guess);
     if (guess == correct_answer) {
 	log(INFO,"You got one right!");
@@ -188,7 +185,7 @@ function submit_user_guess(guess,correct_answer) {
 	increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 	// TODO: score should vary depending on the next 'leg' of the trip.
 	// go to next question.
-	return tour_loop();
+	return tour_loop(target_language);
     }
     log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
     return false;
@@ -221,29 +218,29 @@ function increment_map_score() {
     $("#scorevalue").html(parseInt($("#scorevalue").html()) + score);
 }
 
-function add_a_grave(the_char) {
+function add_a_grave(the_char,target_language) {
     $("#gameinput").val($("#gameinput").val() + "à");
-    update_user_input();
+    update_user_input(target_language);
     $("#gameinput").focus();
 }
 
-function add_e_grave(the_char) {
+function add_e_grave(the_char,target_language) {
     $("#gameinput").val($("#gameinput").val() + "è");
-    update_user_input();
+    update_user_input(target_language);
     $("#gameinput").focus();
 }
-function add_n_tilde(the_char) {
+function add_n_tilde(the_char,target_language) {
     $("#gameinput").val($("#gameinput").val() + "ñ");
-    update_user_input();
+    update_user_input(target_language);
     $("#gameinput").focus();
 }
-function add_o_grave(the_char) {
+function add_o_grave(the_char,target_language) {
     $("#gameinput").val($("#gameinput").val() + "ò");
-    update_user_input();
+    update_user_input(target_language);
     $("#gameinput").focus();
 }
 
-function update_user_input() {
+function update_user_input(target_language) {
     var user_input = $("#gameinput").val();
     log(INFO,"updating your progress - so far you are at: " + user_input);
 
@@ -280,7 +277,7 @@ function update_user_input() {
 	
 	setTimeout(function(){
 	    log(INFO,"submitting correct answer: " + correct_answer);
-	    submit_user_guess(prefix,correct_answer);
+	    submit_user_guess(prefix,correct_answer,target_language);
 	    // reset userprogress bar
 	    $("#userprogress").css("width","0");
 	    }, 1000);
@@ -288,10 +285,10 @@ function update_user_input() {
 }
 
 // http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
-function user_keypress() {
+function user_keypress(target_language) {
     $("#gameinput").keyup(function(event){
 	log(INFO,"You hit the key: " + event.keyCode);
-	update_user_input();
+	update_user_input(target_language);
     });
 }
 
@@ -350,4 +347,3 @@ function navigate_to(step,do_encouragement) {
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=275x275&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
 
 }
-
