@@ -21,8 +21,20 @@
 
 ;; see TODOs in lexiconfn/compile-lex (should be more of a pipeline as opposed to a argument-position-sensitive function.
 (def lexicon
-  (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize) ; morph/espanol-specific-rules)
+  (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize)
 
+              ;; verb agreement
+              (map-function-on-map-vals
+               (fn [k vals]
+                 (map (fn [val]
+                        (cond (= (get-in val [:synsem :cat]) :verb)
+                              (unify/unifyc val
+                                            verb-subjective)
+                              true
+                              val))
+                      vals)))
+              
+              
               ;; Cleanup functions can go here. Number them for ease of reading.
               ;; 1. this filters out any verbs without an inflection: infinitive verbs should have inflection ':infinitive', 
               ;; rather than not having any inflection.
