@@ -1758,7 +1758,7 @@
 
         true
         (unifyc a-map
-                {:espanol a-string}
+                {:espanol {:espanol a-string}}
                 common))))
 
 (defn agreement [lexical-entry]
