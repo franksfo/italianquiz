@@ -23,6 +23,7 @@
 (def lexicon
   (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize)
 
+              ;; TODO: do verb agreement in Italian like this, rather than requiring trans-intrans and intrans for every single verb.
               ;; verb agreement
               (map-function-on-map-vals
                (fn [k vals]
