@@ -5,6 +5,7 @@
 (require '[clojure.string :as string])
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.morphology.english :as english])
+(require '[italianverbs.morphology.espanol :as espanol])
 (require '[italianverbs.morphology.italiano :as italiano])
 (require '[italianverbs.stringutils :refer :all])
 (require '[italianverbs.unify :refer :all])
@@ -43,6 +44,10 @@
 
    (:english input)
    (string/trim (str (english/get-string (:english input))))
+
+   (:espanol input)
+   (string/trim (str (espanol/get-string (:english input))))
+
 
    (and (seq? input)
         (< (.size input) 2))
@@ -96,7 +101,9 @@
    (let [english
          (english/get-string (get-in expr '(:english :english)))
          italian
-         (italiano/get-string (get-in expr '(:italiano :italiano)))]
+         (italiano/get-string (get-in expr '(:italiano :italiano)))
+         espanol
+         (espanol/get-string (get-in expr '(:espanol :espanol)))]
      (log/debug (str "input expr: " (fo expr)))
      (log/debug (str "finalized english: " english))
      (log/debug (str "finalized italian: " italian))
