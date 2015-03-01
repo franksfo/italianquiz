@@ -239,6 +239,11 @@ function add_o_grave(the_char,target_language) {
     update_user_input(target_language);
     $("#gameinput").focus();
 }
+function add_u_acute(the_char,target_language) {
+    $("#gameinput").val($("#gameinput").val() + "ú");
+    update_user_input(target_language);
+    $("#gameinput").focus();
+}
 
 function update_user_input(target_language) {
     var user_input = $("#gameinput").val();
