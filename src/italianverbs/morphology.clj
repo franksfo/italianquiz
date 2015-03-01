@@ -46,8 +46,7 @@
    (string/trim (str (english/get-string (:english input))))
 
    (:espanol input)
-   (string/trim (str (espanol/get-string (:english input))))
-
+   (string/trim (str (espanol/get-string (:espanol input))))
 
    (and (seq? input)
         (< (.size input) 2))
