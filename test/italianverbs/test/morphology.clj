@@ -1,5 +1,5 @@
 (ns italianverbs.test.morphology
-  (:refer-clojure :exclude [get-in merge resolve str])
+  (:refer-clojure :exclude [get get-in merge resolve str])
   (:use [clojure.test]))
 
 
@@ -7,6 +7,7 @@
 (require '[clojure.string :refer (trim)])
 (require '[italianverbs.morphology :refer :all])
 (require '[italianverbs.morphology.english :as english])
+(require '[italianverbs.morphology.espanol :as espanol])
 (require '[italianverbs.morphology.italiano :as italiano])
 (require '[italianverbs.unify :refer :all])
 
@@ -917,3 +918,16 @@ so in this example, will be feminine rather than masculine."
                                      '({})))]
     (is (= (get-in (first analysis) [:italiano :agr :number])
            :sing))))
+
+(deftest yo-dormo
+  (let [structure {:a {:initial true
+                                  :espanol "yo"}
+                             :b {:espanol "dormir"
+                                  :essere :top
+                                  :infl :present
+                                  :agr {:person :1st
+                                        :gender :masc
+                                        :number :sing}
+                                  :initial false}}]
+    (is (= (espanol/get-string structure)
+           "yo dormo"))))
