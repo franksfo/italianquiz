@@ -41,6 +41,15 @@
 
         debug (log/debug (str "spec(3): " spec))
 
+        source-language (:language (if (future? source-language-model)
+                                     @source-language-model
+                                     source-language-model))
+
+        target-language (:language (if (future? target-language-model)
+                                     @target-language-model
+                                     target-language-model))
+
+
         ]
     (dotimes [n num]
       (let [target-language-sentence (engine/generate spec
@@ -81,7 +90,7 @@
             ]
 
         (if (= target-language-surface "")
-          (throw (Exception. (str "could not generate a sentence in target language for this semantics: " semantics))))          
+          (throw (Exception. (str "could not generate a sentence in target language for this semantics: " semantics "; source langauge expression was: " source-language-surface))))
 
         (if (= source-language-surface "")
           (throw (Exception. (str "could not generate a sentence in source language (English) for this semantics: " semantics))))
@@ -93,7 +102,7 @@
                           ","
                           "?,?)")
                      [target-language-surface
-                      "it"
+                      target-language
                       "small"]])
 
         (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
@@ -103,7 +112,7 @@
                           ","
                           "?,?)")
                      [source-language-surface
-                      "en"
+                      source-language
                       "small"]])))))
 
 (defn -main [& args]
