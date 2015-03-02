@@ -167,10 +167,10 @@
                           :artifact true}}})
 
    "buy" (trans-intrans {:synsem {:sem {:pred :comprare}}
-                         :english {:past "bought"}}
-
-                        {:subj {:human true}
-                         :obj {:buyable true}})
+                         :english {:past "bought"
+                                   :present {:3sing "buys"}}
+                         :sem {:subj {:human true}
+                               :obj {:buyable true}}})
 
    "cat"
    (unify agreement-noun
@@ -267,8 +267,8 @@
                   {:subj {:human true}}
                   {:obj {:human true}})
 
-   "enjoy" {:synsem {:cat :verb
-                     :sem {:pred :enjoy}}}
+   "enjoy" (trans-intrans {:synsem {:cat :verb
+                                    :sem {:pred :enjoy}}})
 
    "enter"  (trans-intrans {:synsem {:sem {:pred :enter}}})
 
