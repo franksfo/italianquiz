@@ -95,7 +95,7 @@
          ]
         (= language "es")
         [:div.accents
-         [:button.accented {:onclick "add_n_tilde('" language "');"} "&ntilde;"]]
+         [:button.accented {:onclick "add_n_tilde('" language "');"} "&ntilde;"]
          [:button.accented {:onclick "add_u_acute('" language "');"} "&uacute;"]]
         true
         ""))
