@@ -91,6 +91,7 @@
                       [k filtered-v]))))
           ]
       {:name "small"
+       :language "en"
        :grammar grammar
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)

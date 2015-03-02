@@ -127,6 +127,7 @@
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))]
       {:name "small"
+       :language "it"
        :enrich enrich
        :grammar grammar
        :lexicon lexicon
