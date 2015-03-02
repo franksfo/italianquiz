@@ -139,7 +139,7 @@
                      {:synsem {:cat cat-of-pronoun
                                :pronoun true
                                :case :nom
-                               :agr {:person :1st
+                               :agr {:person :3rd
                                      :gender :fem
                                      :number :sing}
                                :sem {:human true
