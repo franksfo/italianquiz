@@ -38,6 +38,9 @@
 (defn fo [input]
   (cond 
 
+   (string? input)
+   input
+
    (:italiano input)
    ;; get-string should always return a string, but sometimes it (incorrectly) does not (FIXME)
    (string/trim (str (italiano/get-string (:italiano input))))
