@@ -468,8 +468,8 @@
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}}
                          {:subj {:human true}})
 
-   "lower" {:synsem {:cat :verb
-                     :sem {:pred :lower}}}
+   "lower" (trans-intrans {:synsem {:cat :verb
+                                    :sem {:pred :lower}}})
 
    "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}
                            :english {:past "met"}})
