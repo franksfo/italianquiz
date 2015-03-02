@@ -224,35 +224,35 @@ function increment_map_score() {
     $("#scorevalue").html(parseInt($("#scorevalue").html()) + score);
 }
 
-function add_a_grave(the_char,target_language) {
+function add_a_grave_it() {
     $("#gameinput").val($("#gameinput").val() + "à");
-    update_user_input(target_language);
+    update_user_input("it");
     $("#gameinput").focus();
 }
 
-function add_e_acute(the_char,target_language) {
+function add_e_acute_es() {
     $("#gameinput").val($("#gameinput").val() + "é");
-    update_user_input(target_language);
+    update_user_input("es");
     $("#gameinput").focus();
 }
-function add_e_grave(the_char,target_language) {
+function add_e_grave_it() {
     $("#gameinput").val($("#gameinput").val() + "è");
-    update_user_input(target_language);
+    update_user_input("it");
     $("#gameinput").focus();
 }
-function add_n_tilde(the_char,target_language) {
+function add_n_tilde_es(target_language) {
     $("#gameinput").val($("#gameinput").val() + "ñ");
-    update_user_input(target_language);
+    update_user_input("es");
     $("#gameinput").focus();
 }
-function add_o_grave(the_char,target_language) {
+function add_o_grave_es(target_language) {
     $("#gameinput").val($("#gameinput").val() + "ò");
-    update_user_input(target_language);
+    update_user_input("es");
     $("#gameinput").focus();
 }
-function add_u_acute(the_char,target_language) {
+function add_u_acute_es(target_language) {
     $("#gameinput").val($("#gameinput").val() + "ú");
-    update_user_input(target_language);
+    update_user_input("es");
     $("#gameinput").focus();
 }
 
