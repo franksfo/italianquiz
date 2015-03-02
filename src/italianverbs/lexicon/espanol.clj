@@ -178,111 +178,79 @@
                                {:synsem {:cat :verb
                                          :sem {:pred :talk}}}]
 
-                     "imaginar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "importar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "iniciar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "insistir" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "intentar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "interesar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "levantar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "llamar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "llevar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "lograr" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "mandar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "matar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "meter" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "mirar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "necesitar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "notar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "observar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "ocupar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "ocurrir" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "olvidar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "participar" {:synsem {:cat :verb
-                                            :sem {:pred :??}}}
-                     "partir" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "pasar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "permitir" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "preguntar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "preocupar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "preparar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "presentar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "prestar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "pretender" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "quedar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "quitar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "recibir" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "representar" {:synsem {:cat :verb
-                                             :sem {:pred :??}}}
-                     "responder" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
-                     "resultar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "salvar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "señalar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "subir" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "suceder" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-                     "sufrir" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "terminar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
+                     "nosotras"
+                     {:synsem {:cat cat-of-pronoun
+                                :pronoun true
+                                :case :nom
+                                :agr {:person :1st
+                                      :gender :fem
+                                      :number :plur}
+                                :sem {:human true
+                                      :pred :noi}
+                               :subcat '()}}
+
+                     "nosatros"
+                     {:synsem {:cat cat-of-pronoun
+                               :pronoun true
+                               :case :nom
+                               :agr {:person :1st
+                                     :gender :masc
+                                     :number :plur}
+                               :sem {:human true
+                                     :pred :noi}
+                               :subcat '()}}
+
+
 
                      "tirar" [{:synsem {:cat :verb
                                         :sem {:pred :throw-out}}}
                               {:synsem {:cat :verb
                                         :sem {:pred :throw}}}]
                                
+                     "tù" {:synsem {:cat :noun
+                                    :pronoun true
+                                    :case :nom
+                                    :agr {:person :2nd
+                                          :number :sing}
+                                    :sem {:human true
+                                          :pred :tu}
+                                    :subcat '()}}
 
-                     "tomar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
-                     "trabajar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "tratar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "usar" {:synsem {:cat :verb
-                                      :sem {:pred :??}}}
-                     "vender" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
-                     "vivir" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+                     "ustedes"
+                     {:synsem {:cat cat-of-pronoun
+                                :pronoun true
+                                :case :nom
+                                :agr {:person :3rd
+                                      :number :plur}
+                                :sem {:human true
+                                      :pred :voi}
+                               :subcat '()}}
 
-                     "yo"       [{:synsem {:cat :noun
+
+                     "vosotras"
+                     {:synsem {:cat cat-of-pronoun
+                                :pronoun true
+                                :case :nom
+                                :agr {:person :2nd
+                                      :gender :fem
+                                      :number :plur}
+                                :sem {:human true
+                                      :pred :voi}
+                               :subcat '()}}
+
+                     "vosotros"
+                     {:synsem {:cat cat-of-pronoun
+                               :pronoun true
+                               :case :nom
+                               :agr {:person :2nd
+                                     :gender :masc
+                                     :number :plur}
+                               :sem {:human true
+                                     :pred :voi}
+                               :subcat '()}}
+
+
+                     "yo"       {:synsem {:cat :noun
                                            :pronoun true
                                            :case :nom
                                            :agr {:gender :fem
@@ -291,16 +259,6 @@
                                            :sem {:human true
                                                  :pred :io}
                                            :subcat '()}}
-
-                                 {:synsem {:cat :noun
-                                           :pronoun true
-                                           :case :nom
-                                           :agr {:gender :masc
-                                                 :person :1st
-                                                 :number :sing}
-                                           :sem {:human true
-                                                 :pred :io}
-                                           :subcat '()}}]
 
                      })
 
