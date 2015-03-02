@@ -88,32 +88,35 @@
                         (throw (Exception. (str "surface of source-language was null with semantics: " semantics )))))
 
             ]
+        
+        (try
+          (do
+            (if (= target-language-surface "")
+              (throw (Exception. (str "could not generate a sentence in target language for this semantics: " semantics "; source langauge expression was: " source-language-surface))))
 
-        (if (= target-language-surface "")
-          (throw (Exception. (str "could not generate a sentence in target language for this semantics: " semantics "; source langauge expression was: " source-language-surface))))
+            (if (= source-language-surface "")
+              (throw (Exception. (str "could not generate a sentence in source language (English) for this semantics: " semantics))))
 
-        (if (= source-language-surface "")
-          (throw (Exception. (str "could not generate a sentence in source language (English) for this semantics: " semantics))))
+            (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
+                              "'" (json/write-str (unify/strip-refs target-language-sentence)) "'"
+                              ","
+                              "'" (str (unify/serialize target-language-sentence)) "'"
+                              ","
+                              "?,?)")
+                       [target-language-surface
+                        target-language
+                        "small"]])
 
-        (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
-                          "'" (json/write-str (unify/strip-refs target-language-sentence)) "'"
-                          ","
-                          "'" (str (unify/serialize target-language-sentence)) "'"
-                          ","
-                          "?,?)")
-                     [target-language-surface
-                      target-language
-                      "small"]])
-
-        (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
-                          "'" (json/write-str (unify/strip-refs source-language-sentence)) "'"
-                          ","
-                          "'" (str (unify/serialize source-language-sentence)) "'"
-                          ","
-                          "?,?)")
-                     [source-language-surface
-                      source-language
-                      "small"]])))))
+            (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
+                              "'" (json/write-str (unify/strip-refs source-language-sentence)) "'"
+                              ","
+                              "'" (str (unify/serialize source-language-sentence)) "'"
+                              ","
+                              "?,?)")
+                         [source-language-surface
+                          source-language
+                          "small"]]))
+          (catch Exception e (log/error (str "Could not add expression pair to database - caused by: " e))))))))
 
 (defn -main [& args]
   (if (not (nil? (first args)))
