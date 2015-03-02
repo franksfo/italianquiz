@@ -124,6 +124,50 @@
                      "echar" {:synsem {:cat :verb
                                        :sem {:pred :throw-out}}}
 
+                     "él"
+                     {:synsem {:cat cat-of-pronoun
+                               :pronoun true
+                               :case :nom
+                               :agr {:person :3rd
+                                     :gender :masc
+                                     :number :sing}
+                               :sem {:human true
+                                     :pred :lui}
+                               :subcat '()}}
+
+                     "ella"
+                     {:synsem {:cat cat-of-pronoun
+                               :pronoun true
+                               :case :nom
+                               :agr {:person :1st
+                                     :gender :fem
+                                     :number :sing}
+                               :sem {:human true
+                                     :pred :lei}
+                               :subcat '()}}
+
+                     "ellos"
+                     {:synsem {:cat cat-of-pronoun
+                               :pronoun true
+                               :case :nom
+                               :agr {:person :3rd
+                                     :gender :masc
+                                     :number :plur}
+                               :sem {:human true
+                                     :pred :loro}
+                               :subcat '()}}
+
+                     "ellas"
+                     {:synsem {:cat cat-of-pronoun
+                               :pronoun true
+                               :case :nom
+                               :agr {:person :3rd
+                                     :gender :fem
+                                     :number :plur}
+                               :sem {:human true
+                                     :pred :loro}
+                               :subcat '()}}
+
                      "enseñar" [{:synsem {:cat :verb
                                           :sem {:pred :show}}}
                                 {:synsem {:cat :verb
@@ -178,6 +222,9 @@
                                {:synsem {:cat :verb
                                          :sem {:pred :talk}}}]
 
+
+
+
                      "nosotras"
                      {:synsem {:cat cat-of-pronoun
                                 :pronoun true
@@ -189,7 +236,7 @@
                                       :pred :noi}
                                :subcat '()}}
 
-                     "nosatros"
+                     "nosotros"
                      {:synsem {:cat cat-of-pronoun
                                :pronoun true
                                :case :nom
@@ -207,7 +254,7 @@
                               {:synsem {:cat :verb
                                         :sem {:pred :throw}}}]
                                
-                     "tù" {:synsem {:cat :noun
+                     "tú" {:synsem {:cat :noun
                                     :pronoun true
                                     :case :nom
                                     :agr {:person :2nd
