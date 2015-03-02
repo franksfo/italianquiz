@@ -230,6 +230,11 @@ function add_a_grave(the_char,target_language) {
     $("#gameinput").focus();
 }
 
+function add_e_acute(the_char,target_language) {
+    $("#gameinput").val($("#gameinput").val() + "é");
+    update_user_input(target_language);
+    $("#gameinput").focus();
+}
 function add_e_grave(the_char,target_language) {
     $("#gameinput").val($("#gameinput").val() + "è");
     update_user_input(target_language);

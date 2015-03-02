@@ -95,6 +95,7 @@
          ]
         (= language "es")
         [:div.accents
+         [:button.accented {:onclick "add_e_acute('" language "');"} "&eacute;"]
          [:button.accented {:onclick "add_n_tilde('" language "');"} "&ntilde;"]
          [:button.accented {:onclick "add_u_acute('" language "');"} "&uacute;"]]
         true
@@ -150,7 +151,7 @@
      
      (accent-characters language)
 
-      [:button {:id "non_so" :onclick "non_so();"}  (dont-know language)]
+      [:button {:id "non_lo_so" :onclick "non_lo_so();"}  (dont-know language)]
 
     [:div#userprogresscontainer
      [:div#userprogress 
