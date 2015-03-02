@@ -593,6 +593,18 @@
                              :city true}
                        :subcat {:1 {:cat :det
                                     :def :def}}}})
+
+      "cominciare"
+      [(intrans {:synsem {:essere false
+                          :sem {:activity true
+                                :discrete false
+                                :pred :begin
+                                :subj {:animate true}}}})
+       (intrans {:synsem {:essere false
+                          :sem {:activity true
+                                :discrete false
+                                :pred :start
+                                :subj {:animate true}}}})]
       
       "compito"
       (unifyc agreement-noun
