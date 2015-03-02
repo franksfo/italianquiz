@@ -91,8 +91,14 @@ function start_tour(target_language) {
     }).addTo(map);
     
     
-    marker = L.marker([current_lat, current_long]).addTo(map)
-	.bindPopup("<b>Benvenuto!</b>").openPopup();
+    if (target_language == "it") {
+	marker = L.marker([current_lat, current_long]).addTo(map)
+	    .bindPopup("<b>Benvenuti!</b>").openPopup();
+    }
+    if (target_language == "es") {
+	marker = L.marker([current_lat, current_long]).addTo(map)
+	    .bindPopup("<b>Bienvenidos!</b>").openPopup();
+    }
     
     L.circle([current_lat, 
 	      current_long], 10, {
