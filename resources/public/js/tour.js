@@ -315,7 +315,7 @@ function update_map(question,correct_answer) {
     navigate_to(step,true);
 }
 
-function non_so() {
+function non_lo_so() {
     $("#correctanswer").css("display","block");
     $("#correctanswer").fadeOut(3000,function () {$("#correctanswer").css("display","none");});
     if ((direction == 1) && (step > 1)) {
