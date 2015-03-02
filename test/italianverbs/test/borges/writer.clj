@@ -10,7 +10,9 @@
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer :all]
    [italianverbs.morphology.espanol :as esm]
-   [italianverbs.unify :refer [get get-in strip-refs]]))
+   [italianverbs.unify :refer [get get-in strip-refs]]
+   [italianverbs.borges.writer :refer :all]
+   ))
 
 ;; (populate 1 {:synsem {:infl :futuro :sem {:pred :chiedere :subj {:pred :lei}}}})
 ;; (populate 1 {:synsem {:infl :present :sem {:pred :chiedere :subj {:pred :lei}}}})
@@ -24,16 +26,12 @@
 
 (def matching-head-lexemes (it/matching-head-lexemes spec))
 
-(def first-val
-  "get the first entry of the first word in the dictionary."
-  (let [the-key (first (sort (keys @it/lexicon)))]
-    (first (get @it/lexicon the-key))))
-
-
 (def spanish-sentence
-  (fo (engine/generate {:synsem {:infl :present :sem {:pred :dormire :aspect :progressive}}} @es/small)))
+  (fo (engine/generate {:synsem {:infl :present :sem {:aspect :progressive}}} @es/small)))
 
 (deftest spanish-working
   (and (is (not (nil? spanish-sentence)))
        (is (not (= "" spanish-sentence)))))
 
+
+(populate 1 en/small es/small {:synsem {:infl :present :sem {:aspect :progressive}}})
