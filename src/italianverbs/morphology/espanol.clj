@@ -95,13 +95,16 @@
 
 ;; TODO: this is an overly huge method that needs to be rewritten to be easier to understand and maintain.
 (defn get-string-1 [word & [:usted usted :tú tu :vosotros vosotros :ustedes ustedes]]
-  (if (seq? word)
-    (map (string/join " " #(get-string-1 %))
-         word)
+  (cond (string? word)
+        word
+        (seq? word)
+        (map (string/join " " #(get-string-1 %))
+             word)
+        true
   (let [person (get-in word '(:agr :person))
         number (get-in word '(:agr :number))
         info (log/debug "get-string-1: input word: " word)
-        vosotros (if vosotros vosotros false)
+        vosotros (if vosotros vosotros true)
         ustedes (if ustedes ustedes false)
         tú (if tú tú false)
         usted (if usted usted false)]
