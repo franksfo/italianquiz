@@ -720,7 +720,8 @@
                             :synsem {:sem {:pred :scrivere}}})
 
    "you (♂)"
-   {:synsem {:cat :noun
+   {:note "♂"
+    :synsem {:cat :noun
              :pronoun true
              :case :nom
              :agr {:person :2nd
@@ -731,7 +732,8 @@
              :subcat '()}}
 
    "you (♀)"
-   {:synsem {:cat :noun
+   {:note "♀"
+    :synsem {:cat :noun
              :pronoun true
              :case :nom
              :agr {:person :2nd
