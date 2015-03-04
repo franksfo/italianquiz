@@ -27,7 +27,8 @@
            :status 200
            :body (page "Map Tour" (tour "it") request {:onload "start_tour('it');"
                                                        :css ["/css/tour.css"]
-                                                       :jss ["/js/gen.js"
+                                                       :jss ["/js/cities.js"
+                                                             "/js/gen.js"
                                                              "/js/leaflet.js"
                                                              "/js/it.js"
                                                              "/js/tour.js"]})})
@@ -36,7 +37,8 @@
            :headers headers
            :body (page "Map Tour" (tour "es") request {:onload "start_tour('es');"
                                                        :css ["/css/tour.css"]
-                                                       :jss ["/js/gen.js"
+                                                       :jss ["/js/cities.js"
+                                                             "/js/gen.js"
                                                              "/js/leaflet.js"
                                                              "/js/es.js"
                                                              "/js/tour.js"]})})
