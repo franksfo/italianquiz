@@ -15,6 +15,7 @@
    [compojure.handler :as handler]
    [environ.core :refer [env]]
    [hiccup.page :as h]
+   [italianverbs.about :as about]
    [italianverbs.auth :as auth :refer [confirm-and-create-user get-user-id haz-admin is-authenticated]]
    [italianverbs.class :as class]
    [italianverbs.editor :as editor]
@@ -54,11 +55,7 @@
            tour/routes)
 
   (GET "/about" request
-       {:status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}
-        :body (html/page "Welcome to Verbcoach"
-                         (html/about)
-                         request)})
+       about/routes)
 
   (GET "/login" request
        (resp/redirect "/"))

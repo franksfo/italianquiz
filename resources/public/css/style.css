@@ -493,6 +493,12 @@ table.striped tr:nth-of-type(odd) {
 }
 
 
+#flags {
+    float:left;
+    margin-left:20%;
+    width:60%;
+}
+
 .flag {
     margin:1em;
     border:0px solid black;
@@ -512,12 +518,13 @@ table.striped tr:nth-of-type(odd) {
 }
 
 .intro {
+    float:left;
     text-align:center;
     margin-top:1em;
-    margin-left:1em;
     padding:1em;
     background:#caecae;
-    width:95%;
+    margin-left:10%;
+    width:80%;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
