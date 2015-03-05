@@ -17,8 +17,8 @@
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
-(def login-enabled false)
-(def menubar-enabled false)
+(def login-enabled true)
+(def menubar-enabled true)
 
 (defn verb-row [italian]
   (html
@@ -68,7 +68,6 @@
      (include-css "http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css")
 
      ]
-
 
     [:body
      body]]))
@@ -857,14 +856,6 @@
     (page-body 
      (html
 
-      (if menubar-enabled
-
-        [:div#top
-         (menubar/menubar (session/request-to-session request)
-                          (if request (get request :uri))
-                          (friend/current-authentication)
-                          (request-to-suffixes request))])
-
 ;      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
 ;       (str "can-haz admin:" haz-admin)]
 
@@ -872,7 +863,20 @@
         [:div {:class "fadeout"}
          (get (:query-params request) "result")])
 
-      [:div#content content])
+      (if menubar-enabled
+
+        (menubar/menubar (session/request-to-session request)
+                         (if request (get request :uri))
+                         (friend/current-authentication)
+                         (request-to-suffixes request)))
+      
+
+
+      [:div#content content]
+
+
+      )
+
      request title options)))
 
 (declare tr)

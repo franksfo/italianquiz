@@ -114,8 +114,6 @@
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.
 (defn tour [language]
-  [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
-
   [:div#game
 
    [:div#correctanswer 
@@ -134,7 +132,6 @@
       ]
      ]
 
-     ;; map is separate from the triptych street view
     [:div#map ]
 
    [:div#streetview

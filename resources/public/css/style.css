@@ -58,12 +58,20 @@ div.http a {
     padding:0.25em;
 }
 
-div.menubar {
-    margin:1em;
+div#menubar {
+    border:1px solid #18ab29;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    background:ivory;
+    float:left;
+    white-space:nowrap;
     padding:0em;
+    position:relative;
 }
 
-div.menubar div {
+div#menubar div {
+    float:left;
     padding:3px;
     margin-right:2em;
 }
@@ -268,6 +276,7 @@ span.delete {
                            letter is missing from the user's guess. */
     border-bottom: 8px solid red;
 }
+
 span.subst {
     border-bottom: 8px solid red;
     text-decoration:line-through;
@@ -492,7 +501,6 @@ table.striped tr:nth-of-type(odd) {
   background-color:ghostwhite;
 }
 
-
 #flags {
     float:left;
     margin-left:20%;
@@ -521,7 +529,7 @@ table.striped tr:nth-of-type(odd) {
     float:left;
     text-align:center;
     margin-top:1em;
-    padding:1em;
+    padding:0.25em;
     background:#caecae;
     margin-left:10%;
     width:80%;

@@ -3,7 +3,6 @@
     -webkit-border-radius:5px;
     border-radius:5px;
     border:1px solid #18ab29;
-    border: 0px dashed green;
     float:right;
     background:ivory;
     position:absolute;
@@ -107,8 +106,11 @@ button.accented {
 }
 
 #map {
+    position:absolute;
+    left:0;
+    top:0;
     width:100%;
-    height:400px;
+    height:100%;
 }
 
 #navigation {
@@ -146,7 +148,7 @@ button.accented {
     width:10em;
     float:right;
     position:absolute;
-    top:5%;
+    top:75%;
     left:75%;
     border:2px solid lightblue;
     background:ivory;
@@ -158,5 +160,24 @@ button.accented {
     float:left;
     width:95%;
     margin-left:5%;
+}
+
+/* position of elements are relative to the background (the map).*/
+div#menubar {
+    z-index:5;
+    position:absolute;
+    top:1%;
+    font-size:smaller;
+    left:75%;
+    padding:0;
+    margin:0;
+    opacity:0.85;
+    filter:alpha(opacity=85); /* For IE8 and earlier */
+}
+
+div#menubar div {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
 }
 

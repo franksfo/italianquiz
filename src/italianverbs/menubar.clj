@@ -28,7 +28,7 @@
     (log/info (str "Drawing menubar with current-url=" current-url))
     (log/info (str "Menubar with suffixes: " suffixes))
     (html
-     [:div {:class "menubar major"}
+     [:div#menubar
 
       (menuitem {:selected?
                  (or (and (not (nil? current-url))
@@ -73,7 +73,7 @@
                      (= current-url "/tour")
                      (and (not (nil? current-url))
                           (re-find #"/tour" current-url)))
-                 :show? true
+                 :show? false
                  :current-url current-url 
                  :text "Map Tour" 
                  :url-for-this-item "/tour"
@@ -87,7 +87,7 @@
                  :text "Classes"
                  :url-for-this-item (str "/class" (if (get suffixes :class)
                                                     (get suffixes :class)))
-                 :show? haz-admin?})
+                 :show? (and false haz-admin?)})
 
       (menuitem {:selected?
                  (and (not (nil? current-url))
@@ -95,7 +95,7 @@
                  :current-url current-url
                  :text "Tests"
                  :url-for-this-item "/test"
-                 :show? haz-admin?})
+                 :show? (and false haz-admin?)})
 
       (menuitem {:selected?
                  (and (not (nil? current-url))
@@ -104,6 +104,7 @@
                  :text "My Classes"
                  :url-for-this-item (str "/class/my" (if (get suffixes :class)
                                                        (get suffixes :class)))
-                 :show? (and haz-authentication (not haz-admin?))})])))
+                 :show? (and false haz-authentication (not haz-admin?))})])))
+
 
 
