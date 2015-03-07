@@ -4,11 +4,11 @@
    [clojure.core :as core]
    [clojure.data.json :as json]
    [italianverbs.borges.reader :refer :all]
-   [italianverbs.borges.writer]
+   [italianverbs.borges.writer :refer :all]
    [italianverbs.engine]
+   [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo)]
-   [italianverbs.populate :refer (populate)]
    [italianverbs.unify :refer [deserialize get get-in strip-refs]]
    [korma.core :as db]
    ))
@@ -19,7 +19,7 @@
 
 (def spec {:synsem {:essere true}})
 
-(populate 1 spec)
+(populate 1 en/small it/small spec)
 
 ; (db/exec-raw [(str "SELECT source.serialized::text AS source
 ;                                        FROM expression AS source
