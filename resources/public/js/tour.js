@@ -240,6 +240,11 @@ function add_e_grave_it() {
     update_user_input("it");
     $("#gameinput").focus();
 }
+function add_i_acute_es() {
+    $("#gameinput").val($("#gameinput").val() + "í");
+    update_user_input("es");
+    $("#gameinput").focus();
+}
 function add_n_tilde_es(target_language) {
     $("#gameinput").val($("#gameinput").val() + "ñ");
     update_user_input("es");
