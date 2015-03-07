@@ -268,9 +268,14 @@
         (str stem "en")
 
         ;; </third person plural present>
+        
+        ;; agreement is underspecified, but an infinitive form (the :espanol key) exists, so just return that infinitive form.
+        (and (= (get-in word [:agr]) :top)
+             (string? (get-in word [:espanol])))
+        (get-in word [:espanol])
 
         :else
-        (throw (Exception. (str "get-string-1: present regular inflection: don't know what to do with input argument: " word)))))
+        (throw (Exception. (str "get-string-1: present regular inflection: don't know what to do with input argument: " (strip-refs word))))))
 
      (string? (get-in word [:espanol]))
      (get-in word [:espanol])
