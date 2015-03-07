@@ -99,6 +99,7 @@
                      :agr agr
                      :infl infl}
             :english {:agr agr
+                      :english "to be"
                       :infl infl
                       :present {:1sing "am"
                                 :2sing "are"
@@ -126,6 +127,7 @@
                      :infl infl}
             :english {:agr agr
                       :infl infl
+                      :english "to be missing"
                       :present {:1sing "am missing"
                                 :2sing "are missing"
                                 :3sing "is missing"
@@ -399,6 +401,7 @@
    "is missed" (intrans {:synsem {:sem {:pred :mancare}}
                          :english {:participle "being missed"
                                    :future "be missed"
+                                   :english "be missed"
                                    :conditional "be missed"
                                    :past {:english "was missed"
                                           :2sing "were missed"
