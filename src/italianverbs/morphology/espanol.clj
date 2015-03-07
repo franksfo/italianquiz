@@ -287,10 +287,10 @@
             result))
 
         true
-        (string/join " "
-                     (list (get-string-1 a)
-                           (if b (get-string-1 b)
-                               "")))))
+        (trim (string/join " "
+                           (list (get-string-1 a)
+                                 (if b (get-string-1 b)
+                                     ""))))))
 
 (declare fo-ps-it)
 
