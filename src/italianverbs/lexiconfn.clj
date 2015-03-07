@@ -456,6 +456,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
         true
         lexical-entry))
 
+;; TODO: language-specific - does not belong here, or else keep here, and continue
+;; to add new language like Espanol.
 (defn embed-phon [lexical-entry]
   (cond (string? (get-in lexical-entry '(:english)))
         (merge {:english {:english (get-in lexical-entry '(:english))}}
@@ -607,7 +609,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
    true
    (list lexical-entry)))
 
-;; rules like make-intransitive-variant multiply a single lexeme into zero or more lexemes: i.e. their function signature is map => seq(map).
+;; Rules like make-intransitive-variant multiply a single lexeme into zero or more lexemes: 
+;; In other words, their function signature is map => seq(map).
 (defn apply-multi-rules [lexeme]
   (make-intransitive-variant lexeme))
 
