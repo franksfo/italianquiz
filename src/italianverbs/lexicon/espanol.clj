@@ -64,8 +64,12 @@
                      "comentar" {:synsem {:cat :verb
                                           :sem {:pred :comment}}}
 
-                     "comer" {:synsem {:cat :verb
-                                       :sem {:pred :mangiare}}}
+                     "comer" [{:synsem {:cat :verb
+                                        :subcat {:2 {:cat :noun}}
+                                        :sem {:pred :mangiare
+                                              :obj {:edible true}}}}
+                              {:synsem {:cat :verb
+                                        :sem {:pred :mangiare}}}]
 
                      "compartir" {:synsem {:cat :verb
                                            :sem {:pred :share}}}
@@ -123,6 +127,13 @@
 
                      "echar" {:synsem {:cat :verb
                                        :sem {:pred :throw-out}}}
+
+                     "el"
+                     (unify determiner
+                            {:synsem {:cat :det
+                                      :def :def
+                                      :gender :masc
+                                      :number :sing}})
 
                      "él"
                      {:synsem {:cat cat-of-pronoun
@@ -222,8 +233,22 @@
                                {:synsem {:cat :verb
                                          :sem {:pred :talk}}}]
 
+                     "la"
+                     (unify determiner
+                            {:synsem {:cat :det
+                                      :def :def
+                                      :gender :fem
+                                      :number :sing}})
 
-
+                     "mujer"
+                     (unify agreement-noun
+                            common-noun
+                            feminine-noun
+                            {:synsem {:sem {:pred :donna
+                                            :human true}
+                                      :subcat {:1 {:cat :det
+                                                   :number :sing
+                                                   :def :def}}}})
 
                      "nosotras"
                      {:synsem {:cat cat-of-pronoun
@@ -247,7 +272,16 @@
                                      :pred :noi}
                                :subcat '()}}
 
-
+                     "pan"
+                     (unify agreement-noun
+                            common-noun
+                            masculine-noun
+                            {:synsem {:sem {:pred :pane
+                                            :edible true
+                                            :artifact true}
+                                      :subcat {:1 {:cat :det
+                                                   :number :sing
+                                                   :def :def}}}})
 
                      "tirar" [{:synsem {:cat :verb
                                         :sem {:pred :throw-out}}}
