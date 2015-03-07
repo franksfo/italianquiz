@@ -18,13 +18,6 @@
 (defn truncate []
   (k/exec-raw ["TRUNCATE expression"]))
 
-(declare populate)
-
-(defn fill [num & [spec]]
-  "wipe out current table and replace with (populate num spec)"
-  (truncate)
-  (populate num en/small it/small spec))
-
 (defn populate [num source-language-model target-language-model & [ spec ]]
   (let [spec (if spec spec :top)
         debug (log/debug (str "spec(1): " spec))
@@ -73,7 +66,7 @@
             debug (log/debug (str "lang-1 surface: " target-language-surface))
 
             source-language-sentence (engine/generate {:synsem {:sem semantics
-                                                           :subcat '()}}
+                                                                :subcat '()}}
                                                  source-language-model
                                                  :enrich true)
             source-language-surface (morph/fo source-language-sentence)
@@ -105,9 +98,9 @@
                               "?,?)")
                        [target-language-surface
                         target-language
-                        "small"]])
+                        (:name target-language-model)]])
 
-            (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language,model) VALUES (?,"
+            (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
                               "'" (json/write-str (unify/strip-refs source-language-sentence)) "'"
                               ","
                               "'" (str (unify/serialize source-language-sentence)) "'"
@@ -115,8 +108,14 @@
                               "?,?)")
                          [source-language-surface
                           source-language
-                          "small"]]))
+                          (:name source-language-model)]]))
           (catch Exception e (log/error (str "Could not add expression pair to database - caused by: " e))))))))
+
+(defn fill [num & [spec]]
+  "wipe out current table and replace with (populate num spec)"
+  (truncate)
+  (populate num en/small it/small spec))
+
 
 (defn -main [& args]
   (if (not (nil? (first args)))
