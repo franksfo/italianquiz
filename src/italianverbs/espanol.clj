@@ -49,7 +49,7 @@
   "return the subset of lexemes that match this token from the lexicon."
   (morph/analyze token #(get @lexicon %)))
 
-(def it lookup) ;; abbreviation for the above
+(def es lookup) ;; abbreviation for the above
 
 (defn parse [string]
   (parse/parse string lexicon lookup grammar))
