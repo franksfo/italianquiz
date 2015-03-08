@@ -731,7 +731,7 @@
 
    "you (♂)"
    {:note "♂"
-    :target :it ;; Italian makes gender distinction for agreement with verbs and adjectives.
+    :target :it ;; Italian makes gender distinction for agreement with verbs and adjectives..
     :synsem {:cat :noun
              :pronoun true
              :case :nom
@@ -744,7 +744,7 @@
 
    "you (♀)"
    {:note "♀"
-    :target :it ;; Italian makes gender distinction for agreement with verbs and adjectives.
+    :target :it ;; Italian makes gender distinction for agreement with verbs and adjectives..
     :synsem {:cat :noun
              :pronoun true
              :case :nom
@@ -756,7 +756,7 @@
              :subcat '()}}
 
    "you"
-   {:target :es ;; Español does not make gender distinction for second person singular.
+   {:target :es ;; ..but Spanish does not.
     :synsem {:cat :noun
              :pronoun true
              :case :nom
