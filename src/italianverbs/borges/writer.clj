@@ -5,13 +5,10 @@
     [clojure.string :as string]
     [clojure.tools.logging :as log]
     [italianverbs.engine :as engine]
-    [italianverbs.english :as en]
-    [italianverbs.espanol :as es]
-    [italianverbs.italiano :as it]
     [italianverbs.korma :as korma]
-    [italianverbs.lexiconfn :as lexfn]
-    [italianverbs.morphology :as morph :refer [fo]]
-    [italianverbs.unify :as unify :refer [get-in]]
+    [italianverbs.lexiconfn :refer [sem-impl]]
+    [italianverbs.morphology :refer [fo]]
+    [italianverbs.unify :refer [get-in strip-refs serialize unify]]
     [korma.core :as k]
     ))
 
@@ -23,25 +20,16 @@
         debug (log/debug (str "spec(1): " spec))
         spec (cond
               (not (= :notfound (get-in spec [:synsem :sem :subj] :notfound)))
-              (unify/unify spec
-                           {:synsem {:sem {:subj (lexfn/sem-impl (unify/get-in spec [:synsem :sem :subj]))}}})
+              (unify spec
+                           {:synsem {:sem {:subj (sem-impl (get-in spec [:synsem :sem :subj]))}}})
               true
               spec)
 
         debug (log/debug (str "spec(2): " spec))
 
-        spec (unify/unify spec {:synsem {:subcat '()}})
+        spec (unify spec {:synsem {:subcat '()}})
 
         debug (log/debug (str "spec(3): " spec))
-
-        source-language (:language (if (future? source-language-model)
-                                     @source-language-model
-                                     source-language-model))
-
-        target-language (:language (if (future? target-language-model)
-                                     @target-language-model
-                                     target-language-model))
-
 
         ]
     (dotimes [n num]
@@ -49,27 +37,28 @@
                                                       target-language-model :enrich true)
 
             target-language-sentence (cond
-                                 (not (= :notfound (get-in target-language-sentence [:synsem :sem :subj] :notfound)))
-                                 (let [subj (lexfn/sem-impl (unify/get-in target-language-sentence
-                                                                          [:synsem :sem :subj]))]
-                                   (log/debug (str "subject constraints: " subj))
-                                   (unify/unify target-language-sentence
-                                                {:synsem {:sem {:subj subj}}}))
+                                      (not (= :notfound (get-in target-language-sentence 
+                                                                [:synsem :sem :subj] :notfound)))
+                                      (let [subj (sem-impl (get-in target-language-sentence
+                                                                   [:synsem :sem :subj]))]
+                                        (log/debug (str "subject constraints: " subj))
+                                        (unify target-language-sentence
+                                               {:synsem {:sem {:subj subj}}}))
 
-                                 true
-                                 target-language-sentence)
+                                      true
+                                      target-language-sentence)
             
-            semantics (unify/strip-refs (get-in target-language-sentence [:synsem :sem] :top))
+            semantics (strip-refs (get-in target-language-sentence [:synsem :sem] :top))
             debug (log/debug (str "semantics: " semantics))
 
-            target-language-surface (morph/fo target-language-sentence)
+            target-language-surface (fo target-language-sentence)
             debug (log/debug (str "lang-1 surface: " target-language-surface))
 
             source-language-sentence (engine/generate {:synsem {:sem semantics
                                                                 :subcat '()}}
-                                                 source-language-model
-                                                 :enrich true)
-            source-language-surface (morph/fo source-language-sentence)
+                                                      source-language-model
+                                                      :enrich true)
+            source-language-surface (fo source-language-sentence)
             debug (log/debug (str "lang-2 surface: " source-language-surface))
 
             error (if (nil? target-language-surface)
@@ -79,6 +68,14 @@
             error (if (nil? source-language-surface)
                     (do (log/error (str "surface of source-language was null with semantics: " semantics))
                         (throw (Exception. (str "surface of source-language was null with semantics: " semantics )))))
+
+            source-language (:language (if (future? source-language-model)
+                                         @source-language-model
+                                         source-language-model))
+            
+            target-language (:language (if (future? target-language-model)
+                                         @target-language-model
+                                         target-language-model))
 
             ]
         
@@ -91,9 +88,9 @@
               (throw (Exception. (str "could not generate a sentence in source language (English) for this semantics: " semantics))))
 
             (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
-                              "'" (json/write-str (unify/strip-refs target-language-sentence)) "'"
+                              "'" (json/write-str (strip-refs target-language-sentence)) "'"
                               ","
-                              "'" (str (unify/serialize target-language-sentence)) "'"
+                              "'" (str (serialize target-language-sentence)) "'"
                               ","
                               "?,?)")
                        [target-language-surface
@@ -101,9 +98,9 @@
                         (:name target-language-model)]])
 
             (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
-                              "'" (json/write-str (unify/strip-refs source-language-sentence)) "'"
+                              "'" (json/write-str (strip-refs source-language-sentence)) "'"
                               ","
-                              "'" (str (unify/serialize source-language-sentence)) "'"
+                              "'" (str (serialize source-language-sentence)) "'"
                               ","
                               "?,?)")
                          [source-language-surface
@@ -111,11 +108,11 @@
                           (:name source-language-model)]]))
           (catch Exception e (log/error (str "Could not add expression pair to database - caused by: " e))))))))
 
-(defn fill [num & [spec]]
+(defn fill [num source-lm target-lm & [spec]]
   "wipe out current table and replace with (populate num spec)"
   (truncate)
-  (populate num en/small it/small spec))
-
+  (let [spec (if spec spec :top)]
+    (populate num source-lm target-lm spec)))
 
 (defn -main [& args]
   (if (not (nil? (first args)))
