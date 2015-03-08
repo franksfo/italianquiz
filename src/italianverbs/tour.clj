@@ -42,20 +42,32 @@
                                                              "/js/leaflet.js"
                                                              "/js/es.js"
                                                              "/js/tour.js"]})})
+     (GET "/es/es" request
+          {:status 200
+           :headers headers
+           :body (page "Map Tour" (tour "es") request {:onload "start_tour('es');"
+                                                       :css ["/css/tour.css"]
+                                                       :jss ["/js/cities.js"
+                                                             "/js/gen.js"
+                                                             "/js/leaflet.js"
+                                                             "/js/es.js"
+                                                             "/js/tour.js"]})})
+     (GET "/es/mx" request
+          {:status 200
+           :headers headers
+           :body (page "Map Tour" (tour "es") request {:onload "start_tour('es');"
+                                                       :css ["/css/tour.css"]
+                                                       :jss ["/js/cities.js"
+                                                             "/js/gen.js"
+                                                             "/js/leaflet.js"
+                                                             "/js/es.js"
+                                                             "/js/tour.js"]})})
 
      (GET "/it/generate-q-and-a" request
           (generate-q-and-a "it" request))
 
      (GET "/es/generate-q-and-a" request
           (generate-q-and-a "es" request))
-
-     (GET "/es" request
-          {:status 302
-           :headers {"Location" "/tour/es"}})
-
-     (GET "/it" request
-          {:status 302
-           :headers {"Location" "/tour/it"}})
 
      ;; below URLs are for backwards-compatibility:
      (GET "/" request

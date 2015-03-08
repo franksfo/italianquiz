@@ -517,6 +517,7 @@ table.striped tr:nth-of-type(odd) {
 
 .flag img {
     width:100px;
+    height:66px;
 }
 
 .language {

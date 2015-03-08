@@ -39,16 +39,26 @@
        ]
       ]
 
+
      [:div.flag {:style "float:right"}
 
-      [:a {:href "/tour/es"}
-       [:img {:src "/png/Flag_of_Spain.svg.png" }]]
+      [:a {:href "/tour/es/mx"}
+       [:img {:src "/png/Flag_of_Mexico.svg.png" }]]
 
-      [:a {:href "/tour/es"}
+      [:a {:href "/tour/es/mx"}
        [:div.language "Español"]
        ]
       ]
 
+     [:div.flag {:style "float:right"}
+
+      [:a {:href "/tour/es/es"}
+       [:img {:src "/png/Flag_of_Spain.svg.png" }]]
+
+      [:a {:href "/tour/es/es"}
+       [:div.language "Español"]
+       ]
+      ]
      ]
 
 
