@@ -194,6 +194,98 @@
         :else
         (throw (Exception. (str "get-string-1: present regular inflection: don't know what to do with input argument: " (strip-refs word))))))
 
+     (and
+      (= (get-in word '(:infl)) :imperfetto)
+      (string? (get-in word '(:espanol))))
+     (let [infinitive (get-in word '(:espanol))
+           ar-type (try (re-find #"ar$" infinitive)
+                         (catch Exception e
+                           (throw (Exception. (str "Can't regex-find on non-string: " infinitive " from word: " word)))))
+           er-type (re-find #"er$" infinitive)
+           ir-type (re-find #"ir$" infinitive)
+           stem (string/replace infinitive #"[iae]r$" "")
+           last-stem-char-is-i (re-find #"ir$" infinitive)
+           last-stem-char-is-e (re-find #"er$" infinitive)
+           is-care-or-gare? (re-find #"[cg]ar$" infinitive)
+           vosotros (if vosotros vosotros true)
+           ustedes (if ustedes ustedes false)
+           person (get-in word '(:agr :person))
+           number (get-in word '(:agr :number))]
+
+       (cond
+        (and (= person :1st) (= number :sing) ar-type)
+        (str stem "aba")
+
+        (and (= person :1st) (= number :sing) (or ir-type er-type))
+        (str stem "ía")
+
+        (and (= person :2nd) (= number :sing) ar-type)
+        (str stem "abas")
+
+        (and (= person :2nd) (= number :sing) (or ir-type er-type))
+        (str stem "ías")
+
+        (and (= person :2nd) (= number :sing) ar-type (= usted true))
+        (str stem "aba")
+
+        (and (= person :2nd) (= number :sing) (or ir-type er-type) (= usted true))
+        (str stem "ía")
+
+        (and (= person :3rd) (= number :sing) ar-type)
+        (str stem "aba")
+
+        (and (= person :3rd) (= number :sing) (or ir-type er-type))
+        (str stem "ía")
+
+        (and (= person :1st) (= number :plur) ar-type)
+        (str stem "abamos")
+
+        (and (= person :1st) (= number :plur) er-type)
+        (str stem "íamos")
+
+        (and (= person :1st) (= number :plur) ir-type)
+        (str stem "íamos")
+
+        ;; <second person plural imperfecto>
+
+        (and (= person :2nd) (= number :plur) ar-type vosotros)
+        (str stem "abais")
+
+        (and (= person :2nd) (= number :plur) er-type vosotros)
+        (str stem "íais")
+
+        (and (= person :2nd) (= number :plur) ir-type vosotros)
+        (str stem "íais")
+
+        (and (= person :2nd) (= number :plur) ar-type ustedes)
+        (str stem "aban")
+
+        (and (= person :2nd) (= number :plur) er-type ustedes)
+        (str stem "ían")
+
+        (and (= person :2nd) (= number :plur) ir-type ustedes)
+        (str stem "ían")
+
+        ;; </second person plural imperfecto>
+
+        ;; <third person plural imperfecto>
+        (and (= person :3rd) (= number :plur)
+             ar-type)
+        (str stem "aban")
+
+        (and (= person :3rd) (= number :plur)
+             er-type)
+        (str stem "ían")
+
+        (and (= person :3rd) (= number :plur)
+             ir-type)
+        (str stem "ían")
+
+        ;; </third person plural imperfecto>
+
+        :else
+        (throw (Exception. (str "get-string-1: imperfecto regular inflection: don't know what to do with input argument: " (strip-refs word))))))
+
      (string? (get-in word [:espanol]))
      (get-in word [:espanol])
 
