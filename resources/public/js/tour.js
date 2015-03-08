@@ -2,6 +2,9 @@
 
 var google_api_key = "AIzaSyCpU5D-Vwvxjd0AbnXtuoih_1WMwWK1_Lg";
 var pitch = 0; // In streetview, angle with respect to the horizon.
+// How much to increment the score for a correct answer 
+// or decrement for a "I don't know".
+var score_increment = 10; 
 
 // End Configurable section.
 
@@ -223,8 +226,7 @@ function longest_prefix_and_correct_answer(user_input,correct_answers) {
 }
 
 function increment_map_score() {
-    var score = 100;
-    $("#scorevalue").html(parseInt($("#scorevalue").html()) + score);
+    $("#scorevalue").html(parseInt($("#scorevalue").html()) + score_increment);
 }
 
 function add_a_grave_it() {
@@ -266,24 +268,28 @@ function add_u_acute_es(target_language) {
 
 function update_user_input(target_language) {
     var user_input = $("#gameinput").val();
-    log(INFO,"updating your progress - so far you are at: " + user_input);
 
     // Find the longest common prefix of the user's guess and the set of possible answers.
     // The common prefix might be an empty string (e.g. if user_input is empty before user starts answering).
     var prefix_and_correct_answer = longest_prefix_and_correct_answer(user_input,correct_answers);
     var prefix = prefix_and_correct_answer.prefix;
     var correct_answer = prefix_and_correct_answer.correct_answer;
-    log(INFO,"longest prefix: " + prefix);
-    log(INFO,"longest correct_answer: " + correct_answer);
 
-    log(INFO,"common prefix: " + prefix.trim());
-    log(INFO,"common length: " + prefix.trim().length);
-
+    var current_length = $("#gameinput").val().length;
+    if (prefix.length > 0) {
+	if (prefix.length == current_length) {
+	    // if the keypress is a net gain, then increment the score...
+	    $("#scorevalue").html(parseInt($("#scorevalue").html()) + 1);
+	} else {
+	    // if not, decrement, because the user's keypress was wrong.
+	    $("#scorevalue").html(parseInt($("#scorevalue").html()) - 1);
+	}
+    }
     // update the user's input with this prefix (shared with one or more correct answer).
     $("#gameinput").val(prefix);
 
-    log(INFO,"answer prefix: " + correct_answer);
-    log(INFO,"answer length: " + correct_answer.length);
+    log(DEBUG,"answer prefix: " + correct_answer);
+    log(DEBUG,"answer length: " + correct_answer.length);
 
     var max_length = 0;
 
@@ -291,7 +297,7 @@ function update_user_input(target_language) {
 
     var percent = (prefix.length / correct_answer.length) * 100;
 	
-    log(INFO,"percent: " + percent);
+    log(DEBUG,"percent: " + percent);
 	
     $("#userprogress").css("width",percent+"%");
 	
@@ -304,14 +310,14 @@ function update_user_input(target_language) {
 	    submit_user_guess(prefix,correct_answer,target_language);
 	    // reset userprogress bar
 	    $("#userprogress").css("width","0");
-	    }, 1000);
+	    }, 500);
     }
 }
 
 // http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
 function user_keypress(target_language) {
     $("#gameinput").keyup(function(event){
-	log(INFO,"You hit the key: " + event.keyCode);
+	log(DEBUG,"You hit the key: " + event.keyCode);
 	update_user_input(target_language);
     });
 }
@@ -338,7 +344,7 @@ function non_lo_so() {
 	step = step + 1;
     }
     navigate_to(step,false);
-    $("#scorevalue").html(parseInt($("#scorevalue").html()) - 100);
+    $("#scorevalue").html(parseInt($("#scorevalue").html()) - score_increment);
     $("#gameinput").focus();
 }
 
