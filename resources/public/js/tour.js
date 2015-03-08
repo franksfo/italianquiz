@@ -1,6 +1,9 @@
 // Begin configurable section.
 
-var scope = 45; // how much to show from left to right in tryptich.
+var google_api_key = "AIzaSyCpU5D-Vwvxjd0AbnXtuoih_1WMwWK1_Lg";
+var pitch = 0; // In streetview, angle with respect to the horizon.
+
+// End Configurable section.
 
 function get_quadrant(path,step) {
     var lat0 = path[step][0];
@@ -108,9 +111,9 @@ function start_tour(target_language) {
     }).addTo(map).bindPopup("start")
 
     var popup = L.popup();
-
-    // set streetview to the first location we are at:
-    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=275x275&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+    
+    // initialize streetview
+    $("#streetviewiframe").attr("src","https://www.google.com/maps/embed/v1/streetview?key="+google_api_key+"&location="+current_lat+","+current_long+"&heading="+heading+"&pitch="+pitch+"&fov=35");
 
     $("#heading").val(heading);
     $("#lat").val(current_lat);
@@ -365,6 +368,6 @@ function navigate_to(step,do_encouragement) {
     }
 
     // update streetview:
-    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=275x275&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+    $("#streetviewiframe").attr("src","https://www.google.com/maps/embed/v1/streetview?key="+google_api_key+"&location="+current_lat+","+current_long+"&heading="+heading+"&pitch="+pitch+"&fov=35");
 
 }

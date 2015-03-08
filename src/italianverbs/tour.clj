@@ -136,7 +136,7 @@
     [:div#map ]
 
    [:div#streetview
-    [:img#streetviewimage
+    [:iframe#streetviewiframe
      {:src ""}] ;; src value is filled in with Javascript.
     ]
 

@@ -15,12 +15,6 @@
     filter:alpha(opacity=85); /* For IE8 and earlier */
 }
 
-#streetview {
-    position:absolute;
-    left:80px;
-    top:50px;
-}
-
 #tourgameform form input[type="text"] {
     text-transform: lowercase;
 }
@@ -113,6 +107,19 @@ button.accented {
     height:100%;
 }
 
+#streetview {
+    position:absolute;
+    left:2%;
+    top:65%;
+    height:30%;
+    width:95%;
+}
+
+#streetviewiframe {
+    height:100%;
+    width:100%;
+}
+
 #navigation {
     display:none;
 }
@@ -148,7 +155,7 @@ button.accented {
     width:10em;
     float:right;
     position:absolute;
-    top:75%;
+    top:55%;
     left:75%;
     border:2px solid lightblue;
     background:ivory;
