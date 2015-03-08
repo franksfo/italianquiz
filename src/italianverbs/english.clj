@@ -96,7 +96,7 @@
        :lexicon lexicon
        :for {:es ;; a lexicon specific to when we want to use Español as a target.
              (into {}
-                   (for [[k v] @lexicon]
+                   (for [[k v] lexicon]
                      (let [filtered-v
                            (filter #(or (= :unset (get-in % [:target]))
                                         (= :es (get-in % [:target])))
@@ -106,7 +106,7 @@
 
              :it  ;; a lexicon specific to when we want to use Italiano as a target.
              (into {}
-                   (for [[k v] @lexicon]
+                   (for [[k v] lexicon]
                      (let [filtered-v
                            (filter #(or (= :unset (get-in % [:target]))
                                         (= :it (get-in % [:target])))
