@@ -420,6 +420,7 @@
               :agr {:person :3rd
                     :number :sing}
               :sem {:pred :lui
+                    :gender :masc
                     :human false}
               :subcat '()}}
 
@@ -430,6 +431,7 @@
               :agr {:person :3rd
                     :number :sing}
               :sem {:pred :lei
+                    :gender :fem
                     :human false}
               :subcat '()}}
 
@@ -630,7 +632,8 @@
              :agr {:person :3rd
                    :gender :masc
                    :number :plur}
-             :sem {:human true
+             :sem {:gender :masc
+                   :human true
                    :pred :loro}
              :subcat '()}}
 
@@ -641,7 +644,8 @@
              :agr {:person :3rd
                    :gender :fem
                    :number :plur}
-             :sem {:human true
+             :sem {:gender :fem
+                   :human true
                    :pred :loro}
              :subcat '()}}
 
@@ -675,6 +679,7 @@
                    :gender :fem
                    :number :plur}
              :sem {:human true
+                   :gender :fem
                    :pred :noi}
              :subcat '()}}
 
@@ -686,6 +691,7 @@
                    :gender :masc
                    :number :plur}
              :sem {:human true
+                   :gender :masc
                    :pred :noi}
              :subcat '()}}
 
@@ -724,6 +730,7 @@
 
    "you (♂)"
    {:note "♂"
+    :target :it ;; Italian makes gender distinction for agreement with verbs and adjectives.
     :synsem {:cat :noun
              :pronoun true
              :case :nom
@@ -736,6 +743,7 @@
 
    "you (♀)"
    {:note "♀"
+    :target :it ;; Italian makes gender distinction for agreement with verbs and adjectives.
     :synsem {:cat :noun
              :pronoun true
              :case :nom
@@ -746,6 +754,17 @@
                    :pred :tu}
              :subcat '()}}
 
+   "you"
+   {:target :es ;; Español does not make gender distinction for second person singular.
+    :synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :2nd
+                   :gender :fem
+                   :number :sing}
+             :sem {:human true
+                   :pred :tu}
+             :subcat '()}}
 
    "you all (♂)"
    {:synsem {:cat :noun

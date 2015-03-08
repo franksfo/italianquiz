@@ -143,6 +143,7 @@
                                      :gender :masc
                                      :number :sing}
                                :sem {:human true
+                                     :gender :masc
                                      :pred :lui}
                                :subcat '()}}
 
@@ -154,6 +155,7 @@
                                      :gender :fem
                                      :number :sing}
                                :sem {:human true
+                                     :gender :fem
                                      :pred :lei}
                                :subcat '()}}
 
@@ -165,6 +167,7 @@
                                      :gender :masc
                                      :number :plur}
                                :sem {:human true
+                                     :gender :masc
                                      :pred :loro}
                                :subcat '()}}
 
@@ -176,6 +179,7 @@
                                      :gender :fem
                                      :number :plur}
                                :sem {:human true
+                                     :gender :fem
                                      :pred :loro}
                                :subcat '()}}
 
@@ -258,6 +262,7 @@
                                       :gender :fem
                                       :number :plur}
                                 :sem {:human true
+                                      :gender :fem
                                       :pred :noi}
                                :subcat '()}}
 
@@ -269,6 +274,7 @@
                                      :gender :masc
                                      :number :plur}
                                :sem {:human true
+                                      :gender :masc
                                      :pred :noi}
                                :subcat '()}}
 
@@ -316,6 +322,7 @@
                                       :gender :fem
                                       :number :plur}
                                 :sem {:human true
+                                      :gender :fem
                                       :pred :voi}
                                :subcat '()}}
 
@@ -327,6 +334,7 @@
                                      :gender :masc
                                      :number :plur}
                                :sem {:human true
+                                     :gender :masc
                                      :pred :voi}
                                :subcat '()}}
 
