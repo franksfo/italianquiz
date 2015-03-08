@@ -553,8 +553,8 @@
    "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
                            :english {:past "sent"}})
 
-   "share" {:synsem {:cat :verb
-                     :sem {:pred :share}}}
+   "share" (trans-intrans {:synsem {:cat :verb
+                                    :sem {:pred :share}}})
 
    "she"
    {:synsem {:cat :noun
