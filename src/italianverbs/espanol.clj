@@ -35,7 +35,6 @@
                               val))
                       vals)))
               
-              
               ;; Cleanup functions can go here. Number them for ease of reading.
               ;; 1. this filters out any verbs without an inflection: infinitive verbs should have inflection ':infinitive', 
               ;; rather than not having any inflection.
