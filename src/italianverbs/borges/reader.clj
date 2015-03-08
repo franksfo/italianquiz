@@ -139,12 +139,12 @@
                                         FROM (SELECT english.surface   AS en,
                                                       italiano.surface AS it,               
                                    italiano.structure->'synsem'->'sem' AS italian_semantics,
-                                   english.structure->'synsem'->'sem'  AS english_semantics         
+                                    english.structure->'synsem'->'sem' AS english_semantics         
                                                 FROM expression AS italiano
                                           INNER JOIN expression AS english                                 
                                                   ON english.structure @> '" json-spec "'
                                                  AND italiano.language = 'it'
-                                                 AND english.language = 'en'
+                                                 AND english.language  = 'en'
                                                  AND (italiano.structure->'synsem'->'sem') @> 
                                                      (english.structure->'synsem'->'sem')) AS pairs 
                                     ORDER BY pairs.en")
