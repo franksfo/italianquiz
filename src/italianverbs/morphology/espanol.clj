@@ -286,6 +286,102 @@
         :else
         (throw (Exception. (str "get-string-1: imperfecto regular inflection: don't know what to do with input argument: " (strip-refs word))))))
 
+     (and
+      (= (get-in word '(:infl)) :futuro)
+      (string? (get-in word '(:espanol))))
+     (let [infinitive (get-in word '(:espanol))
+           ar-type (try (re-find #"ar$" infinitive)
+                         (catch Exception e
+                           (throw (Exception. (str "Can't regex-find on non-string: " infinitive " from word: " word)))))
+           er-type (re-find #"er$" infinitive)
+           ir-type (re-find #"ir$" infinitive)
+           stem (string/replace infinitive #"[iae]r$" "")
+           last-stem-char-is-i (re-find #"ir$" infinitive)
+           last-stem-char-is-e (re-find #"er$" infinitive)
+           is-care-or-gare? (re-find #"[cg]ar$" infinitive)
+           vosotros (if vosotros vosotros true)
+           ustedes (if ustedes ustedes false)
+           person (get-in word '(:agr :person))
+           number (get-in word '(:agr :number))]
+
+       (cond
+        (and (= person :1st) (= number :sing) ar-type)
+        (str stem "aré")
+        (and (= person :1st) (= number :sing) er-type)
+        (str stem "eré")
+        (and (= person :1st) (= number :sing) ir-type)
+        (str stem "iré")
+
+        (and (= person :2nd) (= number :sing) ar-type)
+        (str stem "aras")
+        (and (= person :2nd) (= number :sing) ir-type)
+        (str stem "iras")
+        (and (= person :2nd) (= number :sing) er-type)
+        (str stem "eras")
+
+        (and (= person :2nd) (= number :sing) ar-type (= usted true))
+        (str stem "erá")
+        (and (= person :2nd) (= number :sing) ir-type (= usted true))
+        (str stem "irá")
+        (and (= person :2nd) (= number :sing) er-type (= usted true))
+        (str stem "erá")
+
+        (and (= person :3rd) (= number :sing) ar-type)
+        (str stem "erá")
+        (and (= person :3rd) (= number :sing) ir-type)
+        (str stem "irá")
+        (and (= person :3rd) (= number :sing) er-type)
+        (str stem "erá")
+
+        (and (= person :1st) (= number :plur) ar-type)
+        (str stem "aremos")
+
+        (and (= person :1st) (= number :plur) er-type)
+        (str stem "eremos")
+
+        (and (= person :1st) (= number :plur) ir-type)
+        (str stem "iremos")
+
+        ;; <second person plural future>
+
+        (and (= person :2nd) (= number :plur) ar-type vosotros)
+        (str stem "arais")
+
+        (and (= person :2nd) (= number :plur) er-type vosotros)
+        (str stem "erais")
+
+        (and (= person :2nd) (= number :plur) ir-type vosotros)
+        (str stem "irais")
+
+        (and (= person :2nd) (= number :plur) ar-type ustedes)
+        (str stem "aran")
+
+        (and (= person :2nd) (= number :plur) er-type ustedes)
+        (str stem "eran")
+
+        (and (= person :2nd) (= number :plur) ir-type ustedes)
+        (str stem "iran")
+
+        ;; </second person plural future>
+
+        ;; <third person plural future>
+        (and (= person :3rd) (= number :plur)
+             ar-type)
+        (str stem "aran")
+
+        (and (= person :3rd) (= number :plur)
+             er-type)
+        (str stem "eran")
+
+        (and (= person :3rd) (= number :plur)
+             ir-type)
+        (str stem "iran")
+
+        ;; </third person plural future>
+
+        :else
+        (throw (Exception. (str "get-string-1: futuro regular inflection: don't know what to do with input argument: " (strip-refs word))))))
+
      (string? (get-in word [:espanol]))
      (get-in word [:espanol])
 
