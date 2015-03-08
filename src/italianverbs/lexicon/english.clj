@@ -269,7 +269,8 @@
                   {:subj {:human true}}
                   {:obj {:human true}})
 
-   "enjoy" (trans-intrans {:synsem {:cat :verb
+   "enjoy" (trans-intrans {:english {:present {:3sing "enjoys"}}
+                           :synsem {:cat :verb
                                     :sem {:pred :enjoy}}})
 
    "enter"  (trans-intrans {:synsem {:sem {:pred :enter}}})
