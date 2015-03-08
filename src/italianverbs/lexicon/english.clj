@@ -99,7 +99,7 @@
                      :agr agr
                      :infl infl}
             :english {:agr agr
-                      :english "to be"
+                      :english "be"
                       :infl infl
                       :present {:1sing "am"
                                 :2sing "are"
