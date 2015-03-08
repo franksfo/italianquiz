@@ -3,7 +3,7 @@
   (:require
    [clojure.core :as core]
    [clojure.test :refer :all]
-   [italianverbs.borges.writer]
+   [italianverbs.borges.writer :refer :all]
    [italianverbs.engine :refer :all :as engine]
    [italianverbs.english :as en]
    [italianverbs.espanol :as es]
@@ -14,10 +14,6 @@
    [italianverbs.borges.writer :refer :all]
    ))
 
-;; (populate 1 {:synsem {:infl :futuro :sem {:pred :chiedere :subj {:pred :lei}}}})
-;; (populate 1 {:synsem {:infl :present :sem {:pred :chiedere :subj {:pred :lei}}}})
-;;(do (truncate)  (populate 1 {:synsem {:sem {:pred :chiedere :subj {:pred :lei}}}}))
-
 (def spec {:synsem {:essere true}})
 
 (def enrich-function (:enrich @it/small))
@@ -27,11 +23,25 @@
 (def matching-head-lexemes (it/matching-head-lexemes spec))
 
 (def spanish-sentence
-  (fo (engine/generate {:synsem {:infl :present :sem {:aspect :progressive}}} @es/small)))
+  (fo (engine/generate {:synsem {:infl :present 
+                                 :sem {:aspect :progressive}}} @es/small)))
 
 (deftest spanish-working
-  (and (is (not (nil? spanish-sentence)))
-       (is (not (= "" spanish-sentence)))))
+  (is (not (nil? spanish-sentence)))
+  (is (not (= "" spanish-sentence))))
+
+(deftest populate-test
+  (let [do-populate
+        (populate 1 en/small es/small {:synsem {:infl :present :sem {:aspect :progressive}}})]
+    (is true))) ;; TODO: add test
+
+(deftest spanish-subject-agreement
+  (let [vosotros-comeis (let [example (engine/generate {:synsem {:sem {:subj {:gender :masc :pred :voi} :tense :present :pred :mangiare}}} @es/small)] 
+                          {:sem (strip-refs (get-in example [:synsem :sem :subj :gender] :unspecified)) 
+                           :surface (fo example)})]
+    (is 
+     (or 
+      (= (:surface vosotros-comeis) "ustedes comen")
+      (= (:surface vosotros-comeis) "vosotros comeis")))))
 
 
-(populate 1 en/small es/small {:synsem {:infl :present :sem {:aspect :progressive}}})
