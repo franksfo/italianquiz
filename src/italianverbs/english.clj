@@ -94,8 +94,26 @@
        :language "en"
        :grammar grammar
        :lexicon lexicon
-       :index (create-index grammar (flatten (vals lexicon)) head-principle)
-       })))
+       :for {:es ;; a lexicon specific to when we want to use Español as a target.
+             (into {}
+                   (for [[k v] @lexicon]
+                     (let [filtered-v
+                           (filter #(or (= :unset (get-in % [:target]))
+                                        (= :es (get-in % [:target])))
+                                   v)]
+                       (if (not (empty? filtered-v))
+                         [k filtered-v]))))
+
+             :it  ;; a lexicon specific to when we want to use Italiano as a target.
+             (into {}
+                   (for [[k v] @lexicon]
+                     (let [filtered-v
+                           (filter #(or (= :unset (get-in % [:target]))
+                                        (= :it (get-in % [:target])))
+                                   v)]
+                       (if (not (empty? filtered-v))
+                         [k filtered-v]))))}
+       :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
 
 (def medium
   (future
