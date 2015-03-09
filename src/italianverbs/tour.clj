@@ -141,9 +141,6 @@
     " "
     ]
 
-
-   [:svg {:id "svgarena"}]
-     
     (direction-chooser)
      
     [:div#kilos {:style "z-index:4"}
