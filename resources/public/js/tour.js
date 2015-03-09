@@ -82,11 +82,26 @@ var current_zoom = 17;
 var current_lat;
 var current_long;
 
-function start_tour(target_language) {
-    current_lat = tour_path[step][0];
-    current_long = tour_path[step][1];
-    quadrant = get_quadrant(tour_path,step);
-    heading = get_heading(tour_path,0);
+// Firenze is defined in cities.js.
+// TODO: add tour_paths as an array of cities, rather than just one.
+var tour_paths = {
+    "it": {
+	"IT": Firenze
+    },
+    "es": {
+	"ES": Barcelona,
+	"MX": Mexico_DF
+    }
+};
+
+function start_tour(target_language,target_locale) {
+    // TODO: tour_paths is a global variable, defined in it.js, es.js, and other places.
+    path = tour_paths[target_language][target_locale];
+
+    current_lat = path[step][0];
+    current_long = path[step][1];
+    quadrant = get_quadrant(path,step);
+    heading = get_heading(path,0);
 
     map = L.map('map').setView([current_lat, current_long], current_zoom);
 
