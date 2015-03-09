@@ -136,11 +136,11 @@ function start_tour(target_language,target_locale) {
     $("#streetviewiframe").attr("src","https://www.google.com/maps/embed/v1/streetview?key="+google_api_key+"&location="+current_lat+","+current_long+"&heading="+heading+"&pitch="+pitch+"&fov=35");
     
     user_keypress(target_language);
-    tour_loop(target_language);
+    tour_loop(target_language,target_locale);
 }
 
-function tour_loop(target_language) {
-    create_tour_question(target_language);
+function tour_loop(target_language,target_locale) {
+    create_tour_question(target_language,target_locale);
     $("#gameinput").focus();
     $("#gameinput").val("");
 }
@@ -148,8 +148,7 @@ function tour_loop(target_language) {
 var answer_info = {};
 var correct_answers = [];
 
-function create_tour_question(target_language) {
-
+function create_tour_question(target_language,target_locale) {
     $("#gameinput").css("background","white");
     $("#gameinput").css("color","black");
 
@@ -190,7 +189,7 @@ function decrement_remaining_tour_question_time() {
     log(DEBUG,"decrement remaining time..");
 }
 
-function submit_user_guess(guess,correct_answer,target_language) {
+function submit_user_guess(guess,correct_answer,target_language,target_locale) {
     log(INFO,"submit_user_guess() guess: " + guess);
     if (guess == correct_answer) {
 	log(INFO,"You got one right!");
@@ -202,7 +201,7 @@ function submit_user_guess(guess,correct_answer,target_language) {
 	increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 	// TODO: score should vary depending on the next 'leg' of the trip.
 	// go to next question.
-	return tour_loop(target_language);
+	return tour_loop(target_language,target_locale);
     }
     log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
     return false;

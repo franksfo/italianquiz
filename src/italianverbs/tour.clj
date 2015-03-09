@@ -62,6 +62,10 @@
                                                                   "/js/tour.js"]})})
 
      (GET "/it/generate-q-and-a" request
+          {:status 302
+           :headers {"Location" "/tour/it/IT/generate-q-and-a"}})
+
+     (GET "/it/IT/generate-q-and-a" request
           (generate-q-and-a "it" "IT" request))
 
     (GET "/es/ES/generate-q-and-a" request
