@@ -167,34 +167,28 @@
      ]
 
     [:div#gameinputdiv
-      [:input {:id "gameinput" :size "20"}]]
+      [:input#gameinput {:size "20"}]
      
      (accent-characters language)
 
-      [:button {:id "non_lo_so" :onclick "non_lo_so();"}  (dont-know language)]
+      [:button#non_lo_so {:onclick "non_lo_so();"}  (dont-know language)]]
 
     [:div#userprogresscontainer
      [:div#userprogress 
-      ]]
+      ]]]
 
     [:table#navigation
      [:tr
-      [:td [:input {:id "lat" :size "5"}]]
-      [:td [:input {:id "long" :size "5"}]]
-      [:td [:input {:id "offset" :size "5"}]]
-      [:td [:input {:id "quadrant" :size "5" :val ""  }]]
-      [:td [:input {:id "heading" :size "5"}]]]
+      [:td [:input#lat {:size "5"}]]
+      [:td [:input#long {:size "5"}]]
+      [:td [:input#offset {:size "5"}]]
+      [:td [:input#quadrant {:size "5" :val ""  }]]
+      [:td [:input#heading {:size "5"}]]]
 
      [:tr
-      [:td [:input {:id "lat1" :size "5"}]]
-      [:td [:input {:id "long1" :size "5"}]]
-      ]
-     ]
-
-    ] ;; end of :div #gameform
-   ] ;; end of :div #game
-
-) ;; end of (defn)
+      [:td [:input#lat1 {:size "5"}]]
+      [:td [:input#long1 {:size "5"}]]
+      ]]])
 
 (def game-pairs
   [{:source "en"
