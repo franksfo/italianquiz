@@ -109,7 +109,7 @@
               :headers headers
               :body (write-str {:exception (str e)})})))))
 
-(defn accent-characters [language]
+(defn accent-characters [language locale]
   (cond (= language "it")
         [:div.accents
          [:button.accented {:onclick (str "add_a_grave('it','IT');")} "&agrave;"]
@@ -117,12 +117,20 @@
          [:button.accented {:onclick (str "add_o_grave('it','IT');")} "&ograve;"]
          ]
         (= language "es")
-        [:div.accents
-         [:button.accented {:onclick (str "add_a_acute('es');")} "&aacute;"]
-         [:button.accented {:onclick (str "add_e_acute_es();")} "&eacute;"]
-         [:button.accented {:onclick (str "add_i_acute_es();")} "&iacute;"]
-         [:button.accented {:onclick (str "add_n_tilde_es();")} "&ntilde;"]
-         [:button.accented {:onclick (str "add_u_acute_es();")} "&uacute;"]]
+        (cond (= locale "MX")
+              [:div.accents
+               [:button.accented {:onclick (str "add_a_acute('es','MX');")} "&aacute;"]
+               [:button.accented {:onclick (str "add_e_acute('es','MX');")} "&eacute;"]
+               [:button.accented {:onclick (str "add_i_acute('es','MX');")} "&iacute;"]
+               [:button.accented {:onclick (str "add_n_tilde('es','MX');")} "&ntilde;"]
+               [:button.accented {:onclick (str "add_u_acute('es','MX');")} "&uacute;"]]
+              :else
+              [:div.accents
+               [:button.accented {:onclick (str "add_a_acute('es','ES');")} "&aacute;"]
+               [:button.accented {:onclick (str "add_e_acute('es','ES');")} "&eacute;"]
+               [:button.accented {:onclick (str "add_i_acute('es','ES');")} "&iacute;"]
+               [:button.accented {:onclick (str "add_n_tilde('es','ES');")} "&ntilde;"]
+               [:button.accented {:onclick (str "add_u_acute('es','ES');")} "&uacute;"]])
         true
         ""))
 
@@ -136,7 +144,7 @@
 
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.
-(defn tour [language & [locale]]
+(defn tour [language locale]
   [:div#game
 
    [:div#correctanswer 
@@ -161,7 +169,7 @@
     [:div#gameinputdiv
       [:input#gameinput {:size "20"}]
      
-     (accent-characters language)
+     (accent-characters language locale)
 
       [:button#non_lo_so {:onclick "non_lo_so();"}  (dont-know language)]]
 

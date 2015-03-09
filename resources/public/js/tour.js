@@ -238,46 +238,46 @@ function increment_map_score() {
 
 // TODO: convert other similar functions to take a language as a param rather 
 // than in the function name.
-function add_a_acute(language) {
+function add_a_acute(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "á");
-    update_user_input(language,"IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
 
-function add_a_grave(language) {
+function add_a_grave(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "à");
-    update_user_input("it","IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
 
-function add_e_acute_es() {
+function add_e_acute(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "é");
-    update_user_input("es","IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
-function add_e_grave(language) {
+function add_e_grave(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "è");
-    update_user_input("it","IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
-function add_i_acute_es() {
+function add_i_acute(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "í");
-    update_user_input("es","IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
-function add_n_tilde_es(target_language) {
+function add_n_tilde(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "ñ");
-    update_user_input("es","IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
-function add_o_grave_es(target_language) {
+function add_o_grave(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "ò");
-    update_user_input("es","IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
-function add_u_acute_es(target_language) {
+function add_u_acute(language,locale) {
     $("#gameinput").val($("#gameinput").val() + "ú");
-    update_user_input("es","IT");
+    update_user_input(language,locale);
     $("#gameinput").focus();
 }
 
