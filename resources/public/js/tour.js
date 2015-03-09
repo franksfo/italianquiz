@@ -336,7 +336,7 @@ function update_map(question,correct_answer) {
     }).addTo(map).bindPopup(question + " &rarr; <i>" + correct_answer + "</i><br/>" + "<tt>["+current_lat+","+current_long+"]</tt>")
     step = step + direction;
 
-    navigate_to(step,true);
+    navigate_to(step,tour_path,true);
 }
 
 function non_lo_so() {
@@ -348,12 +348,12 @@ function non_lo_so() {
     if (direction == -1) {
 	step = step + 1;
     }
-    navigate_to(step,false);
+    navigate_to(step,tour_path,false);
     $("#scorevalue").html(parseInt($("#scorevalue").html()) - score_increment);
     $("#gameinput").focus();
 }
 
-function navigate_to(step,do_encouragement) {
+function navigate_to(step,path,do_encouragement) {
     heading = get_heading(tour_path,step);
 
     current_lat = tour_path[step][0];
