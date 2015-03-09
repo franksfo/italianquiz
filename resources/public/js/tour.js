@@ -6,13 +6,6 @@ var pitch = 0; // In streetview, angle with respect to the horizon.
 // or decrement for a "I don't know".
 var score_increment = 10; 
 
-// these city routes are defined in cities.js.
-var map_of_tours = {
-    "it": Firenze,
-    "es": { "ES": Barcelona,
-	    "MX": Mexico_DF}
-};
-
 // End Configurable section.
 
 function get_quadrant(path,step) {
@@ -346,24 +339,24 @@ function non_lo_so() {
 }
 
 function navigate_to(step,path,do_encouragement) {
-    heading = get_heading(tour_path,step);
+    heading = get_heading(path,step);
 
-    current_lat = tour_path[step][0];
-    current_long = tour_path[step][1];
+    current_lat = path[step][0];
+    current_long = path[step][1];
 
-    get_quadrant(tour_path,step);
+    get_quadrant(path,step);
 
-    map.panTo(tour_path[step]);
+    // update the background OpensStreetMaps position:
+    map.panTo(path[step]);
    
-    // update the marker too:
-    marker.setLatLng(tour_path[step]);
+    // update the marker on the background OpenStreetMaps too:
+    marker.setLatLng(path[step]);
     if (do_encouragement == true) {
 	var encouragement = Math.floor(Math.random()*encouragements.length);
 	marker.setPopupContent("<b>" + encouragements[encouragement] + 
-			       "</b> " + step + "/" + tour_path.length);
+			       "</b> " + step + "/" + path.length);
     }
 
-    // update streetview:
+    // update Google streetview:
     $("#streetviewiframe").attr("src","https://www.google.com/maps/embed/v1/streetview?key="+google_api_key+"&location="+current_lat+","+current_long+"&heading="+heading+"&pitch="+pitch+"&fov=35");
-
 }
