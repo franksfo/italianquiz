@@ -91,8 +91,6 @@
                  "Pragma" "no-cache"
                  "Expires" "0"}]
     (try (let [spec (get (:form-params request) "spec" :top)
-               debug
-               (log/debug (str "generate-q-and-a for spec: " spec))
                pair 
                (generate-question-and-correct-set spec source-language source-locale
                                                   target-language target-locale)]
