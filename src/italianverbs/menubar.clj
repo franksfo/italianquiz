@@ -25,8 +25,8 @@
   (let [roles (:roles haz-authentication)
         haz-admin? (not (nil? (:italianverbs.core/admin roles)))]
 
-    (log/info (str "Drawing menubar with current-url=" current-url))
-    (log/info (str "Menubar with suffixes: " suffixes))
+    (log/debug (str "Drawing menubar with current-url=" current-url))
+    (log/debug (str "Menubar with suffixes: " suffixes))
     (html
      [:div#menubar
 
