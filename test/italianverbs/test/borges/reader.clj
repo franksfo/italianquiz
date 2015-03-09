@@ -36,7 +36,7 @@
 ;                                "en"))
 
 
-(def foo (generate-question-and-correct-set {:synsem {:essere true}} "en" "it"))
+(def foo (generate-question-and-correct-set {:synsem {:essere true}} "en" "US" "it" "IT"))
 
 (def foo2 (take 5 (repeatedly #(generate-question-and-correct-set {:synsem {:essere true}} "en" "it"))))
 
