@@ -244,7 +244,7 @@ function add_a_acute(language) {
     $("#gameinput").focus();
 }
 
-function add_a_grave_it() {
+function add_a_grave(language) {
     $("#gameinput").val($("#gameinput").val() + "à");
     update_user_input("it","IT");
     $("#gameinput").focus();
@@ -255,7 +255,7 @@ function add_e_acute_es() {
     update_user_input("es","IT");
     $("#gameinput").focus();
 }
-function add_e_grave_it() {
+function add_e_grave(language) {
     $("#gameinput").val($("#gameinput").val() + "è");
     update_user_input("it","IT");
     $("#gameinput").focus();

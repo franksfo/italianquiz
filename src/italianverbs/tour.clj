@@ -112,9 +112,9 @@
 (defn accent-characters [language]
   (cond (= language "it")
         [:div.accents
-         [:button.accented {:onclick (str "add_a_grave_it();")} "&agrave;"]
-         [:button.accented {:onclick (str "add_e_grave_it();")} "&egrave;"]
-         [:button.accented {:onclick (str "add_o_grave_it();")} "&ograve;"]
+         [:button.accented {:onclick (str "add_a_grave('it','IT');")} "&agrave;"]
+         [:button.accented {:onclick (str "add_e_grave('it','IT');")} "&egrave;"]
+         [:button.accented {:onclick (str "add_o_grave('it','IT');")} "&ograve;"]
          ]
         (= language "es")
         [:div.accents
