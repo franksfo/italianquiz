@@ -13,6 +13,10 @@
    [italianverbs.unify :refer (get-in merge strip-refs unify)]
    [korma.core :as k]))
 
+;; For now, source language and locale are constant.
+(def source-language "en")
+(def source-locale "US")
+
 (declare direction-chooser)
 (declare generate-q-and-a)
 (declare tour)
@@ -33,15 +37,9 @@
                                                              "/js/it.js"
                                                              "/js/tour.js"]})})
      (GET "/es" request
-          {:status 200
-           :headers headers
-           :body (page "Map Tour" (tour "es" "ES") request {:onload "start_tour('es','ES');"
-                                                       :css ["/css/tour.css"]
-                                                       :jss ["/js/cities.js"
-                                                             "/js/gen.js"
-                                                             "/js/leaflet.js"
-                                                             "/js/es.js"
-                                                             "/js/tour.js"]})})
+          {:status 302
+           :headers {"Location" "/tour/es/ES"}})
+
      (GET "/es/ES" request
           {:status 200
            :headers headers
@@ -85,9 +83,6 @@
      (GET "/generate-q-and-a" request
           {:status 302
            :headers {"Location" "/tour/it/generate-q-and-a"}}))))
-
-(declare source-language "en")
-(declare source-locale "US")
 
 (defn generate-q-and-a [target-language target-locale request]
   "generate a question in English and a set of possible correct answers in the target language, given parameters in request"
