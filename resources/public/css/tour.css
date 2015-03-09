@@ -132,7 +132,6 @@ button.accented {
     border-radius:28px;
     border:1px solid #18ab29;
     display:inline-block;
-    cursor:pointer;
     color:#ffffff;
     font-family:arial;
     font-size:17px;
@@ -150,17 +149,10 @@ button.accented {
 }
 
 #kilos {
-    border-radius:8px;
     padding:1px;
-    width:10em;
+    width:5em;
     float:right;
-    position:absolute;
-    top:55%;
-    left:75%;
-    border:2px solid lightblue;
-    background:ivory;
     color:green;
-    z-index:2;
 }
 
 #gameinputdiv {
