@@ -134,13 +134,24 @@
         true
         ""))
 
-(defn dont-know [language]
-  (cond (= language "it")
-        "Non lo so"
-        (= language "es")
-        "No se"
-        true
-        ""))
+(defn dont-know [language locale]
+  (let [non_lo_so
+        (cond (= language "it")
+              (str "non_lo_so('it','IT');")
+              (and (= language "es")
+                   (= locale "MX"))
+              (str "non_lo_so('es','MX');")
+              (= language "es")
+              (str "non_lo_so('es','ES');")
+              :else
+              (str "non_lo_so('it','IT');"))]
+    [:button#non_lo_so {:onclick non_lo_so}
+     (cond (= language "it")
+           "Non lo so"
+           (= language "es")
+           "No se"
+           true
+           "")]))
 
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.
@@ -171,7 +182,7 @@
      
      (accent-characters language locale)
 
-      [:button#non_lo_so {:onclick "non_lo_so();"}  (dont-know language)]]
+     (dont-know language locale)]
 
     [:div#userprogresscontainer
      [:div#userprogress 
