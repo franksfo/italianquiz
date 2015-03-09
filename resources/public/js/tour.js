@@ -6,6 +6,13 @@ var pitch = 0; // In streetview, angle with respect to the horizon.
 // or decrement for a "I don't know".
 var score_increment = 10; 
 
+// these city routes are defined in cities.js.
+var map_of_tours = {
+    "it": Firenze,
+    "es": { "ES": Barcelona,
+	    "MX": Mexico_DF}
+};
+
 // End Configurable section.
 
 function get_quadrant(path,step) {
