@@ -215,8 +215,7 @@
                           :synsem {:cat :verb
                                    :sem {:pred :cut}}})
 
-   "decide" (trans-intrans  {:english {:imperfect "was deciding"}
-                             :synsem {:cat :verb
+   "decide" (trans-intrans  {:synsem {:cat :verb
                                       :sem {:pred :decide}}})
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desire}}})
@@ -656,7 +655,8 @@
 
    "throw out"
    (trans-intrans {:synsem {:sem {:pred :throw-out}}
-                   :english {:past "threw out"}})
+                   :english {:past "threw out"
+                             :participle "throwing out"}})
 
    "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:past "took"}})
