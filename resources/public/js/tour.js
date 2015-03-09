@@ -50,11 +50,11 @@ function get_quadrant(path,step) {
 function get_heading(path,position_index) {
     var quadrant = get_quadrant(path,position_index);
 
-    var lat0 = tour_path[position_index][0];
-    var long0 = tour_path[position_index][0];
+    var lat0 = path[position_index][0];
+    var long0 = path[position_index][0];
 
-    var lat1 = tour_path[position_index+1][0];
-    var long1 = tour_path[position_index+1][0];
+    var lat1 = path[position_index+1][0];
+    var long1 = path[position_index+1][0];
 
     // lat1 > lat0: you are headed north.
     // lat1 < lat0: you are headed south.
