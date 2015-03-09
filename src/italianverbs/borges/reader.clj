@@ -20,7 +20,7 @@
     (log/debug (str "spec pre-borges/generate:" spec))
     (generate spec source-language target-language)))
 
-(defn generate-question-and-correct-set [spec source-language target-language]
+(defn generate-question-and-correct-set [spec source-language source-locale target-language target-locale]
   "Return a set of semantically-equivalent expressions, for a given spec in the target language, and
    and a single expression in the source language that contains the semantics shared by this set.
    To rephrase, the set of expressions in the target language share an identical semantics, and the single expression in the source

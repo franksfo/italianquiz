@@ -42,20 +42,20 @@
 
      [:div.flag {:style "float:right"}
 
-      [:a {:href "/tour/es/mx"}
+      [:a {:href "/tour/es/MX"}
        [:img {:src "/png/Flag_of_Mexico.svg.png" }]]
 
-      [:a {:href "/tour/es/mx"}
+      [:a {:href "/tour/es/MX"}
        [:div.language "Español"]
        ]
       ]
 
      [:div.flag {:style "float:right"}
 
-      [:a {:href "/tour/es/es"}
+      [:a {:href "/tour/es/ES"}
        [:img {:src "/png/Flag_of_Spain.svg.png" }]]
 
-      [:a {:href "/tour/es/es"}
+      [:a {:href "/tour/es/ES"}
        [:div.language "Español"]
        ]
       ]

@@ -25,7 +25,7 @@
      (GET "/it" request
           {:headers headers
            :status 200
-           :body (page "Map Tour" (tour "it") request {:onload "start_tour('it');"
+           :body (page "Map Tour" (tour "it" "IT") request {:onload "start_tour('it','IT');"
                                                        :css ["/css/tour.css"]
                                                        :jss ["/js/cities.js"
                                                              "/js/gen.js"
@@ -35,39 +35,47 @@
      (GET "/es" request
           {:status 200
            :headers headers
-           :body (page "Map Tour" (tour "es") request {:onload "start_tour('es');"
+           :body (page "Map Tour" (tour "es" "ES") request {:onload "start_tour('es','ES');"
                                                        :css ["/css/tour.css"]
                                                        :jss ["/js/cities.js"
                                                              "/js/gen.js"
                                                              "/js/leaflet.js"
                                                              "/js/es.js"
                                                              "/js/tour.js"]})})
-     (GET "/es/es" request
+     (GET "/es/ES" request
           {:status 200
            :headers headers
-           :body (page "Map Tour" (tour "es") request {:onload "start_tour('es');"
+           :body (page "Map Tour" (tour "es" "ES") request {:onload "start_tour('es','ES');"
                                                        :css ["/css/tour.css"]
                                                        :jss ["/js/cities.js"
                                                              "/js/gen.js"
                                                              "/js/leaflet.js"
                                                              "/js/es.js"
                                                              "/js/tour.js"]})})
-     (GET "/es/mx" request
+     (GET "/es/MX" request
           {:status 200
            :headers headers
-           :body (page "Map Tour" (tour "es") request {:onload "start_tour('es');"
-                                                       :css ["/css/tour.css"]
-                                                       :jss ["/js/cities.js"
-                                                             "/js/gen.js"
-                                                             "/js/leaflet.js"
-                                                             "/js/es.js"
-                                                             "/js/tour.js"]})})
+           :body (page "Map Tour" (tour "es" "MX") request {:onload "start_tour('es','MX');"
+                                                            :css ["/css/tour.css"]
+                                                            :jss ["/js/cities.js"
+                                                                  "/js/gen.js"
+                                                                  "/js/leaflet.js"
+                                                                  "/js/es.js"
+                                                                  "/js/tour.js"]})})
 
      (GET "/it/generate-q-and-a" request
-          (generate-q-and-a "it" request))
+          (generate-q-and-a "it" "IT" request))
 
+    (GET "/es/ES/generate-q-and-a" request
+         (generate-q-and-a "es" "ES" request))
+
+     (GET "/es/MX/generate-q-and-a" request
+          (generate-q-and-a "es" "MX" request))
+
+     ;; Default: no locale given.
+     ;; TODO: redirect to /tour/es/es/ES/generate-q-and-a
      (GET "/es/generate-q-and-a" request
-          (generate-q-and-a "es" request))
+          (generate-q-and-a "es" "ES" request))
 
      ;; below URLs are for backwards-compatibility:
      (GET "/" request
@@ -78,7 +86,10 @@
           {:status 302
            :headers {"Location" "/tour/it/generate-q-and-a"}}))))
 
-(defn generate-q-and-a [target-language request]
+(declare source-language "en")
+(declare source-locale "US")
+
+(defn generate-q-and-a [target-language target-locale request]
   "generate a question in English and a set of possible correct answers in the target language, given parameters in request"
   (let [headers {"Content-Type" "application/json;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -88,7 +99,8 @@
                debug
                (log/debug (str "generate-q-and-a for spec: " spec))
                pair 
-               (generate-question-and-correct-set spec "en" target-language)]
+               (generate-question-and-correct-set spec source-language source-locale
+                                                  target-language target-locale)]
            {:status 200
             :headers headers
             :body (write-str
@@ -126,7 +138,7 @@
 
 ;; TODO: Move this to javascript (tour.js) - tour.clj should only be involved in
 ;; routing requests to responses.
-(defn tour [language]
+(defn tour [language & [locale]]
   [:div#game
 
    [:div#correctanswer 
