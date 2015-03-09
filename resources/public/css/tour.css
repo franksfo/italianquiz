@@ -180,3 +180,64 @@ div#menubar div {
     border-radius:5px;
 }
 
+/* device-dependent styles: */
+@media only screen
+and (orientation : landscape) {
+    div#header { 
+	background-image: url(tablet-background.jpg);
+	height: 100px; position: relative; 
+    }
+
+    #tourgameform {
+	top:2%;
+	height:35%;
+    }
+
+    #map { 
+	height:50%;
+    }
+ 
+    #streetview {
+	position:absolute;
+	left:6%;
+	top:2%;
+	height:35%;
+	width:35%;
+    }
+ 
+    #gameinputdiv {
+	top:2%;
+	left:53%;
+    }
+}
+
+@media only screen
+and (orientation : portrait) {
+    div#header { 
+	background-image: url(tablet-background.jpg);
+	height: 100px; position: relative; 
+    }
+
+    #tourgameform {
+	top:2%;
+	height:25%;
+    }
+
+    #map { 
+	height:50%;
+	width:100%;
+    }
+ 
+    #streetview {
+	position:absolute;
+	left:6%;
+	top:2%;
+	height:25%;
+	width:35%;
+    }
+ 
+    #gameinputdiv {
+	top:2%;
+	left:53%;
+    }
+}
