@@ -9,6 +9,7 @@ var score_increment = 10;
 // End Configurable section.
 
 function get_quadrant(path,step) {
+    log(DEBUG,"GET QUADRANT: " + path);
     var lat0 = path[step][0];
     var lat1 = path[step+1][0];
 
@@ -40,6 +41,7 @@ function get_quadrant(path,step) {
 }
 
 function get_heading(path,position_index) {
+    log(DEBUG,"GET_HEADING: " + path);
     var quadrant = get_quadrant(path,position_index);
 
     var lat0 = path[position_index][0];
@@ -135,7 +137,7 @@ function start_tour(target_language,target_locale) {
     // initialize streetview
     $("#streetviewiframe").attr("src","https://www.google.com/maps/embed/v1/streetview?key="+google_api_key+"&location="+current_lat+","+current_long+"&heading="+heading+"&pitch="+pitch+"&fov=35");
     
-    user_keypress(target_language);
+    user_keypress(target_language,target_locale);
     tour_loop(target_language,target_locale);
 }
 
@@ -193,7 +195,8 @@ function submit_user_guess(guess,correct_answer,target_language,target_locale) {
     log(INFO,"submit_user_guess() guess: " + guess);
     if (guess == correct_answer) {
 	log(INFO,"You got one right!");
-	update_map($("#tourquestion").html(), guess);
+	log(DEBUG,"calling update_map with target_language: " + target_language + " and target_locale:" + target_locale);
+	update_map($("#tourquestion").html(), guess,target_language,target_locale);
 	$("#gameinput").html("");
 	$("#gameinput").css("background","transparent");
 	$("#gameinput").css("color","lightblue");
@@ -237,48 +240,48 @@ function increment_map_score() {
 // than in the function name.
 function add_a_acute(language) {
     $("#gameinput").val($("#gameinput").val() + "á");
-    update_user_input(language);
+    update_user_input(language,"IT");
     $("#gameinput").focus();
 }
 
 function add_a_grave_it() {
     $("#gameinput").val($("#gameinput").val() + "à");
-    update_user_input("it");
+    update_user_input("it","IT");
     $("#gameinput").focus();
 }
 
 function add_e_acute_es() {
     $("#gameinput").val($("#gameinput").val() + "é");
-    update_user_input("es");
+    update_user_input("es","IT");
     $("#gameinput").focus();
 }
 function add_e_grave_it() {
     $("#gameinput").val($("#gameinput").val() + "è");
-    update_user_input("it");
+    update_user_input("it","IT");
     $("#gameinput").focus();
 }
 function add_i_acute_es() {
     $("#gameinput").val($("#gameinput").val() + "í");
-    update_user_input("es");
+    update_user_input("es","IT");
     $("#gameinput").focus();
 }
 function add_n_tilde_es(target_language) {
     $("#gameinput").val($("#gameinput").val() + "ñ");
-    update_user_input("es");
+    update_user_input("es","IT");
     $("#gameinput").focus();
 }
 function add_o_grave_es(target_language) {
     $("#gameinput").val($("#gameinput").val() + "ò");
-    update_user_input("es");
+    update_user_input("es","IT");
     $("#gameinput").focus();
 }
 function add_u_acute_es(target_language) {
     $("#gameinput").val($("#gameinput").val() + "ú");
-    update_user_input("es");
+    update_user_input("es","IT");
     $("#gameinput").focus();
 }
 
-function update_user_input(target_language) {
+function update_user_input(target_language,target_locale) {
     var user_input = $("#gameinput").val();
 
     // Find the longest common prefix of the user's guess and the set of possible answers.
@@ -314,7 +317,7 @@ function update_user_input(target_language) {
 	
 	setTimeout(function(){
 	    log(INFO,"submitting correct answer: " + correct_answer);
-	    submit_user_guess(prefix,correct_answer,target_language);
+	    submit_user_guess(prefix,correct_answer,target_language,target_locale);
 	    // reset userprogress bar
 	    $("#userprogress").css("width","0");
 	    }, 500);
@@ -322,14 +325,14 @@ function update_user_input(target_language) {
 }
 
 // http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
-function user_keypress(target_language) {
+function user_keypress(target_language,target_locale) {
     $("#gameinput").keyup(function(event){
 	log(DEBUG,"You hit the key: " + event.keyCode);
-	update_user_input(target_language);
+	update_user_input(target_language,target_locale);
     });
 }
 
-function update_map(question,correct_answer) {    
+function update_map(question,correct_answer,target_language,target_locale) {    
     L.circle([current_lat, 
 	      current_long], 10, {
 	color: 'lightblue',
@@ -338,10 +341,11 @@ function update_map(question,correct_answer) {
     }).addTo(map).bindPopup(question + " &rarr; <i>" + correct_answer + "</i><br/>" + "<tt>["+current_lat+","+current_long+"]</tt>")
     step = step + direction;
 
-    navigate_to(step,tour_path,true);
+    var path = tour_paths[target_language][target_locale];
+    navigate_to(step,path,true);
 }
 
-function non_lo_so() {
+function non_lo_so(target_language,target_locale) {
     $("#correctanswer").css("display","block");
     $("#correctanswer").fadeOut(3000,function () {$("#correctanswer").css("display","none");});
     if ((direction == 1) && (step > 1)) {
@@ -350,12 +354,14 @@ function non_lo_so() {
     if (direction == -1) {
 	step = step + 1;
     }
-    navigate_to(step,tour_path,false);
+    var path = tour_paths[target_language][target_locale];
+    navigate_to(step,path,false);
     $("#scorevalue").html(parseInt($("#scorevalue").html()) - score_increment);
     $("#gameinput").focus();
 }
 
 function navigate_to(step,path,do_encouragement) {
+    log(DEBUG,"NAVIGATE TO: " + path);
     heading = get_heading(path,step);
 
     current_lat = path[step][0];
