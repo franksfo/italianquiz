@@ -43,7 +43,6 @@ function get_quadrant(path,step) {
 	log(INFO,"SOUTHWEST");
 	quadrant = 2;
     }
-    $("#quadrant").val(quadrant);
     return quadrant;
 }
 
@@ -124,13 +123,6 @@ function start_tour(target_language) {
     
     // initialize streetview
     $("#streetviewiframe").attr("src","https://www.google.com/maps/embed/v1/streetview?key="+google_api_key+"&location="+current_lat+","+current_long+"&heading="+heading+"&pitch="+pitch+"&fov=35");
-
-    $("#heading").val(heading);
-    $("#lat").val(current_lat);
-    $("#long").val(current_long);
-    
-    $("#lat1").val(tour_path[step+1][0]);
-    $("#long1").val(tour_path[step+1][1]);
     
     user_keypress(target_language);
     tour_loop(target_language);
@@ -358,13 +350,6 @@ function navigate_to(step,path,do_encouragement) {
 
     current_lat = tour_path[step][0];
     current_long = tour_path[step][1];
-
-    $("#heading").val(heading);
-    $("#lat").val(current_lat);
-    $("#long").val(current_long);
-
-    $("#lat1").val(tour_path[step+1][0]);
-    $("#long1").val(tour_path[step+1][1]);
 
     get_quadrant(tour_path,step);
 
