@@ -281,7 +281,7 @@ function update_user_input(target_language) {
 	    // if the keypress is a net gain, then increment the score...
 	    $("#scorevalue").html(parseInt($("#scorevalue").html()) + 1);
 	} else {
-	    // if not, decrement, because the user's keypress was wrong.
+	    // if not, decrement the user's score, because the user's keypress was wrong.
 	    $("#scorevalue").html(parseInt($("#scorevalue").html()) - 1);
 	}
     }
@@ -293,12 +293,7 @@ function update_user_input(target_language) {
 
     var max_length = 0;
 
-    // find the length of the longest match between what the possible correct answers and what the user has typed so far.
-
     var percent = (prefix.length / correct_answer.length) * 100;
-	
-    log(DEBUG,"percent: " + percent);
-	
     $("#userprogress").css("width",percent+"%");
 	
     if ((prefix != '') && (prefix.toLowerCase() == correct_answer.toLowerCase())) {
