@@ -214,6 +214,38 @@ and (max-device-width : 736px) {
     }
 }
 
+/* iPhone 6 */
+@media only screen 
+and (min-device-width : 375px) 
+and (max-device-width : 667px) {
+    div#header { 
+	background-image: url(tablet-background.jpg);
+	height: 100px; position: relative; 
+    }
+
+    #tourgameform {
+	top:2%;
+	height:35%;
+    }
+
+    #map { 
+	height:50%;
+    }
+ 
+    #streetview {
+	position:absolute;
+	left:6%;
+	top:2%;
+	height:35%;
+	width:35%;
+    }
+ 
+    #gameinputdiv {
+	top:2%;
+	left:53%;
+    }
+}
+
 /* iPhone 5&5s */
 @media only screen 
 and (min-device-width : 320px) 
