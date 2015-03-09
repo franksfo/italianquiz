@@ -142,13 +142,6 @@
     ]
 
     (direction-chooser)
-     
-    [:div#kilos {:style "z-index:4"}
-     "Score:"
-     [:span#scorevalue
-      "0"
-      ]
-     ]
 
     [:div#map ]
 
@@ -172,20 +165,19 @@
 
     [:div#userprogresscontainer
      [:div#userprogress 
-      ]]]
+      ]]
 
-    [:table#navigation
-     [:tr
-      [:td [:input#lat {:size "5"}]]
-      [:td [:input#long {:size "5"}]]
-      [:td [:input#offset {:size "5"}]]
-      [:td [:input#quadrant {:size "5" :val ""  }]]
-      [:td [:input#heading {:size "5"}]]]
+     
+    [:div#kilos {:style "z-index:4"}
+     "Score:"
+     [:span#scorevalue
+      "0"
+      ]
+     ]
+    ]
 
-     [:tr
-      [:td [:input#lat1 {:size "5"}]]
-      [:td [:input#long1 {:size "5"}]]
-      ]]])
+   ]
+  )
 
 (def game-pairs
   [{:source "en"
