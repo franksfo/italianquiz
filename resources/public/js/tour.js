@@ -231,6 +231,14 @@ function increment_map_score() {
     $("#scorevalue").html(parseInt($("#scorevalue").html()) + score_increment);
 }
 
+// TODO: convert other similar functions to take a language as a param rather 
+// than in the function name.
+function add_a_acute(language) {
+    $("#gameinput").val($("#gameinput").val() + "á");
+    update_user_input(language);
+    $("#gameinput").focus();
+}
+
 function add_a_grave_it() {
     $("#gameinput").val($("#gameinput").val() + "à");
     update_user_input("it");
