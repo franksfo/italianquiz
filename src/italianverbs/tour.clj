@@ -30,12 +30,12 @@
           {:headers headers
            :status 200
            :body (page "Map Tour" (tour "it" "IT") request {:onload "start_tour('it','IT');"
-                                                       :css ["/css/tour.css"]
-                                                       :jss ["/js/cities.js"
-                                                             "/js/gen.js"
-                                                             "/js/leaflet.js"
-                                                             "/js/it.js"
-                                                             "/js/tour.js"]})})
+                                                            :css ["/css/tour.css"]
+                                                            :jss ["/js/cities.js"
+                                                                  "/js/gen.js"
+                                                                  "/js/leaflet.js"
+                                                                  "/js/it.js"
+                                                                  "/js/tour.js"]})})
      (GET "/es" request
           {:status 302
            :headers {"Location" "/tour/es/ES"}})
