@@ -140,11 +140,6 @@ function tour_loop(target_language) {
     create_tour_question(target_language);
     $("#gameinput").focus();
     $("#gameinput").val("");
-    
-    // TODO: when timeout expires, pop up correction dialog: currently we don't do anything here.
-    setInterval(function() {
-	decrement_remaining_tour_question_time();
-    },tour_question_decrement_interval);
 }
 
 var answer_info = {};
