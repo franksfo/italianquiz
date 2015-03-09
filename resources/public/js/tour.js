@@ -73,7 +73,7 @@ function get_heading(path,position_index) {
 // every X milliseconds, decrement remaining time to answer this question on a tour.
 var tour_question_decrement_interval = 5000;
 
-var logging_level = DEBUG;
+var logging_level = INFO;
 
 var step = 0;
 var direction = 1;
