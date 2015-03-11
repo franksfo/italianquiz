@@ -21,7 +21,7 @@
         spec (cond
               (not (= :notfound (get-in spec [:synsem :sem :subj] :notfound)))
               (unify spec
-                           {:synsem {:sem {:subj (sem-impl (get-in spec [:synsem :sem :subj]))}}})
+                     {:synsem {:sem {:subj (sem-impl (get-in spec [:synsem :sem :subj]))}}})
               true
               spec)
 
