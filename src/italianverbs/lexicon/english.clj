@@ -41,6 +41,7 @@
                    :person :3rd
                    :gender :fem}
              :propernoun true}}
+
    "Antonio"
    {:synsem {:agr {:number :sing
                    :person :3rd
@@ -56,39 +57,39 @@
              :number :sing}}
 
 
-   "abandon" (trans-intrans {:synsem {:cat :verb
-                                      :sem {:pred :abandon}}})
+   "abandon" {:synsem {:cat :verb
+                       :sem {:pred :abandon}}}
 
 
-   "accept"  (trans-intrans {:synsem {:cat :verb
-                                      :sem {:pred :accept}}})
+   "accept"  {:synsem {:cat :verb
+                       :sem {:pred :accept}}}
    
-   "accompany" (trans-intrans {:synsem {:cat :verb
-                                        :sem {:pred :accompany}}
-                               :english {:past "accompanied"}})
+   "accompany" {:synsem {:cat :verb
+                         :sem {:pred :accompany}}
+                :english {:past "accompanied"}}
 
 
-   "announce" (trans-intrans {:synsem {:cat :verb
-                                       :sem {:pred :announce}}})
+   "announce" {:synsem {:cat :verb
+                        :sem {:pred :announce}}}
 
-   "answer"  (trans-intrans {:synsem {:sem {:pred :answer}}})
+   "answer" {:synsem {:sem {:pred :answer}}}
 
-   "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere
-                                         :subj {:human true}}}})
+   "ask" {:synsem {:sem {:pred :chiedere
+                         :subj {:human true}}}}
 
-   "assure" (trans-intrans {:synsem {:cat :verb
-                                     :sem {:pred :assure}}})
+   "assure" {:synsem {:cat :verb
+                      :sem {:pred :assure}}}
 
-   "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
+   "attend" {:synsem {:sem {:pred :frequentare}}}
 
-   "avoid" (trans-intrans {:synsem {:sem {:pred :avoid}}})
+   "avoid" {:synsem {:sem {:pred :avoid}}}
 
    "bag" {:synsem {:cat :noun
                    :sem {:pred :bag
                          :place false}}}
 
-   "base" (trans-intrans {:synsem {:cat :verb
-                                   :sem {:pred :support}}})
+   "base" {:synsem {:cat :verb
+                    :sem {:pred :support}}}
    
    "be"
    (let [essere-common 
@@ -168,11 +169,11 @@
                           :consumable false
                           :artifact true}}})
 
-   "buy" (trans-intrans {:synsem {:sem {:pred :comprare}}
-                         :english {:past "bought"
-                                   :present {:3sing "buys"}}
-                         :sem {:subj {:human true}
-                               :obj {:buyable true}}})
+   "buy" {:synsem {:sem {:pred :comprare}}
+          :english {:past "bought"
+                    :present {:3sing "buys"}}
+          :sem {:subj {:human true}
+                :obj {:buyable true}}}
 
    "cat"
    (unify agreement-noun
@@ -185,58 +186,57 @@
                    :sem {:pred :car
                          :place false}}}
 
-   "carry"  (trans-intrans {:synsem {:sem {:pred :portare}}
-                            :english {:past "carried"}})
+   "carry" {:synsem {:sem {:pred :portare}}
+            :english {:past "carried"}}
 
-   "change" (trans-intrans {:synsem {:sem {:pred :cambiare}}}) ;; TODO: add reflexive sense
+   "change" {:synsem {:sem {:pred :cambiare}}} ;; TODO: add reflexive sense
 
-   "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
+   "charge" {:synsem {:sem {:pred :caricare}}}
 
-   "come" (intrans {:synsem {:sem {:pred :venire}}
-                    :english {:past "came"}})
+   "come" {:synsem {:sem {:pred :venire}}
+           :english {:past "came"}}
 
-   "comment" (trans-intrans {:synsem {:cat :verb
-                                      :sem {:pred :comment}}})
+   "comment" {:synsem {:cat :verb
+                       :sem {:pred :comment}}}
 
-   "conserve" (trans-intrans {:synsem {:cat :verb
-                                       :sem {:pred :conserve}}})
+   "conserve" {:synsem {:cat :verb
+                        :sem {:pred :conserve}}}
 
-   "consider" (trans-intrans  {:synsem {:cat :verb
-                                        :sem {:pred :consider}}})
+   "consider" {:synsem {:cat :verb
+                        :sem {:pred :consider}}}
 
-   "correspond" (trans-intrans  {:synsem {:cat :verb
-                          :sem {:pred :correspond}}})
+   "correspond" {:synsem {:cat :verb
+                          :sem {:pred :correspond}}}
 
-   "create" (trans-intrans  {:synsem {:cat :verb
-                                      :sem {:pred :create}}})
+   "create" {:synsem {:cat :verb
+                      :sem {:pred :create}}}
 
-   "cut" (trans-intrans  {:english {:past "cut"
-                                    :participle "cutting"}
-                          :synsem {:cat :verb
-                                   :sem {:pred :cut}}})
+   "cut" {:english {:past "cut"
+                    :participle "cutting"}
+          :synsem {:cat :verb
+                   :sem {:pred :cut}}}
 
-   "decide" (trans-intrans  {:synsem {:cat :verb
-                                      :sem {:pred :decide}}})
+   "decide" {:synsem {:cat :verb
+                      :sem {:pred :decide}}}
 
-   "desire"  (trans-intrans {:synsem {:sem {:pred :desire}}})
+   "desire" {:synsem {:sem {:pred :desire}}}
 
-   "develop" (trans-intrans {:synsem {:sem {:pred :develop}}})
+   "develop" {:synsem {:sem {:pred :develop}}}
 
-   "dine"  (intrans {:synsem {:sem {:pred :cenare
-                                    :subj {:human true}}}})
+   "dine" {:synsem {:sem {:pred :cenare
+                          :subj {:human true}}}}
 
-   "drink" (trans-intrans
-            {:synsem {:sem {:pred :bere
-                            :discrete false}}
-             :english {:past "drank"}}
+   "drink" {:synsem {:sem {:pred :bere
+                           :discrete false}}
+            :english {:past "drank"}
             {:subj {:animate true}
-             :obj {:drinkable true}})
+             :obj {:drinkable true}}}
 
-   "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}
-                            :english {:past "drove"}})
+   "drive" {:synsem {:sem {:pred :guidare}}
+            :english {:past "drove"}}
 
-   "disappoint"  (trans-intrans {:synsem {:sem {:pred :deludere}}})
-   "download"  (trans-intrans {:synsem {:sem {:pred :scaricare}}})
+   "disappoint" {:synsem {:sem {:pred :deludere}}}
+   "download" {:synsem {:sem {:pred :scaricare}}}
 
    "dog"
    (unify agreement-noun
@@ -788,6 +788,4 @@
              :sem {:human true
                    :pred :voi}
              :subcat '()}}
-
-
 })
