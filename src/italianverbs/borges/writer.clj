@@ -15,6 +15,12 @@
 (defn truncate []
   (k/exec-raw ["TRUNCATE expression"]))
 
+;; catch exceptions when trying to populate
+;; TODO: more fine-grained approach to dealing with exceptions:
+;; should be sensitive to what caused the failure:
+;; (which language,lexicon,grammar,etc..).
+(def mask-populate-errors false)
+
 (defn populate [num source-language-model target-language-model & [ spec ]]
   (let [spec (if spec spec :top)
         debug (log/debug (str "spec(1): " spec))
@@ -82,7 +88,7 @@
         (try
           (do
             (if (= target-language-surface "")
-              (throw (Exception. (str "could not generate a sentence in target language for this semantics: " semantics "; source langauge expression was: " source-language-surface))))
+              (throw (Exception. (str "could not generate a sentence in target language for this semantics: " semantics "; source language expression was: " source-language-surface))))
 
             (if (= source-language-surface "")
               (throw (Exception. (str "could not generate a sentence in source language (English) for this semantics: " semantics))))
@@ -106,7 +112,10 @@
                          [source-language-surface
                           source-language
                           (:name source-language-model)]]))
-          (catch Exception e (log/error (str "Could not add expression pair to database - caused by: " e))))))))
+          (catch Exception e 
+            (do (log/error (str "Could not add expression pair to database - caused by: " e)))
+            (if (= false mask-populate-errors)
+              (throw e))))))))
 
 (defn fill [num source-lm target-lm & [spec]]
   "wipe out current table and replace with (populate num spec)"
