@@ -56,10 +56,8 @@
              :mass false
              :number :sing}}
 
-
    "abandon" {:synsem {:cat :verb
                        :sem {:pred :abandon}}}
-
 
    "accept"  {:synsem {:cat :verb
                        :sem {:pred :accept}}}
@@ -72,17 +70,22 @@
    "announce" {:synsem {:cat :verb
                         :sem {:pred :announce}}}
 
-   "answer" {:synsem {:sem {:pred :answer}}}
+   "answer" {:synsem {:cat :verb
+                      :sem {:pred :answer
+                            :subj {:human true}}}}
 
-   "ask" {:synsem {:sem {:pred :chiedere
+   "ask" {:synsem {:cat :verb
+                   :sem {:pred :chiedere
                          :subj {:human true}}}}
 
    "assure" {:synsem {:cat :verb
                       :sem {:pred :assure}}}
 
-   "attend" {:synsem {:sem {:pred :frequentare}}}
+   "attend" {:synsem {:cat :verb
+                      :sem {:pred :frequentare}}}
 
-   "avoid" {:synsem {:sem {:pred :avoid}}}
+   "avoid" {:synsem {:cat :verb
+                     :sem {:pred :avoid}}}
 
    "bag" {:synsem {:cat :noun
                    :sem {:pred :bag
@@ -169,7 +172,8 @@
                           :consumable false
                           :artifact true}}})
 
-   "buy" {:synsem {:sem {:pred :comprare}}
+   "buy" {:synsem {:cat :verb
+                   :sem {:pred :comprare}}
           :english {:past "bought"
                     :present {:3sing "buys"}}
           :sem {:subj {:human true}
@@ -180,7 +184,8 @@
                    :sem {:pred :car
                          :place false}}}
 
-   "carry" {:synsem {:sem {:pred :portare}}
+   "carry" {:synsem {:cat :verb
+                     :sem {:pred :portare}}
             :english {:past "carried"}}
 
    "cat"
@@ -190,11 +195,14 @@
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 
-   "change" {:synsem {:sem {:pred :cambiare}}} ;; TODO: add reflexive sense
+   "change" {:synsem {:cat :verb
+                      :sem {:pred :cambiare}}} ;; TODO: add reflexive sense
 
-   "charge" {:synsem {:sem {:pred :caricare}}}
+   "charge" {:synsem {:cat :verb
+                      :sem {:pred :caricare}}}
 
-   "come" {:synsem {:sem {:pred :venire}}
+   "come" {:synsem {:cat :verb
+                    :sem {:pred :venire}}
            :english {:past "came"}}
 
    "comment" {:synsem {:cat :verb
@@ -220,23 +228,30 @@
    "decide" {:synsem {:cat :verb
                       :sem {:pred :decide}}}
 
-   "desire" {:synsem {:sem {:pred :desire}}}
+   "desire" {:synsem {:cat :verb
+                      :sem {:pred :desire}}}
 
-   "develop" {:synsem {:sem {:pred :develop}}}
+   "develop" {:synsem {:cat :verb
+                       :sem {:pred :develop}}}
 
-   "dine" {:synsem {:sem {:pred :cenare
+   "dine" {:synsem {:cat :verb
+                    :sem {:pred :cenare
                           :subj {:human true}}}}
 
-   "drink" {:synsem {:sem {:pred :bere
+   "drink" {:synsem {:cat :verb
+                     :sem {:pred :bere
                            :discrete false
                            :subj {:animate true}
                            :obj {:drinkable true}}}}
 
-   "drive" {:synsem {:sem {:pred :guidare}}
+   "drive" {:synsem {:cat :verb
+                     :sem {:pred :guidare}}
             :english {:past "drove"}}
 
-   "disappoint" {:synsem {:sem {:pred :deludere}}}
-   "download" {:synsem {:sem {:pred :scaricare}}}
+   "disappoint" {:synsem {:cat :verb
+                          :sem {:pred :deludere}}}
+   "download" {:synsem {:cat :verb
+                        :sem {:pred :scaricare}}}
 
    "dog"
    (unify agreement-noun
@@ -246,25 +261,28 @@
                                         :pet true})}})
 
 
-   "earn"  (trans-intrans {:synsem {:sem {:pred :earn
-                                          :subj {:human true}}}})
+   "earn"  {:synsem {:cat :verb
+                     :sem {:pred :earn
+                           :subj {:human true}}}}
 
    "eat"
-   (trans-intrans
-    {:english {:past "ate"}
-     :synsem {:sem {:pred :mangiare
-                    :subj {:animate true}
-                    :obj {:edible true}}}})
+   {:english {:past "ate"}
+    :synsem {:cat :verb
+             :sem {:pred :mangiare
+                   :subj {:animate true}
+                   :obj {:edible true}}}}
 
    "eat dinner"  (intrans
-                  {:synsem {:sem {:pred :cenare
+                  {:synsem {:cat :verb
+                            :sem {:pred :cenare
                                   :subj {:human true}}}
                    :english {:present {:3sing "eats dinner"}
                              :participle "eating dinner"
                              :past "ate dinner"}})
 
    "embrace"
-   (trans-intrans {:synsem {:sem {:pred :abbracciare}
+   (trans-intrans {:synsem {:cat :verb
+                            :sem {:pred :abbracciare}
                             :subj {:human true}
                             :obj {:human true}}})
 
@@ -273,16 +291,19 @@
                            :synsem {:cat :verb
                                     :sem {:pred :enjoy}}})
 
-   "enter"  (trans-intrans {:synsem {:sem {:pred :enter}}})
+   "enter"  (trans-intrans {:synsem {:sem {:cat :verb
+                                           :pred :enter}}})
 
-   "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
+   "erase"  (trans-intrans {:synsem {:sem {:cat :verb
+                                           :pred :cancellare}}})
 
    "escape" (trans-intrans {:synsem {:sem {:pred :escape}}})
 
    "exist" (intrans {:synsem {:cat :verb
                               :sem {:pred :exist}}})
 
-   "express" (trans-intrans {:synsem {:sem {:pred :express}}})
+   "express" (trans-intrans {:synsem {:cat :verb
+                                      :sem {:pred :express}}})
 
    "finish" (trans-intrans {:synsem {:cat :verb
                                      :sem {:pred :finish}}})
@@ -310,7 +331,8 @@
                              :participle "going"
                              :past "went"}})
 
-   "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
+   "grab"  (trans-intrans {:synsem {:cat :verb
+                                    :sem {:pred :prendere}}
                            :english {:participle "grabbing"
                                      :past "grabbed"}})
 
@@ -326,12 +348,14 @@
                    :obj {:buyable true}})
 
 
-   "have dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
+   "have dinner"  (trans-intrans {:synsem {:cat :verb
+                                           :sem {:pred :cenare}}
                                   :english {:present {:3sing "has dinner"}
                                             :past "had dinner"
                                             :participle "having dinner"}})
 
-   "have to" (trans-intrans {:synsem {:sem {:pred :have-to}}
+   "have to" (trans-intrans {:synsem {:cat :verb
+                                      :sem {:pred :have-to}}
                              :english {:present {:1sing "have to"
                                                  :2sing "have to"
                                                  :3sing "has to"
@@ -354,7 +378,8 @@
              :subcat '()}}
 
    "help"
-   (trans-intrans {:synsem {:essere false
+   (trans-intrans {:synsem {:cat :verb
+                            :essere false
                             :sem {:pred :aiutare
                                   :activity true}}}
                   {:subj {:human true}
@@ -597,12 +622,11 @@
               :number :sing}}]
 
    "speak"
-   (trans-intrans
-    {:english {:past "spoke"
-               :past-participle "spoken"}
-     :synsem {:sem {:pred :speak
-                    :subj {:human true}
-                    :obj {:speakable true}}}})
+   {:english {:past "spoke"
+              :past-participle "spoken"}
+    :synsem {:sem {:pred :speak
+                   :subj {:human true}
+                   :obj {:speakable true}}}}
 
    "study"  (trans-intrans {:synsem {:sem {:pred :study}}
                             :english {:past "studied"}})
