@@ -624,12 +624,14 @@
    "speak"
    {:english {:past "spoke"
               :past-participle "spoken"}
-    :synsem {:sem {:pred :speak
-                   :subj {:human true}
-                   :obj {:speakable true}}}}
+    :synsem {:cat :verb
+             :sem {:pred :speak
+                   :subj {:human true}}}}
+;                   :obj {:speakable true}}}}
 
-   "study"  (trans-intrans {:synsem {:sem {:pred :study}}
-                            :english {:past "studied"}})
+   "study"  {:synsem {:cat :verb
+                      :sem {:pred :study}}
+             :english {:past "studied"}}
 
    "support" (trans-intrans {:synsem {:cat :verb
                                       :sem {:pred :support}}})
