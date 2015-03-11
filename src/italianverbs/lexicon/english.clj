@@ -145,8 +145,8 @@
             {:synsem {:sem {:pred :to-be-missing}}}))
 
    "bicycle" {:synsem {:cat :noun
-                   :sem {:pred :bicycle
-                         :place false}}}
+                       :sem {:pred :bicycle
+                             :place false}}}
 
    "black"
    (unify adjective
@@ -175,12 +175,6 @@
           :sem {:subj {:human true}
                 :obj {:buyable true}}}
 
-   "cat"
-   (unify agreement-noun
-          common-noun
-          countable-noun
-          {:synsem {:sem (unify animal {:pred :gatto
-                                        :pet true})}})
 
    "car" {:synsem {:cat :noun
                    :sem {:pred :car
@@ -188,6 +182,13 @@
 
    "carry" {:synsem {:sem {:pred :portare}}
             :english {:past "carried"}}
+
+   "cat"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          {:synsem {:sem (unify animal {:pred :gatto
+                                        :pet true})}})
 
    "change" {:synsem {:sem {:pred :cambiare}}} ;; TODO: add reflexive sense
 
@@ -227,10 +228,9 @@
                           :subj {:human true}}}}
 
    "drink" {:synsem {:sem {:pred :bere
-                           :discrete false}}
-            :english {:past "drank"}
-            {:subj {:animate true}
-             :obj {:drinkable true}}}
+                           :discrete false
+                           :subj {:animate true}
+                           :obj {:drinkable true}}}}
 
    "drive" {:synsem {:sem {:pred :guidare}}
             :english {:past "drove"}}
@@ -253,8 +253,8 @@
    (trans-intrans
     {:english {:past "ate"}
      :synsem {:sem {:pred :mangiare
-                    :subj {:animate true}}}}
-    {:obj {:edible true}})
+                    :subj {:animate true}
+                    :obj {:edible true}}}})
 
    "eat dinner"  (intrans
                   {:synsem {:sem {:pred :cenare
@@ -264,9 +264,10 @@
                              :past "ate dinner"}})
 
    "embrace"
-   (trans-intrans {:synsem {:sem {:pred :abbracciare}}}
-                  {:subj {:human true}}
-                  {:obj {:human true}})
+   (trans-intrans {:synsem {:sem {:pred :abbracciare}
+                            :subj {:human true}
+                            :obj {:human true}}})
+
 
    "enjoy" (trans-intrans {:english {:present {:3sing "enjoys"}}
                            :synsem {:cat :verb
@@ -324,6 +325,7 @@
                   {:subj {:human true}
                    :obj {:buyable true}})
 
+
    "have dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
                                   :english {:present {:3sing "has dinner"}
                                             :past "had dinner"
@@ -380,6 +382,7 @@
              :sem {:human true
                    :pred :io}
              :subcat '()}}
+
 
    "I (♀)"
    {:synsem {:cat :noun
@@ -491,7 +494,6 @@
                     :sem {:pred :music}}}
 
    "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
-   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
 
    ;; TODO: 3sing present exception used below to avoid "playies" is not an exception: it's a rule: y->ys.
    ;; the exceptional case is when "ys" is not used (e.g. "tries").
@@ -509,6 +511,10 @@
 
    "preserve" (trans-intrans {:synsem {:cat :verb
                                        :sem {:pred :preserve}}})
+
+
+   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
+
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
    (trans-intrans {:english {:past "read (past)"}
@@ -545,9 +551,12 @@
                                     :past-participle "seen"}})
 
    "sell"  (trans-intrans {:synsem {:sem {:pred :vendere
-                                          :subj {:human true}}}
-;                                          :obj {:human false}}}
+                                          :subj {:human true}
+                                          :obj {:human false}}}
                            :english {:past "sold"}})
+
+
+
 
    "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
                            :english {:past "sent"}})
@@ -600,6 +609,7 @@
 
    "support" (trans-intrans {:synsem {:cat :verb
                                       :sem {:pred :support}}})
+
 
    "take advantage of" (trans-intrans {:english {:past "took advantage of"
                                                  :participle "taking advantage of"
@@ -664,7 +674,7 @@
    "understand" (trans-intrans {:english {:past "understood"}
                                 :synsem {:cat :verb
                                          :sem {:pred :understand}}})
-                          
+
 
    "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
 
@@ -718,13 +728,13 @@
            (trans-intrans {:synsem {:sem {:pred :work-human
                                           :subj {:human true}}}
                            :english {:note "(human)"}})
-           
+
            (trans-intrans {:english {:note "nonliving or machines"} ;; TODO: add support in cloud for :note.
                            :synsem {:sem {:subj {:living false
                                                  :human false ;; should not need to add human=false and animate=false: living=false should suffice.
                                                  :animate false}
                                           :pred :work-nonhuman}}}))
-   
+
    "write"  (trans-intrans {:english {:past "wrote"
                                       :past-participle "written"}
                             :synsem {:sem {:pred :scrivere}}})
@@ -788,4 +798,7 @@
              :sem {:human true
                    :pred :voi}
              :subcat '()}}
+
 })
+
+

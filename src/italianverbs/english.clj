@@ -6,19 +6,32 @@
 (require '[italianverbs.forest :as forest])
 (require '[italianverbs.grammar.english :as gram])
 (require '[italianverbs.lexicon.english :as lex])
-(require '[italianverbs.lexiconfn :refer (compile-lex unify)])
+(require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
 (require '[italianverbs.morphology.english :as morph])
 (require '[italianverbs.parse :as parse])
+(require '[italianverbs.pos.english :refer (verb-subjective)])
 (require '[italianverbs.ug :refer :all])
-(require '[italianverbs.unify :refer (get get-in)])
+(require '[italianverbs.unify :as unify :refer (get get-in)])
 
 (def get-string morph/get-string)
 (def grammar gram/grammar)
 (def lexicon-source lex/lexicon-source)
 
 (log/info "compiling: source lexicon size: " (.size (keys lex/lexicon-source)))
-(def lexicon (future (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/english-specific-rules)))
-;(log/info "finished: compiled lexicon: " (.size (keys lexicon)))
+(def lexicon (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/english-specific-rules)
+                         ;; TODO: do verb agreement in other languages like this, rather than requiring trans-intrans and intrans for every single verb.
+                         ;; verb agreement
+                         (map-function-on-map-vals
+                          (fn [k vals]
+                            (map (fn [val]
+                                   (cond (= (get-in val [:synsem :cat]) :verb)
+                                         (unify/unifyc val
+                                                       verb-subjective)
+                                         true
+                                         val))
+                                 vals))))))
+                         
+
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
