@@ -46,7 +46,7 @@
 
 
 (deftest do-fill
-  (let [do-fill (fill 10 en/small es/small {:synsem {:sem {:pred :parlare}}})]
+  (let [do-fill (fill 1 en/small es/small {:synsem {:sem {:pred :speak}}})]
     (is (= 1 1)))) ;; stub TOOD: fill out test
 
 
