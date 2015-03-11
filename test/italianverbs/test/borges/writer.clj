@@ -45,3 +45,8 @@
       (= (:surface vosotros-comeis) "vosotros comeis")))))
 
 
+(deftest do-fill
+  (let [do-fill (fill 10 en/small es/small {:synsem {:sem {:pred :parlare}}})]
+    (is (= 1 1)))) ;; stub TOOD: fill out test
+
+
