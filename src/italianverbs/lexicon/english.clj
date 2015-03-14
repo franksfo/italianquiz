@@ -173,12 +173,11 @@
                           :artifact true}}})
 
    "buy" {:synsem {:cat :verb
-                   :sem {:pred :comprare}}
+                   :sem {:pred :comprare
+                         :subj {:human true}
+                         :obj {:buyable true}}}
           :english {:past "bought"
-                    :present {:3sing "buys"}}
-          :sem {:subj {:human true}
-                :obj {:buyable true}}}
-
+                    :present {:3sing "buys"}}}
 
    "car" {:synsem {:cat :noun
                    :sem {:pred :car
@@ -755,7 +754,7 @@
                                           :subj {:human true}}}
                            :english {:note "(human)"}})
 
-           (trans-intrans {:english {:note "nonliving or machines"} ;; TODO: add support in cloud for :note.
+           (trans-intrans {:english {:note "nonliving or machines"} ;; TODO: add support in UI for :note.
                            :synsem {:sem {:subj {:living false
                                                  :human false ;; should not need to add human=false and animate=false: living=false should suffice.
                                                  :animate false}
