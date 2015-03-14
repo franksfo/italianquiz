@@ -1,7 +1,7 @@
 (ns italianverbs.pos.english)
 
 (require '[italianverbs.pos :as pos])
-(require '[italianverbs.unify :as unify :refer (dissoc-paths unifyc)])
+(require '[italianverbs.unify :as unify :refer (dissoc-paths serialize unifyc)])
 (require '[italianverbs.lexiconfn :refer (map-function-on-map-vals)])
 
 (def agreement-noun
@@ -41,11 +41,21 @@
                 (not (nil? (get-in (first vals)
                                    [:synsem :sem :obj]
                                    nil))))
-           (list (first vals)
-                 (dissoc-paths (first vals)
-                               (list [:serialized]
-                                     [:synsem :sem :obj]
-                                     [:synsem :subcat :2])))
+
+           (list (unifyc (first vals) ;; Make a 2-member list. member 1 is the transitive version..
+                         transitive)
+
+                 ;; and the other member of the list being the intransitive version.
+                 ;; Turn the singular, transitive form into an intranstive form by
+                 ;; doing some surgery on it: (remove the object) and intransitivize it
+                 (let [without-object  ;; intransitive version
+                       (unifyc intransitive
+                               (dissoc-paths (first vals)
+                                             (list [:serialized]
+                                                   [:synsem :sem :obj]
+                                                   [:synsem :subcat :2])))]
+                   (merge without-object
+                          {:serialized (serialize without-object)})))
            ;; else just return vals.
            true
            vals))))
