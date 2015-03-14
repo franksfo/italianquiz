@@ -1,4 +1,5 @@
-(ns italianverbs.test.translate)
+(ns italianverbs.test.translate
+  (:refer-clojure :exclude [get-in]))
 (require '[clojure.tools.logging :as log])
 (require '[clojure.set :refer :all])
 (require '[clojure.test :refer :all])
@@ -6,6 +7,7 @@
 (require '[italianverbs.english :as en])
 (require '[italianverbs.italiano :as it])
 (require '[italianverbs.translate :refer :all])
+(require '[italianverbs.unify :refer [get-in strip-refs]])
 
 (deftest translate-a-cat
   (let [un-gatto (translate-all "un gatto")]
