@@ -9,7 +9,7 @@
 (require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
 (require '[italianverbs.morphology.english :as morph])
 (require '[italianverbs.parse :as parse])
-(require '[italianverbs.pos.english :refer (transitive verb-subjective)])
+(require '[italianverbs.pos.english :refer (intransitivize transitive transitivize verb-subjective)])
 (require '[italianverbs.ug :refer :all])
 (require '[italianverbs.unify :as unify :refer (dissoc-paths get get-in)])
 
@@ -21,42 +21,12 @@
 (def lexicon (future (-> (compile-lex lex/lexicon-source 
                                       morph/exception-generator 
                                       morph/phonize morph/english-specific-rules)
-
                          ;; make an intransitive version of every verb which has an
                          ;; [:sem :obj] path.
-                         (map-function-on-map-vals
-                          (fn [k vals]
-                            (cond (and (= (.size vals)
-                                          1)
-                                       (not (nil? (get-in (first vals)
-                                                          [:synsem :sem :obj]
-                                                          nil))))
-                                  (list (first vals)
-                                        (dissoc-paths (first vals)
-                                                      (list [:synsem :sem :obj]
-                                                            [:synsem :subcat :2])))
-                                  ;; else just return vals.
-                                  true
-                                  vals)))
-                          
-                                                      
-                         ;; TODO: do verb agreement in other languages like this, rather than requiring trans-intrans and intrans for every single verb.
-                         ;; verb agreement:
-                         (map-function-on-map-vals
-                          (fn [k vals]
-                            (map (fn [val]
-                                   (cond (and (= (get-in val [:synsem :cat])
-                                                 :verb)
-                                              (not (nil? (get-in val [:synsem :sem :obj] nil))))
-                                         (unify/unifyc val
-                                                       transitive)
+                         intransitivize
 
-                                         (= (get-in val [:synsem :cat]) :verb)
-                                         (unify/unifyc val
-                                                       verb-subjective)
-                                         true
-                                         val))
-                                 vals))))))
+                         ;; if verb does specify a [:sem :obj], then fill it in with subcat info.
+                         transitivize)))
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
