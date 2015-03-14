@@ -541,11 +541,11 @@
 
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
-   (trans-intrans {:english {:past "read (past)"}
-                   :synsem {:sem {:pred :leggere
-                                  :discrete false}}}
-                  {:subj {:human true}}
-                  {:obj {:legible true}})
+   {:english {:past "read (past)"}
+    :synsem {:sem {:pred :leggere
+                   :discrete false
+                   :subj {:human true}
+                   :obj {:legible true}}}}
 
    "receive"  (trans-intrans {:synsem {:sem {:pred :ricevere}}})
    "red"
