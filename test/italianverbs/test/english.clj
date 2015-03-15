@@ -15,7 +15,6 @@
                                      non-comparative-adjective noun
                                      pronoun-acc sentential-adverb
                                      verb verb-aux]]
-    
    [italianverbs.pos.english :refer :all]
    [italianverbs.unify :as unify :refer [dissoc-paths get-in strip-refs]]))
 
@@ -53,5 +52,4 @@
   ;; intransitive sense: check subject spec.
   (is (or (= :none (get-in (nth buy 0) [:synsem :sem :obj] :none))
           (= :none (get-in (nth buy 1) [:synsem :sem :obj] :none)))))
-
 
