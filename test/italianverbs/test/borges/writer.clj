@@ -47,4 +47,8 @@
 
 (deftest do-fill
   (let [do-fill (fill 1 en/small es/small {:synsem {:sem {:pred :speak}}})]
-    (is (= 1 1)))) ;; stub TOOD: fill out test
+    (is (= 1 1)))) ;; stub TODO: fill out test
+
+(deftest antonio-speaks
+  (let [antonio-speaks (fo (engine/generate {:synsem {:infl :present :sem {:subj {:pred :antonio} :pred :speak}}} en/small :enrich true))]
+    (is (= "Antonio speaks" antonio-speaks))))
