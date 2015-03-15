@@ -625,8 +625,8 @@
               :past-participle "spoken"}
     :synsem {:cat :verb
              :sem {:pred :speak
-                   :subj {:human true}}}}
-;                   :obj {:speakable true}}}}
+                   :subj {:human true}
+                   :obj {:speakable true}}}}
 
    "study"  {:synsem {:cat :verb
                       :sem {:pred :study}}
