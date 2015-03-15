@@ -34,18 +34,6 @@
 
 (deftest test-roundtrip-english
   (let [retval (en/generate (get-meaning (parse "she sleeps")))
-        retval (cond (seq? retval)
-                     (map fo retval)
-                     true (fo retval))]
-    (is
-     (or
-      (and
-       (seq? retval)
-       (not (empty? retval))
-       (= "she sleeps" (first retval)))
-      (and
-       (string? retval)
-       (= "she sleeps" retval))))))
-
-
-
+        retval (fo retval)]
+    (is (string? retval))
+    (is (= "she sleeps" retval))))
