@@ -599,18 +599,17 @@
                    :pred :lei}
              :subcat '()}}
 
-   "show"  (trans-intrans {:synsem {:sem {:pred :show}}})
+   "show" {:synsem {:sem {:pred :show}}}
 
-   "sing"  (trans-intrans {:synsem {:sem {:pred :cantare}}
-                           :english {:past "sang"}})
+   "sing" {:synsem {:sem {:pred :cantare}}
+           :english {:past "sang"}}
 
    "sleep"
-   (intrans
-    {:synsem {:cat :verb
-              :sem {:subj {:animate true}
-                    :discrete false
-                    :pred :dormire}}
-     :english {:past "slept"}})
+   {:synsem {:cat :verb
+             :sem {:subj {:animate true}
+                   :discrete false
+                   :pred :dormire}}
+    :english {:past "slept"}}
 
    "some"
    [{:synsem {:cat :det
