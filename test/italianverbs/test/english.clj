@@ -21,7 +21,12 @@
 (def test-lexicon {"buy" {:synsem {:cat :verb
                                    :sem {:pred :comprare
                                          :subj {:human true}
-                                         :obj {:buyable true}}}}})
+                                         :obj {:buyable true}}}}
+                   "sleep" {:synsem {:cat :verb
+                                     :sem {:subj {:animate true}
+                                           :discrete false
+                                           :pred :dormire}}
+                            :english {:past "slept"}}})
 
 (def compiled-1 (compile-lex test-lexicon
                              morph/exception-generator
