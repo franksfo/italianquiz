@@ -9,7 +9,7 @@
 (require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
 (require '[italianverbs.morphology.english :as morph])
 (require '[italianverbs.parse :as parse])
-(require '[italianverbs.pos.english :refer (intransitivize transitive transitivize verb-subjective)])
+(require '[italianverbs.pos.english :as epos :refer (intransitivize transitive transitivize verb-subjective)])
 (require '[italianverbs.ug :refer :all])
 (require '[italianverbs.unify :as unify :refer (dissoc-paths get get-in)])
 
