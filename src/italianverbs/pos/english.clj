@@ -36,7 +36,7 @@
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
-     (cond (and (= (.size vals)
+     (cond (and (= (.size vals) ;; TODO: currently assumes only a single transitive verb per lexical entry: allow more than one.
                    1)
                 (not (nil? (get-in (first vals)
                                    [:synsem :sem :obj]
