@@ -12,10 +12,6 @@
 (require '[italianverbs.pos.english :refer :all])
 (require '[italianverbs.unify :refer [dissoc-paths]])
 
-(defn intrans [spec]
-  (unify intransitive
-         spec))
-
 (def lexicon-source
   {"Antonia"
    {:synsem {:sem {:pred :antonia
@@ -254,13 +250,12 @@
                    :subj {:animate true}
                    :obj {:edible true}}}}
 
-   "eat dinner"  (intrans
-                  {:synsem {:cat :verb
-                            :sem {:pred :cenare
-                                  :subj {:human true}}}
-                   :english {:present {:3sing "eats dinner"}
-                             :participle "eating dinner"
-                             :past "ate dinner"}})
+   "eat dinner" {:synsem {:cat :verb
+                          :sem {:pred :cenare
+                                :subj {:human true}}}
+                 :english {:present {:3sing "eats dinner"}
+                           :participle "eating dinner"
+                           :past "ate dinner"}}
 
    "embrace"
    {:synsem {:cat :verb
@@ -282,8 +277,8 @@
    "escape" {:synsem {:cat :verb
                       :sem {:pred :escape}}}
 
-   "exist" (intrans {:synsem {:cat :verb
-                              :sem {:pred :exist}}})
+   "exist" {:synsem {:cat :verb
+                     :sem {:pred :exist}}}
 
    "express" {:synsem {:cat :verb
                        :sem {:pred :express}}}
@@ -408,20 +403,19 @@
    "insure" {:synsem {:cat :verb
                       :sem {:pred :insure}}}
 
-   "is missed" (intrans {:synsem {:sem {:pred :mancare}}
-                         :english {:participle "being missed"
-                                   :future "be missed"
-                                   :english "be missed"
-                                   :conditional "be missed"
-                                   :past {:english "was missed"
-                                          :2sing "were missed"
-                                          :2plur "were missed"
-                                          :3plur "were missed"}
-                                   :present {:2sing "are missed"
-                                             :3sing "is missed"
-                                             :2plur "are missed"
-                                             :3plur "are missed"}}})
-
+   "is missed" {:synsem {:sem {:pred :mancare}}
+                :english {:participle "being missed"
+                          :future "be missed"
+                          :english "be missed"
+                          :conditional "be missed"
+                          :past {:english "was missed"
+                                 :2sing "were missed"
+                                 :2plur "were missed"
+                                 :3plur "were missed"}
+                          :present {:2sing "are missed"
+                                    :3sing "is missed"
+                                    :2plur "are missed"
+                                    :3plur "are missed"}}}
 
    "it (♂)"
    {:synsem {:cat :noun
@@ -638,10 +632,9 @@
                                  :sem {:pred :take-advantage-of}}}
 
    "talk"
-   (intrans
-    {:synsem {:sem {:cat :verb
-                    :pred :talk
-                    :subj {:human true}}}})
+   {:synsem {:sem {:cat :verb
+                   :pred :talk
+                   :subj {:human true}}}}
 
    "teach"  {:synsem {:cat :verb
                       :sem {:pred :teach}}
@@ -655,8 +648,6 @@
    {:synsem {:cat :det
              :def :def
              :mass false}}
-
-
 
    "they (♂)"
    {:synsem {:cat :noun
