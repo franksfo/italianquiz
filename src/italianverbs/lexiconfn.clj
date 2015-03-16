@@ -806,3 +806,21 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                      (do (log/trace (str "no modifications apply for val: " (fo val) " ; cat: " (get-in val [:synsem :cat])))
                          (list val))))
              vals))))
+
+(defn transitivize [lexicon transitive verb-subjective]
+  (map-function-on-map-vals
+   lexicon
+   (fn [k vals]
+     (map (fn [val]
+            (cond (and (= (get-in val [:synsem :cat])
+                          :verb)
+                       (not (nil? (get-in val [:synsem :sem :obj] nil))))
+                  (unifyc val
+                          transitive)
+                  
+                  (= (get-in val [:synsem :cat]) :verb)
+                  (unifyc val
+                          verb-subjective)
+                  true
+                  val))
+          vals))))

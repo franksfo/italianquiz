@@ -39,19 +39,4 @@
   (lexiconfn/intransitivize lexicon intransitive transitive))
 
 (defn transitivize [lexicon]
-  (map-function-on-map-vals
-   lexicon
-   (fn [k vals]
-     (map (fn [val]
-            (cond (and (= (get-in val [:synsem :cat])
-                          :verb)
-                       (not (nil? (get-in val [:synsem :sem :obj] nil))))
-                  (unify/unifyc val
-                                transitive)
-                  
-                  (= (get-in val [:synsem :cat]) :verb)
-                  (unify/unifyc val
-                                verb-subjective)
-                  true
-                  val))
-          vals))))
+  (lexiconfn/transitivize lexicon transitive verb-subjective))
