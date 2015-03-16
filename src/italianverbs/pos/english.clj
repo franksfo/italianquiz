@@ -39,42 +39,40 @@
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
-
-     (cond (and (= (.size vals) ;; TODO: currently assumes only a single transitive verb per lexical entry: allow more than one.
-                   1)
-                (= (get-in (first vals) [:synsem :cat])
-                   :verb)
-                (not (nil? (get-in (first vals)
-                                   [:synsem :sem :obj]
-                                   nil))))
-           
-           (list (unifyc (first vals) ;; Make a 2-member list. member 1 is the transitive version..
-                         transitive)
-                 
-                 ;; and the other member of the list being the intransitive version.
-                 ;; Turn the singular, transitive form into an intranstive form by
-                 ;; doing some surgery on it: (remove the object) and intransitivize it
-                 (let [without-object  ;; intransitive version
-                       (unifyc intransitive
-                               (dissoc-paths (first vals)
-                                             (list [:serialized]
-                                                   [:synsem :sem :obj]
-                                                   [:synsem :subcat :2])))]
-                   (merge without-object
-                          {:serialized (serialize without-object)})))
-
-           (= (get-in (first vals) [:synsem :cat])
-              :verb)
-           (do (log/trace (str "vals:" (fo vals)))
-               (log/trace (str "map-unified:" (fo (map #(unifyc % intransitive)
-                                                       vals))))
-               (map #(unifyc % intransitive)
-                    vals))
-
-           ;; else just return vals:
-           true
-           (do (log/trace (str "no modifications apply for vals: " (fo vals) " first cat: " (get-in (first vals) [:synsem :cat])))
-               vals)))))
+     (mapcat (fn [val]
+               (cond (and (= (get-in val [:synsem :cat])
+                             :verb)
+                          (not (nil? (get-in val
+                                             [:synsem :sem :obj]
+                                             nil))))
+                     
+                     (list (unifyc val ;; Make a 2-member list. member 1 is the transitive version..
+                                   transitive)
+                           
+                           ;; and the other member of the list being the intransitive version.
+                           ;; Turn the singular, transitive form into an intranstive form by
+                           ;; doing some surgery on it: (remove the object) and intransitivize it
+                           (let [without-object  ;; intransitive version
+                                 (unifyc intransitive
+                                         (dissoc-paths (first vals)
+                                                       (list [:serialized]
+                                                             [:synsem :sem :obj]
+                                                             [:synsem :subcat :2])))]
+                             (merge without-object
+                                    {:serialized (serialize without-object)})))
+                     
+                     (= (get-in val [:synsem :cat])
+                        :verb)
+                     (do (log/trace (str "val:" (fo val)))
+                         (log/trace (str "map-unified:" (fo (map #(unifyc % intransitive)
+                                                                 val))))
+                         (list (unifyc val intransitive)))
+                              
+                     ;; else just return vals:
+                     true
+                     (do (log/trace (str "no modifications apply for val: " (fo val) " ; cat: " (get-in val [:synsem :cat])))
+                         (list val))))
+             vals))))
 
 (defn transitivize [lexicon]
   (map-function-on-map-vals
