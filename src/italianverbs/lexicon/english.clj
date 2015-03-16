@@ -728,7 +728,8 @@
             :synsem {:cat :verb
                      :sem {:pred :portare}}}
    
-   "win"  {:synsem {:sem {:pred :win
+   "win"  {:synsem {:cat :verb
+                    :sem {:pred :win
                           :subj {:human true}}}
            :english {:past "won"
                      :participle "winning"}}
