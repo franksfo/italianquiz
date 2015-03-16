@@ -1625,23 +1625,24 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn get [input key & [ default-val ]]
   "strip :serialized key from map, since it's verbose, for computers only, and makes a map hard to read."
-  (if (or (seq? input)
-          (vector? input))
-    (map #(get % key default-val)
-         input)
-    (let [got (if default-val
-                (core/get input key default-val)
-                (core/get input key))]
-      (cond (or (seq? got)
-                (vector? got))
-            (map #(dissoc % :serialized)
-                 got)
+  (cond (or (seq? input)
+            (vector? input))
+        (map #(get % key default-val)
+             input)
+        true
+        (let [got (if default-val
+                    (core/get input key default-val)
+                    (core/get input key))]
+          (cond (or (seq? got)
+                    (vector? got))
+                (map #(dissoc % :serialized)
+                     got)
 
-            (map? got)
-            (dissoc got :serialized)
+                (map? got)
+                (dissoc got :serialized)
 
-            true
-            got))))
+                true
+                got))))
 
 
             
