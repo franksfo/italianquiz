@@ -588,17 +588,18 @@
                    :pred :lei}
              :subcat '()}}
 
-   "show" {:synsem {:sem {:pred :show}}}
+   "show" {:synsem {:cat :verb
+                    :sem {:pred :show}}}
 
-   "sing" {:synsem {:sem {:pred :cantare}}
+   "sing" {:synsem {:cat :verb
+                    :sem {:pred :cantare}}
            :english {:past "sang"}}
 
-   "sleep"
-   {:synsem {:cat :verb
-             :sem {:subj {:animate true}
-                   :discrete false
-                   :pred :dormire}}
-    :english {:past "slept"}}
+   "sleep" {:synsem {:cat :verb
+                     :sem {:subj {:animate true}
+                           :discrete false
+                           :pred :dormire}}
+            :english {:past "slept"}}
 
    "some"
    [{:synsem {:cat :det
