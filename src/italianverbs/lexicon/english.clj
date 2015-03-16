@@ -73,31 +73,21 @@
                     :sem {:pred :support}}}
    
    "be"
-   (let [essere-common 
-         (let [infl (ref :top)
-               agr (ref :top)]
-           {:synsem {:cat :verb
-                     :subcat {:1 {:agr agr}}
-                     :agr agr
-                     :infl infl}
-            :english {:agr agr
-                      :english "be"
-                      :infl infl
-                      :present {:1sing "am"
-                                :2sing "are"
-                                :3sing "is"
-                                :1plur "are"
-                                :2plur "are"
-                                :3plur "are"}
-                      :past {:1sing "was"
-                             :2sing "were"
-                             :3sing "was"
-                             :1plur "were"
-                             :2plur "were"
-                             :3plur "were"}}})]
-     (unify essere-common
-            {:synsem {:sem {:pred :essere}}}))
-
+   {:synsem {:cat :verb
+             :sem {:pred :essere}}
+    :english {:english "be"
+              :present {:1sing "am"
+                        :2sing "are"
+                        :3sing "is"
+                        :1plur "are"
+                        :2plur "are"
+                        :3plur "are"}
+              :past {:1sing "was"
+                     :2sing "were"
+                     :3sing "was"
+                     :1plur "were"
+                     :2plur "were"
+                     :3plur "were"}}}
 
    "be missing"
    {:english {:english "to be missing"
