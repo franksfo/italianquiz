@@ -85,7 +85,7 @@
                      :3plur "were"}}}
 
    "be missing"
-   {:english {:english "to be missing"
+   {:english {:english "be missing"
               :present {:1sing "am missing"
                         :2sing "are missing"
                         :3sing "is missing"
