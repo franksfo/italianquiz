@@ -10,7 +10,6 @@
                                     pronoun-acc sentential-adverb
                                     verb verb-aux]])
 (require '[italianverbs.pos.english :refer :all])
-(require '[italianverbs.unify :refer [dissoc-paths]])
 
 (def lexicon-source
   {"Antonia"
