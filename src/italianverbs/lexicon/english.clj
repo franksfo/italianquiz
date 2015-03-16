@@ -478,7 +478,8 @@
    "music" {:synsem {:cat :noun
                     :sem {:pred :music}}}
 
-   "paint"  {:synsem {:sem {:pred :dipingere}}}
+   "paint"  {:synsem {:cat :verb
+                      :sem {:pred :dipingere}}}
 
    ;; TODO: 3sing present exception used below to avoid "playies" is not an exception: it's a rule: y->ys.
    ;; the exceptional case is when "ys" is not used (e.g. "tries").
