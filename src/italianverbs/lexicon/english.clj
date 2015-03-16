@@ -366,6 +366,10 @@
              :sem {:pred :tenere}}
     :english {:past "held"}}
 
+   "hope"
+   {:synsem {:cat :verb
+             :sem {:pred :hope}}}
+   
    "hug"
    {:synsem {:sem {:pred :abbracciare
                    :subj {:human true}
