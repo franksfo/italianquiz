@@ -135,17 +135,26 @@
                                       :gender :masc
                                       :number :sing}})
 
-                     "él"
-                     {:synsem {:cat cat-of-pronoun
-                               :pronoun true
-                               :case :nom
-                               :agr {:person :3rd
-                                     :gender :masc
-                                     :number :sing}
-                               :sem {:human true
-                                     :gender :masc
-                                     :pred :lui}
-                               :subcat '()}}
+                     "él" [{:synsem {:cat cat-of-pronoun
+                                     :pronoun true
+                                     :case :nom
+                                     :agr {:person :3rd
+                                           :gender :masc
+                                           :number :sing}
+                                     :sem {:human true
+                                           :gender :masc
+                                           :pred :lui}
+                                     :subcat '()}}
+                           {:synsem {:cat cat-of-pronoun
+                                     :pronoun true
+                                     :case :nom
+                                     :agr {:person :3rd
+                                           :gender :masc
+                                           :number :sing}
+                                     :sem {:human false
+                                           :gender :masc
+                                           :pred :lui}
+                                     :subcat '()}}]
 
                      "ella"
                      {:synsem {:cat cat-of-pronoun
@@ -221,7 +230,8 @@
                                         :sem {:pred :form}}}
 
                      "funcionar" {:synsem {:cat :verb
-                                           :sem {:pred :work-nonhuman}}}
+                                           :sem {:subj {:human false}
+                                                 :pred :work-nonhuman}}}
 
                      "ganar" [{:synsem {:cat :verb
                                         :sem {:pred :earn}}}
