@@ -1,6 +1,7 @@
 (ns italianverbs.test.english
   (:refer-clojure :exclude [get-in lookup])
   (:require
+   [clojure.core :as core]
    [clojure.test :refer :all]
    [italianverbs.english :refer :all]
    [italianverbs.engine :as engine]
