@@ -2,13 +2,8 @@
 
 (require '[italianverbs.lexiconfn :refer [unify]])
 (require '[italianverbs.pos :refer [adjective animal
-                                    cat-of-pronoun common-noun
-                                    comparative
-                                    countable-noun determiner
-                                    drinkable-noun
-                                    non-comparative-adjective noun
-                                    pronoun-acc sentential-adverb
-                                    verb verb-aux]])
+                                    common-noun
+                                    countable-noun]])
 (require '[italianverbs.pos.english :refer :all])
 
 (def lexicon-source
