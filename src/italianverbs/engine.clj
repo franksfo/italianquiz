@@ -36,6 +36,9 @@
         language-model (if (future? language-model)
                          @language-model
                          language-model)
+
+        debug (log/debug (str "pre-enriched spec: " spec))
+
         spec (if (and do-enrich (:enrich language-model))
                ((:enrich language-model)
                 spec)
