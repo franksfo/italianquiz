@@ -3,6 +3,7 @@
 (require '[clojure.tools.logging :as log])
 (require '[clojure.set :refer :all])
 (require '[clojure.test :refer :all])
+(require '[italianverbs.engine :refer (get-meaning)])
 (require '[italianverbs.morphology :refer (fo)])
 (require '[italianverbs.english :as en])
 (require '[italianverbs.italiano :as it])
@@ -17,6 +18,7 @@
 (deftest translate-she-reads
   (is (= "she reads" (translate "lei legge"))))
 
+;; TODO: move this test to italianverbs.test.italiano
 (deftest test-roundtrip-italian
   (let [retval (it/generate (get-meaning (parse "io dormo")))
         retval (cond (seq? retval)
@@ -31,9 +33,3 @@
       (and
        (string? retval)
        (= "io dormo" retval)))))
-
-(deftest test-roundtrip-english
-  (let [retval (en/generate (get-meaning (parse "she sleeps")))
-        retval (fo retval)]
-    (is (string? retval))
-    (is (= "she sleeps" retval))))

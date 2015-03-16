@@ -1,12 +1,11 @@
 (ns italianverbs.translate
   (:refer-clojure :exclude [get-in merge resolve]))
 (require '[clojure.tools.logging :as log])
+(require '[italianverbs.engine :refer (get-meaning)])
 (require '[italianverbs.english :as en])
 (require '[italianverbs.italiano :as it])
 (require '[italianverbs.morphology :refer [finalize fo fo-ps]])
 (require '[italianverbs.unify :refer [get-in]])
-
-(declare get-meaning)
 
 (defn translate [input]
   "Return at most one possible translation for all possible parses of the input. Format translations as strings."
@@ -33,13 +32,3 @@
 (defn lookup [input]
   (lazy-cat (it/lookup input)
             (en/lookup input)))
-
-(defn get-meaning [input-map]
-  "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
-  (if (seq? input-map)
-    (map get-meaning
-         input-map)
-    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
-              :sem (get-in input-map [:synsem :sem] :top)
-              :subcat (get-in input-map [:synsem :subcat] :top)}}))
-
