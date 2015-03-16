@@ -4,7 +4,7 @@
 (require '[italianverbs.pos :refer [adjective animal
                                     common-noun
                                     countable-noun]])
-(require '[italianverbs.pos.english :refer :all])
+(require '[italianverbs.pos.english :refer [agreement-noun]])
 
 (def lexicon-source
   {"Antonia"
