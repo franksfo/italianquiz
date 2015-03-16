@@ -1,7 +1,10 @@
-(ns italianverbs.pos.english)
+(ns italianverbs.pos.english
+  (:refer-clojure :exclude [get-in]))
 
+(require '[clojure.tools.logging :as log])
+(require '[italianverbs.morphology :refer (fo)])
 (require '[italianverbs.pos :as pos])
-(require '[italianverbs.unify :as unify :refer (dissoc-paths serialize unifyc)])
+(require '[italianverbs.unify :as unify :refer (dissoc-paths get-in serialize unifyc)])
 (require '[italianverbs.lexiconfn :refer (map-function-on-map-vals)])
 
 (def agreement-noun
@@ -36,15 +39,18 @@
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
+
      (cond (and (= (.size vals) ;; TODO: currently assumes only a single transitive verb per lexical entry: allow more than one.
                    1)
+                (= (get-in (first vals) [:synsem :cat])
+                   :verb)
                 (not (nil? (get-in (first vals)
                                    [:synsem :sem :obj]
                                    nil))))
-
+           
            (list (unifyc (first vals) ;; Make a 2-member list. member 1 is the transitive version..
                          transitive)
-
+                 
                  ;; and the other member of the list being the intransitive version.
                  ;; Turn the singular, transitive form into an intranstive form by
                  ;; doing some surgery on it: (remove the object) and intransitivize it
@@ -56,9 +62,19 @@
                                                    [:synsem :subcat :2])))]
                    (merge without-object
                           {:serialized (serialize without-object)})))
-           ;; else just return vals.
+
+           (= (get-in (first vals) [:synsem :cat])
+              :verb)
+           (do (log/trace (str "vals:" (fo vals)))
+               (log/trace (str "map-unified:" (fo (map #(unifyc % intransitive)
+                                                       vals))))
+               (map #(unifyc % intransitive)
+                    vals))
+
+           ;; else just return vals:
            true
-           vals))))
+           (do (log/trace (str "no modifications apply for vals: " (fo vals) " first cat: " (get-in (first vals) [:synsem :cat])))
+               vals)))))
 
 (defn transitivize [lexicon]
   (map-function-on-map-vals
