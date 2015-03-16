@@ -6,6 +6,7 @@
    [italianverbs.engine :as engine]
    [italianverbs.lexicon.english :as lex]
    [italianverbs.lexiconfn :refer :all]
+   [italianverbs.morphology :refer (fo)]
    [italianverbs.morphology.english :as morph]
    [italianverbs.pos :as pos :refer [adjective animal
                                      cat-of-pronoun common-noun
@@ -28,6 +29,8 @@
                                            :pred :dormire}}
                             :english {:past "slept"}}})
 
+;; TODO: specific calls to compile-lex -> intransitivize -> transitivize
+;; are repeated in src/italianverbs/english.clj as well as here.
 (def compiled-1 (compile-lex test-lexicon
                              morph/exception-generator
                              morph/phonize
@@ -41,8 +44,9 @@
                   transitivize))
 
 (def buy (get compiled "buy"))
+(def sleep (get compiled "sleep"))
 
-(deftest two-entries
+(deftest buy-test
   "There should be two entries for 'buy': one has both :subj and :obj; the other has only :subj. Make sure both are present and specified per the source lexicon."
   (is (= (.size buy) 2))
 
@@ -57,4 +61,20 @@
   ;; intransitive sense: check subject spec.
   (is (or (= :none (get-in (nth buy 0) [:synsem :sem :obj] :none))
           (= :none (get-in (nth buy 1) [:synsem :sem :obj] :none)))))
+
+(deftest test-roundtrip-english
+  (let [retval (generate (engine/get-meaning (parse "she sleeps")))]
+    (is (seq? retval))
+    (is (> (.size retval) 0))
+    (is (string? (fo (first retval))))
+    (is (= "she sleeps" (fo (first retval))))))
+
+(deftest generate-with-spec
+  (let [retval (generate {:synsem {:sem {:tense :past, 
+                                         :obj :unspec, 
+                                         :aspect :perfect, 
+                                         :pred :tornare, 
+                                         :subj {:pred :loro}}}})]
+    (is (not (empty? retval)))))
+
 
