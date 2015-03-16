@@ -23,6 +23,14 @@
 (def lexicon
   (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/italian-specific-rules)
 
+
+              ;; make an intransitive version of every verb which has an
+              ;; [:sem :obj] path.
+              intransitivize
+
+              ;; if verb does specify a [:sem :obj], then fill it in with subcat info.
+              transitivize
+
               ;; Cleanup functions can go here. Number them for ease of reading.
               ;; 1. this filters out any verbs without an inflection: infinitive verbs should have inflection ':infinitive', 
               ;; rather than not having any inflection.

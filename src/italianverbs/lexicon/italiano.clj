@@ -1151,11 +1151,14 @@
              {:synsem {:sem {:human true}}}))
 
    "leggere"
-   (trans-intrans {:italiano {:passato "letto"}
-                   :synsem {:essere false
-                            :sem {:pred :leggere
-                                  :discrete false}}}
-                  {:subj {:human true}})
+   {:italiano {:passato "letto"}
+    :synsem {:cat :verb
+             :essere false
+             :sem {:discrete false
+                   :pred :leggere
+                   :subj {:human true}
+                   :obj {:legible true}}}}
+                          
 
    "libro"
    (unifyc agreement-noun
