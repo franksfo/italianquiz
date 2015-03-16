@@ -16,23 +16,6 @@
   (unify intransitive
          spec))
 
-(defn trans-intrans [spec & [opts]]
-  [(unify
-    spec
-    transitive
-    (if (:subj opts)
-      {:synsem {:sem {:subj (:subj opts)}}}
-      :top)
-    (if (:obj opts) {:synsem {:sem {:obj (:obj opts)}}}
-        :top))
-
-   (unify
-    (dissoc-paths spec [[:synsem :sem :obj]])
-    (if (:subj opts)
-      {:synsem {:sem {:subj (:subj opts)}}}
-      :top)
-    intransitive-unspecified-obj)])
-
 (def lexicon-source
   {"Antonia"
    {:synsem {:sem {:pred :antonia
@@ -280,90 +263,90 @@
                              :past "ate dinner"}})
 
    "embrace"
-   (trans-intrans {:synsem {:cat :verb
-                            :sem {:pred :abbracciare}
-                            :subj {:human true}
-                            :obj {:human true}}})
+   {:synsem {:cat :verb
+             :sem {:pred :abbracciare}
+             :subj {:human true}
+             :obj {:human true}}}
 
 
-   "enjoy" (trans-intrans {:english {:present {:3sing "enjoys"}}
-                           :synsem {:cat :verb
-                                    :sem {:pred :enjoy}}})
+   "enjoy" {:english {:present {:3sing "enjoys"}}
+            :synsem {:cat :verb
+                     :sem {:pred :enjoy}}}
+  
+   "enter"  {:synsem {:sem {:cat :verb
+                            :pred :enter}}}
 
-   "enter"  (trans-intrans {:synsem {:sem {:cat :verb
-                                           :pred :enter}}})
+   "erase"  {:synsem {:sem {:cat :verb
+                            :pred :cancellare}}}
 
-   "erase"  (trans-intrans {:synsem {:sem {:cat :verb
-                                           :pred :cancellare}}})
-
-   "escape" (trans-intrans {:synsem {:sem {:pred :escape}}})
+   "escape" {:synsem {:cat :verb
+                      :sem {:pred :escape}}}
 
    "exist" (intrans {:synsem {:cat :verb
                               :sem {:pred :exist}}})
 
-   "express" (trans-intrans {:synsem {:cat :verb
-                                      :sem {:pred :express}}})
+   "express" {:synsem {:cat :verb
+                       :sem {:pred :express}}}
 
-   "finish" (trans-intrans {:synsem {:cat :verb
-                                     :sem {:pred :finish}}})
+   "finish" {:synsem {:cat :verb
+                      :sem {:pred :finish}}}
 
-   "form" (trans-intrans {:synsem {:cat :verb
-                                   :sem {:pred :form}}})
+   "form" {:synsem {:cat :verb
+                    :sem {:pred :form}}}
 
    "game" {:synsem {:cat :noun
                     :sem {:pred :game
                           :games true}}}
 
    ;; TODO: account for "give" being ditransitive.
-   "give" (trans-intrans {:synsem {:sem {:pred :dare}}
-                          :english {:past "gave"}})
-
+   "give" {:synsem {:cat :verb
+                    :sem {:pred :dare}}
+           :english {:past "gave"}}
 
    "go"
-   (trans-intrans {:synsem {:cat :verb
-                            :sem {:activity true
-                                  :discrete false
-                                  :pred :andare
-                                  :subj {:animate true}}}
-                   :english {:english "go"
-                             :present {:3sing "goes"}
-                             :participle "going"
-                             :past "went"}})
+   [{:synsem {:cat :verb
+              :sem {:activity true
+                    :discrete false
+                    :pred :andare
+                    :subj {:animate true}}}
+     :english {:english "go"
+               :present {:3sing "goes"}
+               :participle "going"
+               :past "went"}}]
 
-   "grab"  (trans-intrans {:synsem {:cat :verb
-                                    :sem {:pred :prendere}}
-                           :english {:participle "grabbing"
-                                     :past "grabbed"}})
+   "grab"  {:synsem {:cat :verb
+                     :sem {:pred :prendere}}
+            :english {:participle "grabbing"
+                      :past "grabbed"}}
 
-   "have"
-   (trans-intrans {:synsem {:cat :verb
-                             :sem {:activity false
-                                   :discrete false
-                                   :pred :avere}}
-                   :english {:english "have"
-                             :present {:3sing "has"}
+   "have" {:synsem {:cat :verb
+                    :sem {:activity false
+                          :discrete false
+                          :pred :avere
+                          :subj {:human true}
+                          :obj {:buyable true}}}
+           :english {:english "have"
+                     :present {:3sing "has"}
                              :past "had"}}
-                  {:subj {:human true}
-                   :obj {:buyable true}})
 
 
-   "have dinner"  (trans-intrans {:synsem {:cat :verb
-                                           :sem {:pred :cenare}}
-                                  :english {:present {:3sing "has dinner"}
-                                            :past "had dinner"
-                                            :participle "having dinner"}})
+   "have dinner" {:synsem {:cat :verb
+                            :sem {:pred :cenare}}
+                   :english {:present {:3sing "has dinner"}
+                             :past "had dinner"
+                             :participle "having dinner"}}
 
-   "have to" (trans-intrans {:synsem {:cat :verb
-                                      :sem {:pred :have-to}}
-                             :english {:present {:1sing "have to"
-                                                 :2sing "have to"
-                                                 :3sing "has to"
-                                                 :1plur "have to"
-                                                 :2plur "have to"
-                                                 :3plur "have to"}
-                                       :future "have to"
-                                       :participle "having to"
-                                       :past "had to"}})
+   "have to" {:synsem {:cat :verb
+                       :sem {:pred :have-to}}
+              :english {:present {:1sing "have to"
+                                  :2sing "have to"
+                                  :3sing "has to"
+                                  :1plur "have to"
+                                  :2plur "have to"
+                                  :3plur "have to"}
+                        :future "have to"
+                        :participle "having to"
+                        :past "had to"}}
 
    "he"
    {:synsem {:cat :noun
@@ -377,24 +360,24 @@
              :subcat '()}}
 
    "help"
-   (trans-intrans {:synsem {:cat :verb
-                            :essere false
-                            :sem {:pred :aiutare
-                                  :activity true}}}
-                  {:subj {:human true}
-                   :obj {:human true}})
+   {:synsem {:cat :verb
+             :essere false
+             :sem {:pred :aiutare
+                   :activity true
+                   :subj {:human true}
+                   :obj {:human true}}}}
 
    "hold"
-   (trans-intrans {:synsem {:sem {:pred :tenere}}
-                   :english {:past "held"}})
+   {:synsem {:cat :verb
+             :sem {:pred :tenere}}
+    :english {:past "held"}}
 
    "hug"
-   (trans-intrans
-          {:synsem {:sem {:pred :abbracciare}}
-           :english {:past "hugged"
-                     :participle "hugging"}}
-          {:subj {:human true}
-           :obj {:animate true}})
+   {:synsem {:sem {:pred :abbracciare
+                   :subj {:human true}
+                   :obj {:animate true}}}
+    :english {:past "hugged"
+              :participle "hugging"}}
 
    "I (♂)"
    {:synsem {:cat :noun
@@ -419,11 +402,11 @@
                    :pred :io}
              :subcat '()}}
 
-   "increase" (trans-intrans {:synsem {:cat :verb
-                                       :sem {:pred :increase}}})
+   "increase" {:synsem {:cat :verb
+                        :sem {:pred :increase}}}
 
-   "insure" (trans-intrans {:synsem {:cat :verb
-                                      :sem {:pred :insure}}})
+   "insure" {:synsem {:cat :verb
+                      :sem {:pred :insure}}}
 
    "is missed" (intrans {:synsem {:sem {:pred :mancare}}
                          :english {:participle "being missed"
@@ -463,48 +446,53 @@
               :subcat '()}}
 
    "keep"
-   (concat
-    (trans-intrans {:synsem {:sem {:pred :tenere}}
-                    :english {:past "kept"}})
-    (trans-intrans {:synsem {:sem {:pred :keep-safe}}
-                    :english {:note "(something safe)"
-                              :past "kept"}}))
+   [{:synsem {:cat :verb
+              :sem {:pred :tenere}}
+     :english {:past "kept"}}
+    {:synsem {:cat :verb
+              :sem {:pred :keep-safe}}
+     :english {:note "(something safe)"
+               :past "kept"}}]
 
    "key" {:synsem {:cat :noun
                    :sem {:pred :key
                          :place false}}}
 
-   "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
+   "learn" {:synsem {:cat :verb
+                     :sem {:pred :imparare}}}
 
    "leave" {:english {:past "left"}
             :synsem {:cat :verb
                      :sem {:pred :leave-behind
                            :obj {:place false}}}}
 
-   "listen to"  (trans-intrans {:synsem {:sem {:pred :listen-to}}
-                                :english {:participle "listening to"
-                                          :past "listened to"
-                                          :present {:3sing "listens to"}}})
+   "listen to" {:synsem {:cat :verb
+                         :sem {:pred :listen-to}}
+                :english {:participle "listening to"
+                          :past "listened to"
+                          :present {:3sing "listens to"}}}
 
+   "look for" {:synsem {:cat :verb
+                        :sem {:pred :cercare}}
+               :english {:participle "looking for"
+                         :past "looked for"
+                         :present {:3sing "looks for"}}}
 
-   "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                               :english {:participle "looking for"
-                                         :past "looked for"
-                                         :present {:3sing "looks for"}}})
+   "look up" {:synsem {:cat :verb
+                       :sem {:pred :cercare}}
+              :english {:participle "looking up"
+                        :past "looked up"
+                        :present {:3sing "looks up"}}}
 
-   "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                              :english {:participle "looking up"
-                                        :past "looked up"
-                                        :present {:3sing "looks up"}}})
+   "love" {:synsem {:cat :verb
+                    :sem {:pred :amare
+                          :subj {:human true}}}}
 
-   "love" (trans-intrans {:synsem {:sem {:pred :amare}}}
-                         {:subj {:human true}})
+   "lower" {:synsem {:cat :verb
+                     :sem {:pred :lower}}}
 
-   "lower" (trans-intrans {:synsem {:cat :verb
-                                    :sem {:pred :lower}}})
-
-   "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}
-                           :english {:past "met"}})
+   "meet"  {:synsem {:sem {:pred :incontrare}}
+            :english {:past "met"}}
 
    "mother"
    (unify agreement-noun
@@ -517,37 +505,39 @@
    "music" {:synsem {:cat :noun
                     :sem {:pred :music}}}
 
-   "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
+   "paint"  {:synsem {:sem {:pred :dipingere}}}
 
    ;; TODO: 3sing present exception used below to avoid "playies" is not an exception: it's a rule: y->ys.
    ;; the exceptional case is when "ys" is not used (e.g. "tries").
-   "play" (concat
+   "play" [{:comment "We are talking about playing games or sports."
+            :english {:present {:3sing "plays"}}
+            :synsem {:sem {:pred :giocare
+                           :subj {:human true}
+                           :obj {:games true}}}}
 
-           (trans-intrans {:comment "We are talking about playing games or sports."
-                           :english {:present {:3sing "plays"}}
-                           :synsem {:sem {:pred :giocare}}})
-;                                          :obj {:games true}}}})
+           {:comment "We are talking about playing music or sounds."
+            :english {:present {:3sing "plays"}}
+            :synsem {:sem {:pred :suonare
+                           :subj {:human true}
+                           :obj {:music true}}}}]
 
-           (trans-intrans {:comment "We are talking about playing music or sounds."
-                           :english {:present {:3sing "plays"}}
-                           :synsem {:sem {:pred :suonare}}}))
-;                                          :obj {:music true}}}}))
-
-   "preserve" (trans-intrans {:synsem {:cat :verb
-                                       :sem {:pred :preserve}}})
+   "preserve" {:synsem {:cat :verb
+                        :sem {:pred :preserve}}}
 
 
-   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
-
+   "print"  {:synsem {:cat :verb
+                      :sem {:pred :stampare}}}
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
    {:english {:past "read (past)"}
-    :synsem {:sem {:pred :leggere
+    :synsem {:cat :verb
+             :sem {:pred :leggere
                    :discrete false
                    :subj {:human true}
                    :obj {:legible true}}}}
-
-   "receive"  (trans-intrans {:synsem {:sem {:pred :ricevere}}})
+   
+   "receive"  {:synsem {:cat :verb
+                        :sem {:pred :ricevere}}}
    "red"
    (unify adjective
           {:synsem {:cat :adjective
@@ -555,38 +545,44 @@
                           :comparative false
                           :physical-object true
                           :human false}}})
-   "remember"  (trans-intrans {:synsem {:sem {:pred :ricordare}}})
-   "respond"  (trans-intrans {:synsem {:sem {:pred :answer}}})
-   "return" (flatten
-             (list
-              (trans-intrans {:synsem {:sem {:pred :ritornare}}})
-              (trans-intrans {:synsem {:sem {:pred :tornare}}})))
 
-   "run" (trans-intrans {:english {:past "ran"
-                                   :participle "running"
-                                   :past-participle "run"}
-                         :synsem {:sem {:pred :run}}})
+   "remember"  {:synsem {:cat :verb
+                         :sem {:pred :ricordare}}}
+
+   "respond"  {:synsem {:cat :verb
+                        :sem {:pred :answer}}}
+
+   "return" [{:synsem {:cat :verb
+                       :sem {:pred :ritornare}}}
+             {:synsem {:cat :verb
+                       :sem {:pred :tornare}}}]
+
+   "run" {:english {:past "ran"
+                    :participle "running"
+                    :past-participle "run"}
+          :synsem {:cat :verb
+                   :sem {:pred :run}}}
 
    ;; TODO: search _within_ or _on_: depends on the object.
-   ;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
+   ;;   "search"  {:synsem {:sem {:pred :cercare}}})
 
-   "see"  (trans-intrans {:synsem {:sem {:pred :vedere}}
-                          :english {:past "saw"
-                                    :past-participle "seen"}})
+   "see"  {:synsem {:cat :verb
+                    :sem {:pred :vedere}}
+           :english {:past "saw"
+                     :past-participle "seen"}}
 
-   "sell"  (trans-intrans {:synsem {:sem {:pred :vendere
-                                          :subj {:human true}
-                                          :obj {:human false}}}
-                           :english {:past "sold"}})
+   "sell"  {:synsem {:cat :verb
+                     :sem {:pred :vendere
+                           :subj {:human true}
+                           :obj {:human false}}}
+            :english {:past "sold"}}
 
+   "send"  {:synsem {:cat :verb
+                     :sem {:pred :mandare}}
+                           :english {:past "sent"}}
 
-
-
-   "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
-                           :english {:past "sent"}})
-
-   "share" (trans-intrans {:synsem {:cat :verb
-                                    :sem {:pred :share}}})
+   "share" {:synsem {:cat :verb
+                     :sem {:pred :share}}}
 
    "she"
    {:synsem {:cat :noun
@@ -631,26 +627,29 @@
                       :sem {:pred :study}}
              :english {:past "studied"}}
 
-   "support" (trans-intrans {:synsem {:cat :verb
-                                      :sem {:pred :support}}})
+   "support" {:synsem {:cat :verb
+                       :sem {:pred :support}}}
 
 
-   "take advantage of" (trans-intrans {:english {:past "took advantage of"
-                                                 :participle "taking advantage of"
-                                                 :past-participle "taken advantage of"}
-                                       :synsem {:cat :verb
-                                                :sem {:pred :take-advantage-of}}})
+   "take advantage of" {:english {:past "took advantage of"
+                                  :participle "taking advantage of"
+                                  :past-participle "taken advantage of"}
+                        :synsem {:cat :verb
+                                 :sem {:pred :take-advantage-of}}}
 
    "talk"
    (intrans
-    {:synsem {:sem {:pred :talk
+    {:synsem {:sem {:cat :verb
+                    :pred :talk
                     :subj {:human true}}}})
 
-   "teach"  (trans-intrans {:synsem {:sem {:pred :teach}}
+   "teach"  {:synsem {:cat :verb
+                      :sem {:pred :teach}}
                             :english {:past "taught"
-                                      :present {:3sing "teaches"}}})
+                                      :present {:3sing "teaches"}}}
 
-   "telephone" (trans-intrans {:synsem {:sem {:pred :telefonare}}})
+   "telephone" {:synsem {:cat :verb
+                         :sem {:pred :telefonare}}}
 
    "the"
    {:synsem {:cat :det
@@ -683,28 +682,32 @@
                    :pred :loro}
              :subcat '()}}
 
-   "throw" (trans-intrans
-            {:english {:past "threw"}
-             :synsem {:sem {:pred :throw}}})
+   "throw" {:english {:past "threw"}
+            :synsem {:cat :verb
+                     :sem {:pred :throw}}}
 
    "throw out"
-   (trans-intrans {:synsem {:sem {:pred :throw-out}}
-                   :english {:past "threw out"
-                             :participle "throwing out"}})
+   {:synsem {:cat :verb
+             :sem {:pred :throw-out}}
+    :english {:past "threw out"
+              :participle "throwing out"}}
 
-   "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
-                           :english {:past "took"}})
+   "take"  {:synsem {:cat :verb
+                     :sem {:pred :prendere}}
+            :english {:past "took"}}
 
-   "understand" (trans-intrans {:english {:past "understood"}
-                                :synsem {:cat :verb
-                                         :sem {:pred :understand}}})
+   "understand" {:english {:past "understood"}
+                 :synsem {:cat :verb
+                          :sem {:pred :understand}}}
 
+   "upload"  {:synsem {:cat :verb
+                       :sem {:pred :caricare}}}
 
-   "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
+   "use"  {:synsem {:cat :verb
+                    :sem {:pred :usare}}}
 
-   "use"  (trans-intrans {:synsem {:sem {:pred :usare}}})
-
-   "wait"  (trans-intrans {:synsem {:sem {:pred :wait-for}}})
+   "wait"  {:synsem {:cat :verb
+                     :sem {:pred :wait-for}}}
 
    "we (♀)"
    {:synsem {:cat :noun
@@ -730,14 +733,14 @@
                    :pred :noi}
              :subcat '()}}
 
-   "wear"  (trans-intrans {:english {:past "wore"}
-                           :synsem {:sem {:pred :portare}}})
+                "wear"  {:english {:past "wore"}
+                         :synsem {:cat :verb
+                                  :sem {:pred :portare}}}
 
-
-   "win"  (trans-intrans {:synsem {:sem {:pred :win
-                                         :subj {:human true}}}
-                          :english {:past "won"
-                                    :participle "winning"}})
+                "win"  {:synsem {:sem {:pred :win
+                                       :subj {:human true}}}
+                        :english {:past "won"
+                                    :participle "winning"}}
 
    "woman"
    (unify agreement-noun
@@ -748,20 +751,23 @@
                           :pred :donna
                           :child false}}})
 
-   "work" (concat
-           (trans-intrans {:synsem {:sem {:pred :work-human
-                                          :subj {:human true}}}
-                           :english {:note "(human)"}})
+"work" [
+        {:synsem {:cat :verb
+                  :sem {:pred :work-human
+                        :subj {:human true}}}
+         :english {:note "(human)"}}
 
-           (trans-intrans {:english {:note "nonliving or machines"} ;; TODO: add support in UI for :note.
-                           :synsem {:sem {:subj {:living false
-                                                 :human false ;; should not need to add human=false and animate=false: living=false should suffice.
-                                                 :animate false}
-                                          :pred :work-nonhuman}}}))
+        {:english {:note "nonliving or machines"} ;; TODO: add support in UI for :note.
+         :synsem {:cat :verb
+                  :sem {:subj {:living false
+                               :human false ;; should not need to add human=false and animate=false: living=false should suffice.
+                               :animate false}
+                        :pred :work-nonhuman}}}]
 
-   "write"  (trans-intrans {:english {:past "wrote"
-                                      :past-participle "written"}
-                            :synsem {:sem {:pred :scrivere}}})
+   "write"  {:english {:past "wrote"
+                       :past-participle "written"}
+             :synsem {:cat :verb
+                      :sem {:pred :scrivere}}}
 
    "you (♂)"
    {:note "♂"
@@ -821,8 +827,6 @@
                    :number :plur}
              :sem {:human true
                    :pred :voi}
-             :subcat '()}}
-
-})
+             :subcat '()}}})
 
 
