@@ -11,6 +11,63 @@
 
 (require '[italianverbs.morphology :refer (fo fo-ps)])
 
+(declare listify)
+(declare map-function-on-map-vals)
+(declare rules)
+(declare transform)
+(declare unify)
+
+;; TODO: compile-lex should simply be a pipeline rather than an argument-position-sensitive function.
+;; The current form is too complex because each argument has a slightly different signature.
+;; Instead, it should be a pipeline where each argument is fn(lexicon) => lexicon (i.e. it takes a lexicon, 
+;; and a lexicon is returned, where a lexicon is a map<string,vector>.
+;; Or, perhaps more conveniently, fn(lexeme) => lexeme, where a lexeme is a vector of maps,
+;; or fn(lexeme) => lexeme, where a lexeme is simply a map.
+(defn compile-lex [lexicon-source exception-generator phonize-fn & [language-specific-rules]]
+  (let [;; take source lexicon (declared above) and compile it.
+        ;; 1. canonicalize all lexical entries
+        ;; (i.e. vectorize the values of the map).
+        lexicon-stage-1 (listify lexicon-source)
+
+        phon-lexicon (map-function-on-map-vals
+                      lexicon-stage-1
+                      (fn [lexical-string lexical-val]
+                        (phonize-fn lexical-val lexical-string)))
+
+        ;; 2. apply grammatical-category and semantic rules to each element in the lexicon
+        lexicon-stage-2 (map-function-on-map-vals 
+                         phon-lexicon
+                         (fn [lexical-string lexeme]
+                           (map (fn [lexeme]
+                                  (transform lexeme rules))
+                                lexeme)))
+
+        ;; 3. apply language-specific grammatical rules to each element in the lexicon
+        ;; for an example of a language-specific rule, see italianverbs/morphology/italiano.clj:(defn agreement [lexical-entry]).
+        lexicon-stage-3 (if language-specific-rules
+                          (map-function-on-map-vals
+                           lexicon-stage-2
+                           (fn [lexical-string lexeme]
+                             (map (fn [lexeme]
+                                    (transform lexeme language-specific-rules))
+                                  lexeme)))
+                          ;; no language-specific rules: lexicon-stage-3 == lexicon-stage-2
+                          lexicon-stage-2)
+
+        ;; 4. generate exceptions
+        ;; problem: merge is overwriting values: use a collator that accumulates values.
+        exceptions (listify 
+                    (let [tmp (map #(listify %)
+                                   (exception-generator lexicon-stage-3))]
+                      (if (empty? tmp)
+                        nil
+                        (reduce #(merge-with concat %1 %2)
+                                tmp))))
+
+        lexicon
+        (merge-with concat lexicon-stage-3 exceptions)]
+    lexicon))
+
 (defn unify [ & args]
   "like unify/unify, but unify/copy each argument before unifying."
   (do
@@ -26,7 +83,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
     (log/warn (str "Ignoring this lexeme because (fail?=true): " entry))
     ;; else, not fail, so add to lexicon.
     (do
-      (log/info (str "Adding entry: " (morph/fo entry)))
+      (log/debug (str "Adding entry: " (morph/fo entry)))
       ;; TODO: should not make reference to particular languages here
       (let [italian (get-in entry '(:italiano) :none)
             english (get-in entry '(:english) :none)
@@ -712,54 +769,3 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   (map (fn [each]
          (transform each rules))
        lexical-val))
-
-;; TODO: compile-lex should simply be a pipeline rather than an argument-position-sensitive function.
-;; The current form is too complex because each argument has a slightly different signature.
-;; Instead, it should be a pipeline where each argument is fn(lexicon) => lexicon (i.e. it takes a lexicon, 
-;; and a lexicon is returned, where a lexicon is a map<string,vector>.
-;; Or, perhaps more conveniently, fn(lexeme) => lexeme, where a lexeme is a vector of maps,
-;; or fn(lexeme) => lexeme, where a lexeme is simply a map.
-(defn compile-lex [lexicon-source exception-generator phonize-fn & [language-specific-rules]]
-  (let [;; take source lexicon (declared above) and compile it.
-        ;; 1. canonicalize all lexical entries
-        ;; (i.e. vectorize the values of the map).
-        lexicon-stage-1 (listify lexicon-source)
-
-        phon-lexicon (map-function-on-map-vals
-                      lexicon-stage-1
-                      (fn [lexical-string lexical-val]
-                        (phonize-fn lexical-val lexical-string)))
-
-        ;; 2. apply grammatical-category and semantic rules to each element in the lexicon
-        lexicon-stage-2 (map-function-on-map-vals 
-                         phon-lexicon
-                         (fn [lexical-string lexeme]
-                           (map (fn [lexeme]
-                                  (transform lexeme rules))
-                                lexeme)))
-
-        ;; 3. apply language-specific grammatical rules to each element in the lexicon
-        ;; for an example of a language-specific rule, see italianverbs/morphology/italiano.clj:(defn agreement [lexical-entry]).
-        lexicon-stage-3 (if language-specific-rules
-                          (map-function-on-map-vals
-                           lexicon-stage-2
-                           (fn [lexical-string lexeme]
-                             (map (fn [lexeme]
-                                    (transform lexeme language-specific-rules))
-                                  lexeme)))
-                          ;; no language-specific rules: lexicon-stage-3 == lexicon-stage-2
-                          lexicon-stage-2)
-
-        ;; 4. generate exceptions
-        ;; problem: merge is overwriting values: use a collator that accumulates values.
-        exceptions (listify 
-                    (let [tmp (map #(listify %)
-                                   (exception-generator lexicon-stage-3))]
-                      (if (empty? tmp)
-                        nil
-                        (reduce #(merge-with concat %1 %2)
-                                tmp))))
-
-        lexicon
-        (merge-with concat lexicon-stage-3 exceptions)]
-    lexicon))
