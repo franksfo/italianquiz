@@ -51,10 +51,6 @@
    (:espanol input)
    (string/trim (str (espanol/get-string (:espanol input))))
 
-   (and (seq? input)
-        (< (.size input) 2))
-   (fo (first input))
-
    (or (seq? input)
        (vector? input))
    (str "(" (string/join " , " 
