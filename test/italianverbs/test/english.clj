@@ -5,7 +5,7 @@
    [italianverbs.english :refer :all]
    [italianverbs.engine :as engine]
    [italianverbs.lexicon.english :as lex]
-   [italianverbs.lexiconfn :refer :all]
+   [italianverbs.lexiconfn :refer (compile-lex)]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.morphology.english :as morph]
    [italianverbs.pos :as pos :refer [adjective animal
