@@ -267,11 +267,11 @@
             :synsem {:cat :verb
                      :sem {:pred :enjoy}}}
   
-   "enter"  {:synsem {:sem {:cat :verb
-                            :pred :enter}}}
+   "enter"  {:synsem {:cat :verb
+                      :sem {:pred :enter}}}
 
-   "erase"  {:synsem {:sem {:cat :verb
-                            :pred :cancellare}}}
+   "erase"  {:synsem {:cat :verb
+                      :sem {:pred :cancellare}}}
 
    "escape" {:synsem {:cat :verb
                       :sem {:pred :escape}}}
@@ -631,8 +631,8 @@
                                  :sem {:pred :take-advantage-of}}}
 
    "talk"
-   {:synsem {:sem {:cat :verb
-                   :pred :talk
+   {:synsem {:cat :verb
+             :sem {:pred :talk
                    :subj {:human true}}}}
 
    "teach"  {:synsem {:cat :verb
@@ -723,15 +723,15 @@
                    :pred :noi}
              :subcat '()}}
 
-                "wear"  {:english {:past "wore"}
-                         :synsem {:cat :verb
-                                  :sem {:pred :portare}}}
-
-                "win"  {:synsem {:sem {:pred :win
-                                       :subj {:human true}}}
-                        :english {:past "won"
-                                    :participle "winning"}}
-
+   "wear"  {:english {:past "wore"}
+            :synsem {:cat :verb
+                     :sem {:pred :portare}}}
+   
+   "win"  {:synsem {:sem {:pred :win
+                          :subj {:human true}}}
+           :english {:past "won"
+                     :participle "winning"}}
+   
    "woman"
    (unify agreement-noun
           common-noun
@@ -741,24 +741,24 @@
                           :pred :donna
                           :child false}}})
 
-"work" [
-        {:synsem {:cat :verb
-                  :sem {:pred :work-human
-                        :subj {:human true}}}
-         :english {:note "(human)"}}
-
-        {:english {:note "nonliving or machines"} ;; TODO: add support in UI for :note.
-         :synsem {:cat :verb
-                  :sem {:subj {:living false
-                               :human false ;; should not need to add human=false and animate=false: living=false should suffice.
-                               :animate false}
-                        :pred :work-nonhuman}}}]
-
+   "work" [
+           {:synsem {:cat :verb
+                     :sem {:pred :work-human
+                           :subj {:human true}}}
+            :english {:note "(human)"}}
+           
+           {:english {:note "nonliving or machines"} ;; TODO: add support in UI for :note.
+            :synsem {:cat :verb
+                     :sem {:subj {:living false
+                                  :human false ;; should not need to add human=false and animate=false: living=false should suffice.
+                                  :animate false}
+                           :pred :work-nonhuman}}}]
+   
    "write"  {:english {:past "wrote"
                        :past-participle "written"}
              :synsem {:cat :verb
                       :sem {:pred :scrivere}}}
-
+   
    "you (♂)"
    {:note "♂"
     :target :it ;; Italian makes gender distinction for agreement with verbs and adjectives..
