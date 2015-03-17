@@ -84,6 +84,21 @@
                      :2plur "were"
                      :3plur "were"}}}
 
+   "be missed" {:synsem {:cat :verb
+                         :sem {:pred :mancare}}
+                :english {:participle "be missed"
+                          :future "be missed"
+                          :english "be missed"
+                          :conditional "be missed"
+                          :past {:english "was missed"
+                                 :2sing "were missed"
+                                 :2plur "were missed"
+                                 :3plur "were missed"}
+                          :present {:2sing "are missed"
+                                    :3sing "is missed"
+                                    :2plur "are missed"
+                                    :3plur "are missed"}}}
+
    "be missing"
    {:english {:english "be missing"
               :present {:1sing "am missing"
@@ -381,21 +396,6 @@
 
    "insure" {:synsem {:cat :verb
                       :sem {:pred :insure}}}
-
-   "is missed" {:synsem {:cat :verb
-                         :sem {:pred :mancare}}
-                :english {:participle "being missed"
-                          :future "be missed"
-                          :english "be missed"
-                          :conditional "be missed"
-                          :past {:english "was missed"
-                                 :2sing "were missed"
-                                 :2plur "were missed"
-                                 :3plur "were missed"}
-                          :present {:2sing "are missed"
-                                    :3sing "is missed"
-                                    :2plur "are missed"
-                                    :3plur "are missed"}}}
 
    "it (♂)"
    {:synsem {:cat :noun
