@@ -12,6 +12,8 @@
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.unify :refer :all :exclude [unify]]))
 
+;; TODO: need better debugging throughout this file to diagnose generation failures.
+
 ;; tree-building functions: useful for developing grammars.
 
 (defn into-list-of-maps [arg]
@@ -116,8 +118,8 @@
               debug (log/debug (str " fail-path: " fail-path))
               debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
               debug (log/debug (str " head: " (fo child)))
-              debug (log/debug (str " head-value-at-fail: " (get-in child (rest fail-path))))
-              debug (log/debug (str " parent-value-at-fail: " (get-in parent fail-path)))]
+              debug (log/debug (str " head-value-at-fail: " (strip-refs (get-in child (rest fail-path)))))
+              debug (log/debug (str " parent-value-at-fail: " (strip-refs (get-in parent fail-path))))]
           (do
             (log/debug (str "moreover-head: fail-path: " fail-path))
             :fail))))))
