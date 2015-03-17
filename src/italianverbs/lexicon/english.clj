@@ -612,7 +612,8 @@
 
    "take advantage of" {:english {:past "took advantage of"
                                   :participle "taking advantage of"
-                                  :past-participle "taken advantage of"}
+                                  :past-participle "taken advantage of"
+                                  :present {:3sing "takes advantage of"}}
                         :synsem {:cat :verb
                                  :sem {:pred :take-advantage-of}}}
 
