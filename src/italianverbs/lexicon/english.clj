@@ -382,7 +382,8 @@
    "insure" {:synsem {:cat :verb
                       :sem {:pred :insure}}}
 
-   "is missed" {:synsem {:sem {:pred :mancare}}
+   "is missed" {:synsem {:cat :verb
+                         :sem {:pred :mancare}}
                 :english {:participle "being missed"
                           :future "be missed"
                           :english "be missed"
