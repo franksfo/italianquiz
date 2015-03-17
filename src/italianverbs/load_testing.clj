@@ -2,10 +2,10 @@
   (:require
    [clojure.math.numeric-tower :as math]
    [italianverbs.cache :refer (create-index)]
+   [italianverbs.engine :refer [get-meaning]]
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo)]
-   [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]))
 
 ;; <begin linguistic setup>
