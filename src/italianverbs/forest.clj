@@ -77,12 +77,10 @@ of this function with complements."
                                                        (unifyc spec rule))
                                                      (if parent (get-head-phrases-of parent index)
                                                          grammar))))
-        debug (log/debug (str "parent: " (if parent (:rule parent)
-                                             "(no parent)")))
-        debug (log/debug (str "lexical head candidates:"
-                              (if parent
-                                (fo (get-lex parent :head index spec))
-                                "(no head candidates)")))
+        debug (if parent 
+                (do (log/debug (str "parent: " (:rule parent)))
+                    (log/debug (str "lexical head candidates given parent:"
+                                    (fo (get-lex parent :head index spec))))))
         debug (log/debug (str "grammar size: " (.size grammar)))
         debug (log/debug (str "candidate-parents size: " (if (nil? candidate-parents)
                                                            "no candidate-parents"
