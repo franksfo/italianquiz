@@ -33,7 +33,9 @@
 
         debug (log/debug (str "spec(2): " spec))
 
-        spec (unify spec {:synsem {:subcat '()}})
+        ;; subcat is empty, so that this is a complete expression with no missing arguments.
+        ;; e.g. "she sleeps" rather than "sleeps".
+        spec (unify spec {:synsem {:subcat '()}}) 
 
         debug (log/debug (str "spec(3): " spec))
 
@@ -88,10 +90,10 @@
         (try
           (do
             (if (= target-language-surface "")
-              (throw (Exception. (str "could not generate a sentence in target language for this semantics: " semantics "; source language expression was: " source-language-surface))))
+              (throw (Exception. (str "could not generate a sentence in target language '" target-language "' for this semantics: " semantics "; source language expression was: " source-language-surface))))
 
             (if (= source-language-surface "")
-              (throw (Exception. (str "could not generate a sentence in source language (English) for this semantics: " semantics))))
+              (throw (Exception. (str "could not generate a sentence in source language '" source-language "' for this semantics: " semantics))))
 
             (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
                               "'" (json/write-str (strip-refs target-language-sentence)) "'"
