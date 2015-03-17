@@ -9,6 +9,7 @@
    [italianverbs.lexiconfn :refer (compile-lex)]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.morphology.english :as morph]
+   [italianverbs.over :refer :all]
    [italianverbs.pos :as pos :refer [adjective animal
                                      cat-of-pronoun common-noun
                                      comparative
