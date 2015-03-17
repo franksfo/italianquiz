@@ -8,10 +8,9 @@
    [hiccup.page :refer (html5)]
 
    [italianverbs.cache :refer (create-index)]
-   [italianverbs.engine :as engine]
+   [italianverbs.engine :as engine :refer [get-meaning]]
    [italianverbs.html :refer (tablize)]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
-   [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [get-in merge strip-refs unify]]
 
