@@ -264,6 +264,14 @@ INSERT INTO vc_user
         SELECT id FROM vc_user WHERE fullname='Franco Regguzoni' AND email='franksfo2003@gmail.com'
     );
 
+INSERT INTO vc_user
+ (fullname,email,username,type)
+  SELECT 'Michael Marcheschi','voltosanto@hotmail.com','michael','teacher'
+   WHERE
+    NOT EXISTS (
+        SELECT id FROM vc_user WHERE fullname='Franco Regguzoni' AND email='franksfo2003@gmail.com'
+    );
+
 CREATE TABLE tests_in_classes (
        test  bigint  REFERENCES test(id),
        class bigint REFERENCES classes(id)
