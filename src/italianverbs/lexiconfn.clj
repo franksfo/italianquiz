@@ -772,7 +772,13 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
+
+
      (mapcat (fn [val]
+               (log/info (str "subcat for: '" (fo val) "' " (strip-refs (get-in val [:synsem :subcat]))))
+               ;; if: 1. the val's :cat is :verb
+               ;;     2. :obj is specified.
+               ;;     3. there is no :subcat :2 value specified in the input
                (cond (and (= (get-in val [:synsem :cat])
                              :verb)
                           (not (nil? (get-in val
@@ -783,7 +789,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                    transitive)
                            
                            ;; and the other member of the list being the intransitive version.
-                           ;; Turn the singular, transitive form into an intranstive form by
+                           ;; Turn the singular, transitive form into an intransitive form by
                            ;; doing some surgery on it: (remove the object) and intransitivize it
                            (let [without-object  ;; intransitive version
                                  (unifyc intransitive
@@ -796,14 +802,16 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                      
                      (= (get-in val [:synsem :cat])
                         :verb)
-                     (do (log/trace (str "val:" (fo val)))
-                         (log/trace (str "map-unified:" (fo (map #(unifyc % intransitive)
+                     (do (log/debug (str "val:" (fo val)))
+                         (log/debug (str "map-unified:" (fo (map #(unifyc % intransitive)
                                                                  val))))
                          (list (unifyc val intransitive)))
                               
                      ;; else just return vals:
                      true
-                     (do (log/trace (str "no modifications apply for val: " (fo val) " ; cat: " (get-in val [:synsem :cat])))
+                     (do (log/info (str "no modifications apply for val: " (fo val) " ; cat: " 
+                                         (get-in val [:synsem :cat]) "; subcat: " 
+                                         (get-in val [:synsem :subcat])))
                          (list val))))
              vals))))
 
