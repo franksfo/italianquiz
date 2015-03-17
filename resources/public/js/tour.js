@@ -132,6 +132,14 @@ function start_tour(target_language,target_locale) {
 	fillOpacity: 0.5
     }).addTo(map).bindPopup("start")
 
+    for (i = 0; i < path.length; i++) {
+	L.circle([path[i][0],
+		  path[i][1]], 5, {
+		      color: 'lightblue',
+		      fillColor: 'transparent'
+		  }).addTo(map).bindPopup("path point: " + i);
+    }
+
     var popup = L.popup();
     
     // initialize streetview
