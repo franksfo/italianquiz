@@ -20,16 +20,8 @@
 
 ;; TODO: move this test to italianverbs.test.italiano
 (deftest test-roundtrip-italian
-  (let [retval (it/generate (get-meaning (parse "io dormo")))
-        retval (cond (seq? retval)
-                     (map fo retval)
-                     true (fo retval))]
-    (is
-     (and
-      (seq? retval)
-      (not (empty? retval))
-      (= "io dormo" (first retval)))
+  (let [retval (it/generate (get-meaning (parse "io dormo")))]
+    (is (seq? retval))
+    (is (not (empty? retval)))
+    (is (= "io dormo" (fo (first retval))))))
 
-      (and
-       (string? retval)
-       (= "io dormo" retval)))))
