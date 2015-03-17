@@ -56,12 +56,3 @@
 (deftest do-prep
   (prep 10)
   (is (= 1 1))) ;; stub TODO: fill out test
-
-(deftest antonio-speaks
-  (let [antonio-speaks (fo (engine/generate {:synsem {:infl :present :sem {:subj {:pred :antonio} :pred :speak}}} en/small :enrich true))]
-    (is (= "Antonio speaks" antonio-speaks))))
-
-(deftest antonia-plays
-  (let [antonia-plays (fo (engine/generate {:synsem {:infl :present :sem {:subj {:pred :antonia} :pred :suonare}}} en/small :enrich true))]
-    (is (= "Antonia plays" antonia-plays))))
-
