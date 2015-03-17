@@ -49,6 +49,14 @@
   (let [do-fill (fill 1 en/small es/small {:synsem {:sem {:pred :speak}}})]
     (is (= 1 1)))) ;; stub TODO: fill out test
 
+(defn prep [this-many]
+  (fill     this-many en/small it/small :top)
+  (populate this-many en/small es/small :top))
+
+(deftest do-prep
+  (prep 10)
+  (is (= 1 1))) ;; stub TODO: fill out test
+
 (deftest antonio-speaks
   (let [antonio-speaks (fo (engine/generate {:synsem {:infl :present :sem {:subj {:pred :antonio} :pred :speak}}} en/small :enrich true))]
     (is (= "Antonio speaks" antonio-speaks))))
