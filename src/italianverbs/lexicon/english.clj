@@ -464,7 +464,8 @@
    "lower" {:synsem {:cat :verb
                      :sem {:pred :lower}}}
 
-   "meet"  {:synsem {:sem {:pred :incontrare}}
+   "meet"  {:synsem {:cat :verb
+                     :sem {:pred :incontrare}}
             :english {:past "met"}}
 
    "mother"
