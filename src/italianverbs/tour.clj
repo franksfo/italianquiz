@@ -1,16 +1,13 @@
 (ns italianverbs.tour
   (:refer-clojure :exclude [get-in merge])
   (:require
-   [clojure.data.json :refer [read-str write-str]]
-   [clojure.string :as string]
+   [clojure.data.json :refer [write-str]]
    [clojure.tools.logging :as log]
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
-   [hiccup.core :refer (html)]
-   [hiccup.page :refer (include-css html5)]
    [italianverbs.borges.reader :refer [generate-question-and-correct-set]]
-   [italianverbs.html :as html :refer (page tablize)]
+   [italianverbs.html :refer [page]]
    [italianverbs.morphology :refer (fo remove-parens)]
-   [italianverbs.unify :refer (get-in merge strip-refs unify)]
+   [italianverbs.unify :refer (get-in unify)]
    [korma.core :as k]))
 
 ;; For now, source language and locale are constant.
