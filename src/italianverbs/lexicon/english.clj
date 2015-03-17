@@ -487,13 +487,15 @@
    ;; the exceptional case is when "ys" is not used (e.g. "tries").
    "play" [{:comment "We are talking about playing games or sports."
             :english {:present {:3sing "plays"}}
-            :synsem {:sem {:pred :giocare
+            :synsem {:cat :verb
+                     :sem {:pred :giocare
                            :subj {:human true}
                            :obj {:games true}}}}
 
            {:comment "We are talking about playing music or sounds."
             :english {:present {:3sing "plays"}}
-            :synsem {:sem {:pred :suonare
+            :synsem {:cat :verb
+                     :sem {:pred :suonare
                            :subj {:human true}
                            :obj {:music true}}}}]
 
