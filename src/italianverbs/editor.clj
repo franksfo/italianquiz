@@ -149,7 +149,7 @@
    title
    (html
     [:div {:class "major"}
-     [:h2 "Verb List Editor"]
+     [:h2 "Game Editor"]
      content])
    request
    {:css "/css/editor.css"
@@ -418,7 +418,7 @@
 
 
        [:div  {:style "width:100%"}
-        [:h3  "Examples" ]
+        [:h3  "Verbs" ]
         (if (empty? games-to-use)
           [:div.advice "No games selected to generate examples." ]
 
@@ -427,14 +427,13 @@
                    (html
                     
                     [:div {:class "game_container"}
-                     [:h4 {:style "width:30%;float:left;padding-right:1em"} [:span {:style ""} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:span {:style "padding-left:1em"} [:i (string/join "," (verbs-per-game (:id each)))]]]
                      [:div {:style "width:30%; float:left"}
                       [:h4 [:span {:style "padding-left:1em"} 
                             [:i (short-language-name-to-long (:source each))] 
                        " ⇒ "
                             [:i (short-language-name-to-long (:target each))]]]]
 
-                     [:div {:style "width:30%; float:right"}
+                     [:div {:style "width:80%; float:right"}
                       [:h4 "Tenses:"  [:span {:style "padding-left:1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]]
                      (generation-table (verbs-per-game (:id each))
                                        :id_prefix (:id each)

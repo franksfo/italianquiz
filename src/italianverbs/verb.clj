@@ -89,33 +89,17 @@
 
      [:table.striped (merge {:style "width:100%"} (if id_prefix {:id (str "generation_list_" id_prefix)} {}))
       [:tr
-       [:th {:style "width:10em"} "Meaning"] ;; :pred is language-independent
-       [:th {:style "width:10em"} "Source"] ;; verb in source language, e.g. English
-       [:th {:style "width:20em"} "Source Example"] 
-       [:th {:style "width:10em"} "Target"] ;; verb in target language, e.g. Italian
-       [:th {:style "width:20em"} "Target Example"]
+       [:th {:style "width:10em"} "Verb"] ;; :pred is language-independent
+       [:th {:style "width:10em"} "Source Expression"] ;; verb in source language, e.g. English
+       [:th {:style "width:20em"} "Target Expressions"] 
        [:th {:style "width:3em"} ""]
        ]
       
-      (map (fn [lexeme]
-             [:tr.lexeme
-              
-              [:td [:tt lexeme ]]
-
-              ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called 'pred' to be more accurate what it means).
-              [:td {:id (str id_prefix "source_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
-
-              [:td.example.gen_source {:id (str id_prefix "verb_" lexeme)}
-               [:i {:class "fa fa-spinner fa-spin"} "" ] ]
-
-              [:td {:id (str id_prefix "target_verb_" lexeme)  } [:i {:class "fa fa-spinner fa-spin"} ]]
-
-              [:td {:id (str id_prefix "target_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
-              
-              [:td {:id (str id_prefix "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
-            
-              ])
-           verbs)
+      [:tr.lexeme
+       [:td "andare"]
+       [:td "You (♂) went"]
+       [:td "Tu sei andato"]
+       ]
       ])))
 
 (defn predicates-from-lexicon [lexicon]
