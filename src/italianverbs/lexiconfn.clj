@@ -787,7 +787,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                            ;; doing some surgery on it: (remove the object) and intransitivize it
                            (let [without-object  ;; intransitive version
                                  (unifyc intransitive
-                                         (dissoc-paths (first vals)
+                                         (dissoc-paths val
                                                        (list [:serialized]
                                                              [:synsem :sem :obj]
                                                              [:synsem :subcat :2])))]
