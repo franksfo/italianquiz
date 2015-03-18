@@ -438,7 +438,10 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 ;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
 ;; http://stackoverflow.com/a/1677927
 (defn map-function-on-map-vals [m f]
-  (into {} (for [[k v] m] [k (f k v)])))
+  (into {} 
+        (for [[k v] (sort m)] 
+          ;; for each <k,v> pair, return a <k,v'>, where v' = f(v).
+          [k (f k v)])))
 
 (defn check-lexicon [lexicon]
   (let [check-one (fn [k v]
@@ -772,8 +775,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
-
-
      (mapcat (fn [val]
                (if (= :verb (get-in val [:synsem :cat])) 
                  (log/info (str "subcat for: '" (fo val) "' " (strip-refs (get-in val [:synsem :subcat])))))
@@ -786,33 +787,35 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                              [:synsem :sem :obj]
                                              nil)))
                           (not (= :intensifier (get-in val [:synsem :subcat :2 :cat]))))
-                     
-                     (list (unifyc val ;; Make a 2-member list. member 1 is the transitive version..
-                                   transitive)
-                           
-                           ;; and the other member of the list being the intransitive version.
-                           ;; Turn the singular, transitive form into an intransitive form by
-                           ;; doing some surgery on it: (remove the object) and intransitivize it
-                           (let [without-object  ;; intransitive version
-                                 (unifyc intransitive
-                                         (dissoc-paths val
-                                                       (list [:serialized]
-                                                             [:synsem :sem :obj]
+
+                     (do
+                       (log/debug (str "type 1: val:" (fo val)))
+                       (list (unifyc val 
+                                     transitive) ;; Make a 2-member list. member 1 is the transitive version..
+
+                             ;; .. and the other member of the list being the intransitive version.
+                             ;; Turn the singular, transitive form into an intransitive form by
+                             ;; doing some surgery on it: (remove the object) and intransitivize it
+                             (let [without-object  ;; intransitive version
+                                   (unifyc intransitive
+                                           (dissoc-paths val
+                                                         (list [:serialized]
+                                                               [:synsem :sem :obj]
                                                              [:synsem :subcat :2])))]
-                             (merge without-object
-                                    {:serialized (serialize without-object)})))
+                               (merge without-object
+                                      {:serialized (serialize without-object)}))))
                      
                      (= (get-in val [:synsem :cat])
                         :verb)
-                     (do (log/trace (str "val:" (fo val)))
-                         (log/trace (str "map-unified:" (fo (map #(unifyc % intransitive)
+                     (do (log/debug (str "type 2: val:" (fo val)))
+                         (log/debug (str "map-unified:" (fo (map #(unifyc % intransitive)
                                                                  val))))
                          (list (unifyc val intransitive)))
                               
                      ;; else just return vals:
                      true
                      (do (if (= :verb (get-in val [:synsem :cat]))
-                           (log/info (str "no modifications apply for val: " (fo val) " ; cat: " 
+                           (log/debug (str "no modifications apply for val: " (fo val) " ; cat: " 
                                           (get-in val [:synsem :cat]) "; subcat: "
                                           (get-in val [:synsem :subcat]))))
                          (list val))))
