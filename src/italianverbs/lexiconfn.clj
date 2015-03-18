@@ -69,8 +69,8 @@
 (defn unify [ & args]
   "like unify/unify, but unify/copy each argument before unifying."
   (do
-    (log/debug (str "(lexfn)unify args: " args))
-    (log/debug (str "(lexfn)unify first arg: " (first args)))
+    (log/trace (str "(lexfn)unify args: " args))
+    (log/trace (str "(lexfn)unify first arg: " (first args)))
     (apply unifyc args)))
 
 (defn cache-serialization [entry]
@@ -81,7 +81,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
     (log/warn (str "Ignoring this lexeme because (fail?=true): " entry))
     ;; else, not fail, so add to lexicon.
     (do
-      (log/debug (str "Adding entry: " (morph/fo entry)))
+      (log/trace (str "Adding entry: " (morph/fo entry)))
       ;; TODO: should not make reference to particular languages here
       (let [italian (get-in entry '(:italiano) :none)
             english (get-in entry '(:english) :none)
@@ -105,7 +105,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                        entry))
                :italiano)
               :english))]
-        (log/debug (str "successfully serialized: " entry))
+        (log/trace (str "successfully serialized: " entry))
         entry))))
 
 (defn encode-where-query [& where]
@@ -339,7 +339,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                              legible material-false non-places
                              not-legible-if-not-artifact part-of-human-body pets place
                              ))]
-       (log/debug (str "sem-impl so far: " merged))
+       (log/trace (str "sem-impl so far: " merged))
        (if (not (= merged input)) ;; TODO: make this check more efficient: count how many rules were hit
          ;; rather than equality-check to see if merged has changed.
          (sem-impl merged) ;; we've added some new information: more implications possible from that.
@@ -717,9 +717,9 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
         true
         (do
-          (log/debug (str "Transforming: " (fo lexical-entry)))
-          (log/debug (str "transform: input :" lexical-entry))
-          (log/debug (str "transforming lexical entry: " lexical-entry))
+          (log/trace (str "Transforming: " (fo lexical-entry)))
+          (log/trace (str "transform: input :" lexical-entry))
+          (log/trace (str "transforming lexical entry: " lexical-entry))
           (let [result (reduce #(if (or (fail? %1) (fail? %2))
                                   (do
                                     (if (fail? %1) (log/warn (str "fail at %1:" %1 " in lexical-entry: " (strip-refs lexical-entry))))
@@ -804,8 +804,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                      
                      (= (get-in val [:synsem :cat])
                         :verb)
-                     (do (log/debug (str "val:" (fo val)))
-                         (log/debug (str "map-unified:" (fo (map #(unifyc % intransitive)
+                     (do (log/trace (str "val:" (fo val)))
+                         (log/trace (str "map-unified:" (fo (map #(unifyc % intransitive)
                                                                  val))))
                          (list (unifyc val intransitive)))
                               
