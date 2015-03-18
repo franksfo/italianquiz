@@ -775,7 +775,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
 
      (mapcat (fn [val]
-               (log/info (str "subcat for: '" (fo val) "' " (strip-refs (get-in val [:synsem :subcat]))))
+               (if (= :verb (get-in val [:synsem :cat])) 
+                 (log/info (str "subcat for: '" (fo val) "' " (strip-refs (get-in val [:synsem :subcat])))))
                ;; if: 1. the val's :cat is :verb
                ;;     2. :obj is specified.
                ;;     3. there is no :subcat :2 value specified in the input
@@ -783,7 +784,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                              :verb)
                           (not (nil? (get-in val
                                              [:synsem :sem :obj]
-                                             nil))))
+                                             nil)))
+                          (not (= :intensifier (get-in val [:synsem :subcat :2 :cat]))))
                      
                      (list (unifyc val ;; Make a 2-member list. member 1 is the transitive version..
                                    transitive)
@@ -809,9 +811,10 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                               
                      ;; else just return vals:
                      true
-                     (do (log/info (str "no modifications apply for val: " (fo val) " ; cat: " 
-                                         (get-in val [:synsem :cat]) "; subcat: " 
-                                         (get-in val [:synsem :subcat])))
+                     (do (if (= :verb (get-in val [:synsem :cat]))
+                           (log/info (str "no modifications apply for val: " (fo val) " ; cat: " 
+                                          (get-in val [:synsem :cat]) "; subcat: "
+                                          (get-in val [:synsem :subcat]))))
                          (list val))))
              vals))))
 
