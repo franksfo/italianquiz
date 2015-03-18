@@ -28,9 +28,10 @@
                          ;; if verb does specify a [:sem :obj], then fill it in with subcat info.
                          transitivize)))
 
-(defn lookup [token]
+(defn lookup [token & [use-lexicon]]
   "return the subset of lexemes that match this token from the lexicon."
-  (morph/analyze token #(get @lexicon %)))
+  (let [lexicon (if use-lexicon use-lexicon @lexicon)]
+    (morph/analyze token #(get lexicon %))))
 
 (def en lookup)
 
@@ -39,8 +40,9 @@
 ;; figure out how to change printable version to show only keys and first value or something.
 (def index (future (create-index grammar (flatten (vals @lexicon)) head-principle)))
 
-(defn parse [string]
-  (parse/parse string lexicon lookup grammar))
+(defn parse [string & [parse-lexicon]]
+  (let [lexicon (if parse-lexicon parse-lexicon @lexicon)]
+    (parse/parse string lexicon #(lookup % lexicon) grammar)))
 
 (defn sentence [ & [spec]]
   (let [spec (if spec spec :top)]

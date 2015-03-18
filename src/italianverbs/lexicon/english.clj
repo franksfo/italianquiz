@@ -91,13 +91,13 @@
                           :english "be missed"
                           :conditional "be missed"
                           :past {:english "was missed"
-                                 :2sing "were missed"
-                                 :2plur "were missed"
-                                 :3plur "were missed"}
-                          :present {:2sing "are missed"
-                                    :3sing "is missed"
-                                    :2plur "are missed"
-                                    :3plur "are missed"}}}
+                                :2sing "were missed"
+                                :2plur "were missed"
+                                :3plur "were missed"}
+                         :present {:2sing "are missed"
+                                   :3sing "is missed"
+                                   :2plur "are missed"
+                                   :3plur "are missed"}}}
 
    "be missing"
    {:english {:english "be missing"
@@ -108,7 +108,7 @@
                         :2plur "are missing"
                         :3plur "are missing"}
               :past {:1sing "was missing"
-                     :2sing "were missing"
+                    :2sing "were missing"
                      :3sing "was missing"
                      :1plur "were missing"
                      :2plur "were missing"

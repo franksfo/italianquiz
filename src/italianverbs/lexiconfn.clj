@@ -438,8 +438,11 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 ;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
 ;; http://stackoverflow.com/a/1677927
 (defn map-function-on-map-vals [m f]
+  (if (not (map? m))
+    (throw (Exception. "Expected map as first input to map-function-on-map-vals, but got an input of type: " (type m))))
   (into {} 
-        (for [[k v] (sort m)] 
+        (for [[k v]
+              (sort m)]
           ;; for each <k,v> pair, return a <k,v'>, where v' = f(v).
           [k (f k v)])))
 
@@ -775,6 +778,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
+     (log/info (str "intransitivize: key: " k))
      (mapcat (fn [val]
                (if (= :verb (get-in val [:synsem :cat])) 
                  (log/info (str "subcat for: '" (fo val) "' " (strip-refs (get-in val [:synsem :subcat])))))
@@ -789,7 +793,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                           (not (= :intensifier (get-in val [:synsem :subcat :2 :cat]))))
 
                      (do
-                       (log/debug (str "type 1: val:" (fo val)))
+                       (log/debug (str "val: type 1:" (fo val)))
                        (list (unifyc val 
                                      transitive) ;; Make a 2-member list. member 1 is the transitive version..
 
@@ -807,9 +811,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                      
                      (= (get-in val [:synsem :cat])
                         :verb)
-                     (do (log/debug (str "type 2: val:" (fo val)))
-                         (log/debug (str "map-unified:" (fo (map #(unifyc % intransitive)
-                                                                 val))))
+                     (do (log/debug (str "val: type 3:" (fo val) " => " (strip-refs (unifyc val intransitive))))
                          (list (unifyc val intransitive)))
                               
                      ;; else just return vals:

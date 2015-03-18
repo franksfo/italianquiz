@@ -88,4 +88,3 @@
 (deftest antonia-plays
   (let [antonia-plays (fo (engine/generate {:synsem {:infl :present :sem {:subj {:pred :antonia} :pred :suonare}}} small :enrich true))]
     (is (= "Antonia plays" antonia-plays))))
-

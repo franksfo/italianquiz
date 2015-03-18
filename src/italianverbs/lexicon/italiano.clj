@@ -1370,13 +1370,13 @@
 
    "tenere"  {:synsem {:cat :verb 
                       :sem {:pred :tenere}}
-                            :italiano {:passato "tenuto"
-                                       :present {:1sing "tengo"
-                                                 :2sing "tieni"
-                                                 :3sing "tiene"
-                                                 :3plur "tengono"}
-                                       :futuro-stem "terr"}}
-
+              :italiano {:passato "tenuto"
+                         :present {:1sing "tengo"
+                                   :2sing "tieni"
+                                   :3sing "tiene"
+                                   :3plur "tengono"}
+                         :futuro-stem "terr"}}
+   
    "tirare" 
              {:synsem {:cat :verb 
                       :sem {:pred :throw}}}
