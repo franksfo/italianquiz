@@ -51,6 +51,13 @@
    (:espanol input)
    (string/trim (str (espanol/get-string (:espanol input))))
 
+   (and (map? input)
+        (get-in input [:a])
+        (get-in input [:b]))
+   (str (string/join " " 
+                     (list (fo (get-in input [:a]))
+                           (fo (get-in input [:b])))))
+                     
    (or (seq? input)
        (vector? input))
    (str "(" (string/join " , " 
