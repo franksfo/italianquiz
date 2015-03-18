@@ -6,10 +6,11 @@
    [italianverbs.english :refer :all]
    [italianverbs.engine :as engine]
    [italianverbs.lexicon.english :as lex]
-   [italianverbs.lexiconfn :refer (compile-lex)]
+   [italianverbs.lexiconfn :as lexiconfn :refer (compile-lex)]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.morphology.english :as morph]
    [italianverbs.over :refer :all]
+   [italianverbs.parse :as parse]
    [italianverbs.pos :as pos :refer [adjective animal
                                      cat-of-pronoun common-noun
                                      comparative
@@ -49,7 +50,7 @@
 (def sleep (get compiled "sleep"))
 
 (deftest buy-test
-  "There should be two entries for 'buy': one has both :subj and :obj; the other has only :subj. Make sure both are present and specified per the source lexicon."
+  "There should be two entries for 'buy': one has both :subj and :obj; the other has only :subj. Make sure both are present and specified in the source lexicon."
   (is (= (.size buy) 2))
 
   ;; both transitive and intransitive: check subject spec

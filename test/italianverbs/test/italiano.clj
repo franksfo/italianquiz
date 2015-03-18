@@ -6,6 +6,7 @@
    [italianverbs.engine :as engine]
    [italianverbs.forest :as forest]
    [italianverbs.italiano :as it]
+   [italianverbs.lexiconfn :as lexiconfn]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer (overc overh)]
    [italianverbs.ug :refer :all]
