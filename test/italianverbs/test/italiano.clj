@@ -5,7 +5,7 @@
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
    [italianverbs.engine :as engine]
    [italianverbs.forest :as forest]
-   [italianverbs.italiano :as it]
+   [italianverbs.italiano :as it :refer (it lexicon)]
    [italianverbs.lexiconfn :as lexiconfn]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer (overc overh)]
@@ -83,9 +83,15 @@
 (deftest parse-test-1
   (is (= "un gatto" (fo (first parse-1)))))
 
-(def parse-2 (it/parse "Antonio dormirà"))
+(def parse-2 (it/parse "Antonio dorme"))
 
 (deftest parse-test-2
+  (is (= (fo (first parse-2))
+         "Antonio dorme")))
+
+(def parse-2-1 (it/parse "Antonio dormirà"))
+
+(deftest parse-test-2-1
   (is (= (fo (first parse-2))
          "Antonio dormirà")))
 
