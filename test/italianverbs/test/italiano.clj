@@ -56,19 +56,55 @@
                                          :number :sing}
                                   :obj {:pred :pane}}}})
 
-(deftest mangiare-il-pane
-  (let [vp (overc mangiare-vp il-pane)]
+(def mangiare-il-pane
+  (overc mangiare-vp il-pane))
+
+(deftest mangiare-il-pane-test
+  (let [vp mangiare-il-pane]
     (is (not (empty? vp)))
     (is (= (fo (first vp)) "mangiare il pane"))))
 
-(deftest io-mangio-il-pane
-  (let [generated (engine/generate spec-with-io
-                                   test-grammar)]
-    (is (= (fo generated) "io mangio il pane"))))
+(def io-mangio-il-pane
+  (engine/generate spec-with-io test-grammar))
 
-(deftest la-donna-mangia-il-pane
-  (let [generated (engine/generate spec-with-donna
-                                   test-grammar)]
-    (is (= (fo generated) "la donna mangia il pane"))))
+(deftest io-mangio-il-pane-test
+  (is (= (fo io-mangio-il-pane))))
+
+(def la-donna-mangia-il-pane
+  (engine/generate spec-with-donna test-grammar))
+
+(deftest la-donna-mangia-il-pane-test
+  (is (= (fo la-donna-mangia-il-pane) "la donna mangia il pane")))
 
 ;;(get-in (engine/generate {:synsem {:cat :noun :sem {:number :plur :pred :donna}}} it/medium) [:italiano :b])
+
+(def parse-1 (it/parse "un gatto"))
+
+(deftest parse-test-1
+  (is (= "un gatto" (fo (first parse-1)))))
+
+(def parse-2 (it/parse "Antonio dormirà"))
+
+(deftest parse-test-2
+  (is (= (fo (first parse-2))
+         "Antonio dormirà")))
+
+(def parse-3 (it/parse "il gatto nero"))
+
+(deftest parse-test-3
+  (let [result parse-3]
+    (is (> (.size result) 0))
+    (is (= (get-in (first result) [:synsem :sem :pred])
+           :gatto))))
+
+(def parse-4 (it/parse "il gatto nero dorme"))
+
+(deftest parse-test-4
+  (let [result parse-4]
+    (is (> (.size result) 0))
+    (is (= (get-in (first result) [:synsem :sem :pred])
+           :dormire))
+    (is (= (get-in (first result) [:synsem :sem :subj :pred])
+           :gatto))
+    (is (= (get-in (first result) [:synsem :sem :subj :mod :pred])
+           :nero))))
