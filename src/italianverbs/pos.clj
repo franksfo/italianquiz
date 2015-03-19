@@ -110,7 +110,7 @@
   (unifyc verb-subjective
           {:synsem {:subcat {:2 '()}}}))
 
-;; intransitive: has subject and no syntactic object, but only a semantic object.
+;; intransitive: has subject and no syntactic object, but only a semantic and underspecified (:unspec) object.
 (def intransitive-unspecified-obj
   (unifyc intransitive
           {:synsem {:sem {:obj :unspec}}}))
