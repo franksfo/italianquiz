@@ -56,11 +56,13 @@
        (create-bigram-map args (+ index 1) grammar)))
     (create-unigram-map args 0)))
 
+(declare over)
+
 (defn create-trigram-map [args index grammar bigrams]
   (if (< (+ 2 index) (.size args))
     (do
-      (log/debug (str "over(1): " (fo (get bigrams index))))
-      (log/debug (str "over(2): " (fo (get bigrams (+ 1 index)))))
+      (log/debug (str "over(left): " (fo (get bigrams index))))
+      (log/debug (str "over(right): " (fo (get bigrams (+ 1 index)))))
       (merge
        {[index (+ 3 index)]
         (lazy-cat
@@ -69,16 +71,21 @@
                right-parse (get bigrams [(+ 2 index) (+ 3 index)])]
            (if (and (not (empty? left-parse))
                     (not (empty? right-parse)))
-             (over/over grammar left-parse right-parse)))
+             (over grammar left-parse right-parse)))
 
          ;; [ a | b c ]
          (let [left-parse (get bigrams [index (+ 1 index)])
                right-parse (get bigrams [(+ 1 index) (+ 3 index)])]
            (if (and (not (empty? left-parse))
                     (not (empty? right-parse)))
-             (over/over grammar left-parse right-parse))))}
+             (over grammar left-parse right-parse))))}
        (create-trigram-map args (+ index 1) grammar bigrams)))
     bigrams))
+
+(defn over [grammar left right]
+  "opportunity for additional logging before calling the real (over)"
+  (log/debug (str "over with: left:'" (fo left)) "' ; right: " (fo right))
+  (over/over grammar left right))
 
 (defn create-ngram-map [args left ngrams grammar split-at x]
   (log/debug (str "create-ngram-map: left:" left ";split-at:" split-at "; size:" (.size args) "; x:" x))
@@ -89,7 +96,7 @@
            right-parses (get ngrams [(+ left split-at 0) (- (.size args) 0)] '())]
        (if (and (not (empty? left-parses))
                 (not (empty? right-parses)))
-         (over/over grammar left-parses right-parses)))
+         (over grammar left-parses right-parses)))
      (create-ngram-map args left ngrams grammar (+ 1 split-at) x))))
 
 (defn create-xgram-map [args x index grammar & [nminus1grams runlevel]]
