@@ -92,7 +92,7 @@
 (def parse-2-1 (it/parse "Antonio dormirà"))
 
 (deftest parse-test-2-1
-  (is (= (fo (first parse-2))
+  (is (= (fo (first parse-2-1))
          "Antonio dormirà")))
 
 (def parse-3 (it/parse "il gatto nero"))
