@@ -36,7 +36,7 @@
           pos/intransitive))
 
 (defn intransitivize [lexicon]
-  (lexiconfn/intransitivize lexicon intransitive transitive))
+  (lexiconfn/intransitivize lexicon intransitive transitive intransitive-unspecified-obj))
 
 (defn transitivize [lexicon]
   (lexiconfn/transitivize lexicon transitive verb-subjective))

@@ -774,7 +774,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
          (transform each rules))
        lexical-val))
 
-(defn intransitivize [lexicon intransitive transitive]
+;; TODO: remove intransitive-unspecified-obj: too much of a burden to require this per-language - at least make it optional.
+(defn intransitivize [lexicon intransitive transitive intransitive-unspecified-obj]
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
@@ -801,13 +802,18 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                              ;; Turn the singular, transitive form into an intransitive form by
                              ;; doing some surgery on it: (remove the object) and intransitivize it
                              (let [without-object  ;; intransitive version
-                                   (unifyc intransitive
+                                   (unifyc intransitive-unspecified-obj
                                            (dissoc-paths val
                                                          (list [:serialized]
                                                                [:synsem :sem :obj]
-                                                             [:synsem :subcat :2])))]
-                               (merge without-object
-                                      {:serialized (serialize without-object)}))))
+                                                               [:synsem :subcat :2])))]
+                               (log/debug (str "without object: " without-object))
+                               (log/debug (str "is fail? (without object): " (fail? without-object)))
+                               (let [result
+                                     (merge without-object
+                                            {:serialized (serialize without-object)})]
+                                 (log/debug (str "is fail (w/o object; merged):" (fail? result)))
+                                 result))))
                      
                      (= (get-in val [:synsem :cat])
                         :verb)
@@ -830,6 +836,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
      (map (fn [val]
             (cond (and (= (get-in val [:synsem :cat])
                           :verb)
+                       (not (= :unspec (get-in val [:synsem :sem :obj])))
                        (not (nil? (get-in val [:synsem :sem :obj] nil))))
                   (unifyc val
                           transitive)
