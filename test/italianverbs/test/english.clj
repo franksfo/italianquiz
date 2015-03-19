@@ -61,9 +61,9 @@
   (is (or (= {:buyable true} (get-in (nth buy 0) [:synsem :sem :obj]))
           (= {:buyable true} (get-in (nth buy 1) [:synsem :sem :obj]))))
 
-  ;; intransitive sense: check subject spec.
-  (is (or (= :none (get-in (nth buy 0) [:synsem :sem :obj] :none))
-          (= :none (get-in (nth buy 1) [:synsem :sem :obj] :none)))))
+  ;; intransitive sense: check object spec.
+  (is (or (= :unspec (get-in (nth buy 0) [:synsem :sem :obj]))
+          (= :unspec (get-in (nth buy 1) [:synsem :sem :obj])))))
 
 (deftest test-roundtrip-english
   (let [retval (generate (engine/get-meaning (parse "she sleeps")))]
