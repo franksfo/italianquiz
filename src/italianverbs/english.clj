@@ -3,6 +3,7 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)])
+(require '[italianverbs.engine :refer (get-meaning)])
 (require '[italianverbs.forest :as forest])
 (require '[italianverbs.grammar.english :as gram])
 (require '[italianverbs.lexicon.english :as lex])
@@ -11,7 +12,7 @@
 (require '[italianverbs.parse :as parse])
 (require '[italianverbs.pos.english :as epos :refer (intransitivize transitive transitivize verb-subjective)])
 (require '[italianverbs.ug :refer :all])
-(require '[italianverbs.unify :as unify :refer (dissoc-paths get get-in)])
+(require '[italianverbs.unify :as unify :refer (dissoc-paths get get-in strip-refs)])
 
 (def get-string morph/get-string)
 (def grammar gram/grammar)
