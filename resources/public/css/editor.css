@@ -40,3 +40,20 @@ div.gameinfo > div {
     float:left;
     width:33%;
 }
+
+div.expressions {
+    float:left;
+    width:50;
+}
+
+div.spec {
+    float:left;
+    width:15%;
+}
+div.spec h4 {
+    width:100%;
+    float:left;
+}
+div.expressions table {
+    float:right;
+}

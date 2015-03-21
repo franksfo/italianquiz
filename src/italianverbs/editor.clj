@@ -14,11 +14,43 @@
    [italianverbs.italiano_rt :as it]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.korma :as db]
-   [italianverbs.unify :refer [get-in]]
+   [italianverbs.unify :refer [get-in strip-refs]]
    [italianverbs.verb :refer [generation-table predicates-from-lexicon]]
    [hiccup.core :refer (html)]
    [korma.core :as k]
 ))
+
+(defn show-expressions [source target]
+  (let [spec {:synsem {:sem {:tense :futuro}}}
+        json-spec (json/write-str (strip-refs spec))
+        select (str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
+                                                    target.surface AS target
+                                               FROM expression AS source
+                                         INNER JOIN expression AS target
+                                                 ON source.language = ? 
+                                                AND target.language = ?
+                                                AND source.structure @> '" json-spec "'
+                                                AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
+        results (k/exec-raw [select [source target]] :results)]
+    (html
+     [:div.spec 
+      [:h4 "Filter"]
+      (html/tablize spec)
+      ]
+
+     [:table.striped
+      [:tr
+       [:th ]
+       [:th (str "Source")]
+       [:th (str "Target")]
+       ]
+      (map (fn [result]
+             [:tr 
+              [:td ]
+              [:td (:source result)]
+              [:td (:target result)]])
+           results)
+      ])))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
@@ -375,105 +407,15 @@
         game-id (:game (:params request))]
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
-(defn show-expressions []
-  (let [select (str "SELECT DISTINCT * FROM (SELECT english.surface AS source, 
-                                                    italiano.surface AS target
-                                             FROM expression AS italiano 
-                                       INNER JOIN expression AS english 
-                                               ON italiano.language = 'it' 
-                                              AND english.language = 'en'
-                                              AND (italiano.structure->'synsem'->'sem') @> (english.structure->'synsem'->'sem')) AS pairs")
-        results (k/exec-raw [select] :results)]
-    (html
-     [:table.striped
-      [:tr
-       [:th ]
-       [:th (str "Source")]
-       [:th (str "Target")]
-       ]
-      (map (fn [result]
-             [:tr 
-              [:td ]
-              [:td (:source result)]
-              [:td (:target result)]])
-           results)
-      ])))
-
 (defn home-page [request]
   (let [links (links request :home)
         games (show request)
         games-to-use (set (mapcat vals (k/exec-raw ["SELECT * FROM games_to_use"] :results)))]
     (html
      [:div.user-alert (:message (:params request))]
-
-     [:div (show-expressions)]
-
-     [:div
-      (cond
-       (empty? games)
-       [:div "No groups."]
-
-       true
-       ;; TODO: derive <td> links from route-graph, like (links) does.
-       [:form {:method "post"
-               :action "/editor/use"}
-        [:table.striped
-         [:tr 
-          [:th  {:style "padding-right:1em"} "Use?"]
-          [:th "Verb List"]]
-          
-         (map (fn [each]
-                [:tr 
-                 [:th [:input 
-                       (merge
-                        {:name (str (:id each)) :type "checkbox"}
-                        (if (some #(= % (:id each)) games-to-use)
-                          {:checked "checked"}))
-                       ]]
-                 [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
-              games)]
-
-        links
-        
-        [:div {:style "width:100%;float:left;margin-top:0.5em"}
-         [:input {:type "submit"
-                  :value "Select verb lists to use"}]]
-
-
-
-
-
-       [:div  {:style "width:100%"}
-        [:h3  "Verbs" ]
-        (if (empty? games-to-use)
-          [:div.advice "No games selected to generate examples." ]
-
-          (map (fn [each]
-                 (if (some #(= % (:id each)) games-to-use)
-                   (html
-                    
-                    [:div {:class "game_container"}
-                     [:div {:style "width:30%; float:left"}
-                      [:h4 [:span {:style "padding-left:1em"} 
-                            [:i (short-language-name-to-long (:source each))] 
-                       " ⇒ "
-                            [:i (short-language-name-to-long (:target each))]]]]
-
-                     [:div {:style "width:80%; float:right"}
-                      [:h4 "Tenses:"  [:span {:style "padding-left:1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]]
-                     (generation-table (verbs-per-game (:id each))
-                                       :id_prefix (:id each)
-                                       :source (:source each)
-                                       :target (:target each)
-                                       :tenses (tenses-per-game (:id each))
-                                       )]
-
-                    )))
-
-               games))
-        ]])
-
-      links])))
+     
+     [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it")]
+     [:div.expressions [:h3 "English → Spanish"] (show-expressions "en" "es")])))
 
 (defn tenses-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))
