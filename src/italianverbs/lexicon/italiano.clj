@@ -977,7 +977,9 @@
                   :italiano {:futuro-stem "giocher"}}
 
       "guadagnare"  {:synsem {:cat :verb
-                              :sem {:pred :earn}}}
+                              :sem {:pred :earn
+                                    :subj {:human true}
+                                    :obj {:human false}}}}
 
       "guidare"  {:synsem {:cat :verb
                            :sem {:pred :guidare}}}
@@ -1444,7 +1446,9 @@
                      :futuro-stem "verr"}}
 
    "vincere"  {:synsem {:cat :verb
-                        :sem {:pred :win}}}
+                        :sem {:pred :win
+                              :subj {:human true}
+                              :obj {:human false}}}}
 
    "vino"
    (unifyc drinkable-noun

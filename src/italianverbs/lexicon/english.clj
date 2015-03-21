@@ -231,7 +231,8 @@
 
    "earn"  {:synsem {:cat :verb
                      :sem {:pred :earn
-                           :subj {:human true}}}}
+                           :subj {:human true
+                                  :obj false}}}}
 
    "eat"
    {:english {:past "ate"}
@@ -716,7 +717,8 @@
    
    "win"  {:synsem {:cat :verb
                     :sem {:pred :win
-                          :subj {:human true}}}
+                          :subj {:human true}
+                          :obj {:human false}}}
            :english {:past "won"
                      :participle "winning"}}
    

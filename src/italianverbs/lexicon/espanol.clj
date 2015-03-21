@@ -53,7 +53,8 @@
                                           :sem {:pred :increase}}}
 
                      "ayudar" {:synsem {:cat :verb
-                                        :sem {:pred :aiutare}}}
+                                        :sem {:pred :aiutare
+                                              :obj {:human true}}}}
 
                      "bajar" {:synsem {:cat :verb
                                        :sem {:pred :lower}}}
@@ -234,9 +235,13 @@
                                                  :pred :work-nonhuman}}}
 
                      "ganar" [{:synsem {:cat :verb
-                                        :sem {:pred :earn}}}
+                                        :sem {:pred :earn
+                                              :subj {:human true}
+                                              :obj {:human false}}}}
                               {:synsem {:cat :verb
-                                        :sem {:pred :win}}}]
+                                        :sem {:pred :win
+                                              :subj {:human true}
+                                              :obj {:human false}}}}]
 
 ;; TODO: handle syntax/semantics mismatch between Italian/Spanish and English.
 ;                     "gustar" {:synsem {:cat :verb
