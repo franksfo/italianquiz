@@ -44,17 +44,15 @@
       (let [target-language-sentence (engine/generate spec
                                                       target-language-model :enrich true)
 
-            target-language-sentence (cond
-                                      (not (= :notfound (get-in target-language-sentence 
-                                                                [:synsem :sem :subj] :notfound)))
-                                      (let [subj (sem-impl (get-in target-language-sentence
-                                                                   [:synsem :sem :subj]))]
-                                        (log/debug (str "subject constraints: " subj))
-                                        (unify target-language-sentence
-                                               {:synsem {:sem {:subj subj}}}))
-
-                                      true
-                                      target-language-sentence)
+            target-language-sentence (let [subj (get-in target-language-sentence
+                                                        [:synsem :sem :subj] :notfound)]
+                                       (cond (not (= :notfound subj))
+                                             (do
+                                               (log/debug (str "subject constraints: " subj))
+                                               (unify target-language-sentence
+                                                      {:synsem {:sem {:subj subj}}}))
+                                             true
+                                             target-language-sentence))
             
             semantics (strip-refs (get-in target-language-sentence [:synsem :sem] :top))
             debug (log/debug (str "semantics: " semantics))
