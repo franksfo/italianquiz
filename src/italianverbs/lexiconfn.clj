@@ -779,7 +779,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   (map-function-on-map-vals
    lexicon
    (fn [k vals]
-     (log/info (str "intransitivize: key: " k))
+     (log/debug (str "intransitivize: key: " k))
      (mapcat (fn [val]
                (if (= :verb (get-in val [:synsem :cat])) 
                  (log/debug (str "subcat for: '" (fo val) "' " (strip-refs (get-in val [:synsem :subcat])))))
