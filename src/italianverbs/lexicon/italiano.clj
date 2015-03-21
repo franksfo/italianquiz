@@ -1229,7 +1229,7 @@
                           :pred :madre
                           :child false}}})
 
-   "mancare"  {:italiano {:futuro-stem "manch"}
+   "mancare"  {:italiano {:futuro-stem "mancher"}
                :synsem {:cat :verb
                         :sem {:pred :mancare}}}
 
