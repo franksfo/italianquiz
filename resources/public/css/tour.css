@@ -185,7 +185,8 @@ div#menubar div {
 /* iPhone 6+ */
 @media only screen 
 and (min-device-width : 414px) 
-and (max-device-width : 736px) {
+and (max-device-width : 736px)
+and (orientation : landscape) {
     div#header { 
 	background-image: url(tablet-background.jpg);
 	height: 100px; position: relative; 
@@ -214,10 +215,49 @@ and (max-device-width : 736px) {
     }
 }
 
+@media only screen 
+and (min-device-width : 414px) 
+and (max-device-width : 736px)
+and (orientation : portrait) {
+    #non_so {
+	left:50%;
+    }
+
+    #menubar {
+	position:absolute;
+	top:1%;
+	left:95%;
+    }
+
+    #tourgameform {
+	position:absolute;
+	left:62%;
+	top:15%;
+	height:15%;
+	width:35%;
+    }
+
+    #map { 
+	height:50%;
+    }
+ 
+    #streetview {
+	position:absolute;
+	left:62%;
+	top:2%;
+	height:13%;
+	width:35%;
+    }
+ 
+    #gameinputdiv {
+    }
+}
+
 /* iPhone 6 */
 @media only screen 
 and (min-device-width : 375px) 
-and (max-device-width : 667px) {
+and (max-device-width : 667px)
+and (orientation : landscape) {
     div#header { 
 	background-image: url(tablet-background.jpg);
 	height: 100px; position: relative; 
@@ -249,7 +289,8 @@ and (max-device-width : 667px) {
 /* iPhone 5&5s */
 @media only screen 
 and (min-device-width : 320px) 
-and (max-device-width : 568px) {
+and (max-device-width : 568px)
+and (orientation : landscape) {
     div#header { 
 	background-image: url(tablet-background.jpg);
 	height: 100px; position: relative; 
@@ -281,7 +322,8 @@ and (max-device-width : 568px) {
 /* iPhone  2G-4S */
 @media only screen 
 and (min-device-width : 320px) 
-and (max-device-width : 480px) {
+and (max-device-width : 480px)
+and (orientation : landscape) {
     div#header { 
 	background-image: url(tablet-background.jpg);
 	height: 100px; position: relative; 
