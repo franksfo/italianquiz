@@ -40,6 +40,7 @@
     (log/debug (str "looking for expressions in language: " target-language " with json-spec: " json-spec))
 
     ;; get the structure of a random expression in the target language that matches the specification _spec_.
+    ;; TODO: this is wasteful - we are getting *all* possible expressions, when we only need one (random) expression.
     (let [results (db/exec-raw [(str "SELECT target.serialized::text AS target,target.surface
                                         FROM expression AS target
                                        WHERE target.language=?
@@ -79,18 +80,18 @@
 
             (let [results
                   (db/exec-raw [(str "SELECT source.surface AS source,
-                                         target.surface AS target 
-                                    FROM (SELECT surface, source.structure->'synsem'->'sem' AS sem
-                                            FROM expression AS source
-                                           WHERE source.language=?
-                                             AND source.structure->'synsem'->'sem' @> '" json-semantics "' LIMIT 1) AS source
-                              INNER JOIN (SELECT DISTINCT surface, target.structure->'synsem'->'sem' AS sem
-                                            FROM expression AS target
-                                           WHERE target.language=?
-                                             AND target.structure->'synsem'->'sem' = '" json-semantics "') AS target 
-                                              ON (source.surface IS NOT NULL) 
-                                             AND (target.surface IS NOT NULL) 
-                                             AND (source.sem @> target.sem)")
+                                             target.surface AS target 
+                                        FROM (SELECT surface, source.structure->'synsem'->'sem' AS sem
+                                                FROM expression AS source
+                                               WHERE source.language=?
+                                                 AND source.structure->'synsem'->'sem' @> '" json-semantics "' LIMIT 1) AS source
+                                  INNER JOIN (SELECT DISTINCT surface, target.structure->'synsem'->'sem' AS sem
+                                                         FROM expression AS target
+                                                        WHERE target.language=?
+                                                          AND target.structure->'synsem'->'sem' = '" json-semantics "') AS target 
+                                                           ON (source.surface IS NOT NULL) 
+                                                          AND (target.surface IS NOT NULL) 
+                                                          AND (source.sem @> target.sem)")
                             [source-language target-language]]
                            :results)]
           (if (nil? (first (map :source results)))
@@ -103,7 +104,7 @@
              :targets (map :target results)}))))))))
 
 (defn generate-all [spec language]
-  "find all sentences in the library matching 'spec' in a given language."
+  "find all sentences in the expression table matching 'spec' in a given language."
   (let [spec (unify spec
                     {:synsem {:subcat '()}})
 
