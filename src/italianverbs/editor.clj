@@ -376,7 +376,13 @@
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
 (defn show-expressions []
-  (let [select (str "SELECT surface FROM expression LIMIT 10")
+  (let [select (str "SELECT DISTINCT * FROM (SELECT english.surface AS source, 
+                                                    italiano.surface AS target
+                                             FROM expression AS italiano 
+                                       INNER JOIN expression AS english 
+                                               ON italiano.language = 'it' 
+                                              AND english.language = 'en'
+                                              AND (italiano.structure->'synsem'->'sem') @> (english.structure->'synsem'->'sem')) AS pairs")
         results (k/exec-raw [select] :results)]
     (html
      [:table.striped
@@ -388,7 +394,8 @@
       (map (fn [result]
              [:tr 
               [:td ]
-              [:td (:surface result)]])
+              [:td (:source result)]
+              [:td (:target result)]])
            results)
       ])))
 
