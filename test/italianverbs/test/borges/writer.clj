@@ -45,12 +45,14 @@
       (= (:surface vosotros-comeis) "vosotros comeis")))))
 
 
-(deftest do-fill
-  (let [do-fill (fill 1 en/small es/small {:synsem {:sem {:pred :speak}}})]
+(deftest do-populate
+  (let [do-populate (populate 1 en/small es/small {:synsem {:sem {:pred :speak}}})]
     (is (= 1 1)))) ;; stub TODO: fill out test
 
-(defn prep [this-many]
-  (fill     this-many en/small it/small :top)
+(defn prep [this-many & [:truncate :false]]
+  (if (= truncate true)
+    (truncate))
+  (populate this-many en/small it/small :top)
   (populate this-many en/small es/small :top))
 
 (deftest do-prep
