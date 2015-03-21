@@ -8,6 +8,7 @@
    [formative.core :as f]
    [formative.parse :as fp]
    [italianverbs.auth :refer [is-admin is-authenticated]]
+   [italianverbs.borges.reader :refer :all]
    [italianverbs.english_rt :as en]
    [italianverbs.html :as html]
    [italianverbs.italiano_rt :as it]
@@ -155,8 +156,6 @@
    {:css "/css/editor.css"
     :jss ["/js/editor.js" "/js/gen.js"]
     :onload (onload)}))
-
-;;                                        ON source.structure->'synsem'->'sem' @> target.structure->'synsem'->'sem'       
 
 (defn examples-per-game [game-id]
   (let [results (k/exec-raw [(str "SELECT source.surface AS source, 
@@ -376,12 +375,32 @@
         game-id (:game (:params request))]
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
+(defn show-expressions []
+  (let [select (str "SELECT surface FROM expression LIMIT 10")
+        results (k/exec-raw [select] :results)]
+    (html
+     [:table.striped
+      [:tr
+       [:th ]
+       [:th (str "Source")]
+       [:th (str "Target")]
+       ]
+      (map (fn [result]
+             [:tr 
+              [:td ]
+              [:td (:surface result)]])
+           results)
+      ])))
+
 (defn home-page [request]
   (let [links (links request :home)
         games (show request)
         games-to-use (set (mapcat vals (k/exec-raw ["SELECT * FROM games_to_use"] :results)))]
     (html
      [:div.user-alert (:message (:params request))]
+
+     [:div (show-expressions)]
+
      [:div
       (cond
        (empty? games)
