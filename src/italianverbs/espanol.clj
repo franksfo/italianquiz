@@ -23,17 +23,12 @@
 (def lexicon
   (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize)
 
-              ;; TODO: do verb agreement in other languages like this, rather than requiring trans-intrans and intrans for every single verb.
-              ;; verb agreement
-              (map-function-on-map-vals
-               (fn [k vals]
-                 (map (fn [val]
-                        (cond (= (get-in val [:synsem :cat]) :verb)
-                              (unify/unifyc val
-                                            verb-subjective)
-                              true
-                              val))
-                      vals)))
+              ;; make an intransitive version of every verb which has an
+              ;; [:sem :obj] path.
+              intransitivize
+              
+              ;; if verb does specify a [:sem :obj], then fill it in with subcat info.
+              transitivize
               
               ;; Cleanup functions can go here. Number them for ease of reading.
               ;; 1. this filters out any verbs without an inflection: infinitive verbs should have inflection ':infinitive', 

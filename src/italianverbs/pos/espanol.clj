@@ -2,7 +2,7 @@
 
 (require '[italianverbs.pos :as pos])
 (require '[italianverbs.unify :refer (unifyc)])
-
+(require '[italianverbs.lexiconfn :as lexiconfn :refer (map-function-on-map-vals)])
 
 (def noun-agreement
   (let [agr (ref :top)]
@@ -51,3 +51,8 @@
   (unifyc verb-subjective
           pos/intransitive))
 
+(defn intransitivize [lexicon]
+  (lexiconfn/intransitivize lexicon intransitive transitive intransitive-unspecified-obj))
+
+(defn transitivize [lexicon]
+  (lexiconfn/transitivize lexicon transitive verb-subjective))
