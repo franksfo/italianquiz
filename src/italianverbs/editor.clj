@@ -34,7 +34,7 @@
                                                 AND source.structure @> '" json-source-spec "'
                                                 AND target.structure @> '" json-target-spec "'
                                                 AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
-        debug (log/debug (str "expressions select sql: " select))
+        debug (log/debug (str "expressions select sql: \n" select))
         results (k/exec-raw [select [source target]] :results)]
     (html
      [:div.specs [:h4 "Constraints"]
@@ -63,6 +63,10 @@
               [:td (:target result)]])
            results)
       ])))
+
+(defn insert-constraint [source target source-spec target-spec]
+  (k/exec-raw [(str "INSERT INTO translation_select (source,target,source_spec,target_spec) VALUES (?,?,'" source-spec " ','" target-spec "')")
+               [source target]]))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
@@ -430,7 +434,7 @@
                                                                     {:synsem {:sem {:tense :futuro}}})]
                                                                     
      [:div.expressions [:h3 "English → Spanish"] (show-expressions "en" "es"
-                                                                   {};; {:synsem {:sem {:tense :present}}}
+                                                                   {}
                                                                    {:head {:espanol {:espanol "enseñar"}}})])))
 
 (defn tenses-per-game [game-id]
