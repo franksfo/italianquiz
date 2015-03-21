@@ -238,7 +238,7 @@
         (str stem "ía")
 
         (and (= person :1st) (= number :plur) ar-type)
-        (str stem "abamos")
+        (str stem "ábamos")
 
         (and (= person :1st) (= number :plur) er-type)
         (str stem "íamos")
