@@ -20,23 +20,35 @@
    [korma.core :as k]
 ))
 
-(defn show-expressions [source target]
-  (let [spec {:synsem {:sem {:tense :futuro}}}
-        json-spec (json/write-str (strip-refs spec))
+(defn show-expressions [source target & [source-spec target-spec]]
+  (let [source-spec (if source-spec source-spec {})
+        target-spec (if target-spec target-spec {})
+        json-source-spec (json/write-str (strip-refs source-spec))
+        json-target-spec (json/write-str (strip-refs target-spec))
         select (str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
                                                     target.surface AS target
                                                FROM expression AS source
                                          INNER JOIN expression AS target
                                                  ON source.language = ? 
                                                 AND target.language = ?
-                                                AND source.structure @> '" json-spec "'
+                                                AND source.structure @> '" json-source-spec "'
+                                                AND target.structure @> '" json-target-spec "'
                                                 AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
+        debug (log/debug (str "expressions select sql: " select))
         results (k/exec-raw [select [source target]] :results)]
     (html
+     [:div.specs [:h4 "Constraints"]
      [:div.spec 
-      [:h4 "Filter"]
-      (html/tablize spec)
+      [:h4 "Source"]
+      (if (= source-spec {}) [:i "none"]
+          (html/tablize source-spec))
       ]
+
+     [:div.spec 
+      [:h4 "Target"]
+      (if (= target-spec {}) [:i "none"]
+          (html/tablize target-spec))
+      ]]
 
      [:table.striped
       [:tr
@@ -414,8 +426,12 @@
     (html
      [:div.user-alert (:message (:params request))]
      
-     [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it")]
-     [:div.expressions [:h3 "English → Spanish"] (show-expressions "en" "es")])))
+     [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it"
+                                                                    {:synsem {:sem {:tense :futuro}}})]
+                                                                    
+     [:div.expressions [:h3 "English → Spanish"] (show-expressions "en" "es"
+                                                                   {};; {:synsem {:sem {:tense :present}}}
+                                                                   {:head {:espanol {:espanol "enseñar"}}})])))
 
 (defn tenses-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))
