@@ -60,19 +60,16 @@
                               :cat :verb}})]
     (forest/generate spec grammar (flatten (vals @lexicon)) index)))
 
-(defn generate [ & [spec {use-grammar :grammar
-                          use-index :index
-                          use-lexicon :lexicon}]]
+(declare small)
+
+(defn generate [ & [spec model]]
   (let [spec (if spec spec :top)
-        use-grammar (if use-grammar use-grammar grammar)
-        use-index (if use-index use-index index)
-        use-lexicon (if use-lexicon use-lexicon lexicon)]
-    (log/info (str "using grammar of size: " (.size use-grammar)))
-    (if (seq? spec)
-      (map generate spec)
-      (forest/generate spec use-grammar
-                       (flatten (vals @use-lexicon))
-                       use-index))))
+        model (if model model small)
+        model (if (future? model) @model model)]
+    (forest/generate spec
+                     (:grammar model)
+                     (:lexicon model)
+                     (:index model))))
 
 ;; TODO: factor out to forest/.
 (defn generate-all [ & [spec {use-grammar :grammar

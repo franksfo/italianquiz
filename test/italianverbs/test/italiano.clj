@@ -5,7 +5,10 @@
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
    [italianverbs.engine :as engine]
    [italianverbs.forest :as forest]
-   [italianverbs.italiano :as it :refer (it lexicon)]
+
+   ;; TODO: change to: :refer :all rather than :refer-ing particular things.
+   [italianverbs.italiano :as it :refer (generate it lexicon small)]
+
    [italianverbs.lexiconfn :as lexiconfn]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer (overc overh)]
@@ -125,3 +128,14 @@
            :gatto))
     (is (= (get-in (first result) [:synsem :sem :subj :mod :pred])
            :nero))))
+
+(deftest future-mancare
+  ;; test for whether exceptional future stems (futuro-stem) work.
+  ;; In lexicon, we have: {:futuro-stem "mancher"}.
+  (let [result (it/it "mancherò")]
+    (is (> (.size result) 0)))
+
+  ;; should be empty: "mancarò" is not possible due the the above exception.
+  (let [result (it/it "mancarò")]
+    (is (= (.size result) 0))))
+
