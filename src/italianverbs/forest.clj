@@ -49,8 +49,8 @@
                           (generate-all (rest spec) grammar lexicon index))
                 true
                 (do
-                  (log/info (str "generate-all: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
-                  (log/debug (str "generate-all(details): " (show-spec spec)))
+                  (log/debug (str "generate-all with semantics: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
+                  (log/trace (str "generate-all(details): " (show-spec spec)))
                   (-> (lightning-bolt grammar
                                       lexicon
                                       spec 0 index)
