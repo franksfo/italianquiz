@@ -1143,6 +1143,41 @@
   (str (stem-per-passato-prossimo infinitive) "ato"))
 
 ;; allows reconstruction of the infinitive form from the inflected form
+(def future-to-infinitive-irreg1
+  {
+   ;; future
+   #"cherò$" 
+   {:replace-with "care"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :sing
+                                  :person :1st}}}}
+   #"cherai$" 
+   {:replace-with "care"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :sing
+                                  :person :2nd}}}}
+   #"cherà$" 
+   {:replace-with "care"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :sing
+                                  :person :3rd}}}}
+   #"cheremo$" 
+   {:replace-with "care"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :plur
+                                  :person :1st}}}}
+   #"cherete$" 
+   {:replace-with "care"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :plur
+                                  :person :2nd}}}}
+   #"cheranno$" 
+   {:replace-with "care"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :plur
+                                  :person :3rd}}}}})
+
+;; allows reconstruction of the infinitive form from the inflected form
 (def future-to-infinitive
   {
    ;; future
@@ -1392,6 +1427,7 @@
         ;; e.g. plural-to-singular-noun-masc-1 and plural-to-singular-noun-masc-2 both have
         ;; #"i$", they are distinct as separate keys in this 'replace-pairs' hash, as they should be.
         (merge 
+         future-to-infinitive-irreg1
          future-to-infinitive
          imperfect-to-infinitive-irreg1
          past-to-infinitive
