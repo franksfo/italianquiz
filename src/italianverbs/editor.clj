@@ -69,13 +69,13 @@
      [:div.specs
       [:h3 (str name)]
       [:div.spec 
-       [:h4 "Source"]
+       [:h4 (short-language-name-to-long source)]
        (if (= source-spec {}) [:i (str "no source spec.")]
            (html/tablize source-spec))
        ]
 
       [:div.spec 
-       [:h4 "Target"]
+       [:h4 (short-language-name-to-long target)]
        (if (= target-spec {}) [:i (str "no target spec.")]
            (html/tablize target-spec))
        ]
