@@ -11,10 +11,8 @@
    [italianverbs.morphology.english :as morph]
    [italianverbs.over :refer :all]
    [italianverbs.parse :as parse]
-   [italianverbs.pos :as pos :refer [adjective animal
-                                     cat-of-pronoun common-noun
-                                     comparative
-                                     countable-noun determiner
+   [italianverbs.pos :as pos :refer [cat-of-pronoun
+                                     comparative determiner
                                      drinkable-noun
                                      non-comparative-adjective noun
                                      pronoun-acc sentential-adverb

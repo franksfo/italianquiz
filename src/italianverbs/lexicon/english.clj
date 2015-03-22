@@ -1,10 +1,7 @@
-(ns italianverbs.lexicon.english)
-
-(require '[italianverbs.lexiconfn :refer [unify]])
-(require '[italianverbs.pos :refer [adjective animal
-                                    common-noun
-                                    countable-noun]])
-(require '[italianverbs.pos.english :refer [agreement-noun]])
+(ns italianverbs.lexicon.english
+  (:require
+   [italianverbs.lexiconfn :refer (unify)]
+   [italianverbs.pos.english :refer :all]))
 
 (def lexicon-source
   {"Antonia"

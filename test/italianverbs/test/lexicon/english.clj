@@ -1,10 +1,9 @@
 (ns italianverbs.test.lexicon.english)
 
 (require '[italianverbs.lexiconfn :refer [unify]])
-(require '[italianverbs.pos :refer [adjective animal
-                                    cat-of-pronoun common-noun
+(require '[italianverbs.pos :refer [cat-of-pronoun
                                     comparative
-                                    countable-noun determiner
+                                    determiner
                                     drinkable-noun
                                     non-comparative-adjective noun
                                     pronoun-acc sentential-adverb

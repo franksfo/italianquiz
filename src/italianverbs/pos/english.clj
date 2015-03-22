@@ -6,6 +6,10 @@
 (require '[italianverbs.pos :as pos])
 (require '[italianverbs.unify :as unify :refer (dissoc-paths get-in serialize unifyc)])
 (require '[italianverbs.lexiconfn :as lexiconfn :refer (map-function-on-map-vals)])
+(def adjective pos/adjective)
+(def animal pos/common-noun)
+(def common-noun pos/common-noun)
+(def countable-noun pos/common-noun)
 
 (def agreement-noun
   (let [agr (ref :top)]
