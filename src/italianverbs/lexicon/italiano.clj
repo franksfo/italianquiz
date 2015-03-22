@@ -1,28 +1,10 @@
 (ns italianverbs.lexicon.italiano
-  (:refer-clojure :exclude [get-in]))
-
-(require '[clojure.tools.logging :as log])
-(require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals)])
-(require '[italianverbs.morphology.italiano :refer (agreement analyze exception-generator
-                                                              italian-specific-rules phonize)])
-(require '[italianverbs.morphology.italiano :as m])
-(require '[italianverbs.pos :refer (agreement-noun 
-                                    cat-of-pronoun common-noun
-                                    comparative
-                                    countable-noun determiner
-                                    drinkable-noun non-comparative-adjective noun
-                                    pronoun-acc sentential-adverb
-                                    verb verb-aux)])
-(require '[italianverbs.pos.italiano :refer (adjective
-                                             intransitive intransitive-unspecified-obj
-                                             feminine-noun masculine-noun
-                                             transitive verb-subjective)])
-(require '[italianverbs.unify :refer (get-in unifyc)])
-(require '[italianverbs.unify :as unify])
+  (:require
+   [italianverbs.lexiconfn :refer (unify)]
+   [italianverbs.pos.italiano :refer :all]))
 
 (def lexicon-source
-  {
-   "Antonia"
+  {"Antonia"
    {:synsem {:sem {:pred :antonia
                    :human true}
              :agr {:number :sing
@@ -89,7 +71,7 @@
                             :sem {:pred :accompany}}}
 
    "acqua"
-   (unifyc (:agreement noun)
+   (unify (:agreement noun)
           (:drinkable noun)
           (:feminine noun)
           {:synsem {:sem {:artifact false
@@ -102,7 +84,7 @@
     (let [is-place (ref {:place true}) ;; only places can be crowded.
           than-this (ref {:pred :di
                           :mod is-place})]
-      (unifyc adjective
+      (unify adjective
               comparative
               {:synsem {:sem {:pred :affolato
                               :arg1 is-place
@@ -112,7 +94,7 @@
                                  :2 {:cat :prep
                                      :sem than-this}}}}))
     ;; non-comparative
-    (unifyc adjective
+    (unify adjective
             {:synsem {:cat :adjective
                       :sem {:pred :affolato
                             :comparative false
@@ -132,7 +114,7 @@
    [;; non-comparative:
     (let [subject-sem (ref {:human true}) ;; only humans can be tall.
           subject-agr (ref :top)] 
-      (unifyc adjective
+      (unify adjective
              non-comparative-adjective
              {:synsem {:cat :adjective
                        :sem {:pred :alto
@@ -149,7 +131,7 @@
           complement-sem (ref {:pred :di
                                :mod complement-complement-sem})
           subject-sem (ref {:human true})] ;; only humans can be tall.
-      (unifyc adjective
+      (unify adjective
              comparative
              {:synsem {:sem {:pred :alto
                              :arg1 subject-sem
@@ -168,7 +150,7 @@
                     :subj {:human true}}}}
 
    "amico"
-   (unifyc agreement-noun
+   (unify agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -193,7 +175,7 @@
   
    
 ;   (map (fn [each]
-;          (unifyc
+;          (unify
 ;           each
 ;           ;; common part of all andare lexemes:
 ;           {:italiano {:italiano "andare"
@@ -217,7 +199,7 @@
 
 ;           {:synsem {:sem {:location '()}}})))
 
-;          (unifyc
+;          (unify
 ;           transitive
 ;           ;; "andare" that takes a prepositional phrase
 ;           (let [place-sem (ref {:place true
@@ -267,7 +249,7 @@
                                             :1plur "abbiamo"
                                             :2plur "avete"
                                             :3plur "hanno"}}}]
-     [(unifyc ;; 1. "avere": to possess something buyable
+     [(unify ;; 1. "avere": to possess something buyable
        transitive
        avere-common
        {:note "avere (possess)"
@@ -279,7 +261,7 @@
 
 
       ;; 2. avere: unspecified object
-      (unifyc
+      (unify
        avere-common
        verb-subjective
        intransitive-unspecified-obj
@@ -292,7 +274,7 @@
 
       ;; 3. "avere" that takes a transitive verb: e.g. "io l'ho vista (i saw her)"
       (let [agr-of-obj-of-main-verb (ref :top)]
-        (unifyc
+        (unify
          verb-aux
          verb-subjective
          avere-common
@@ -309,7 +291,7 @@
       ;; 1. subject that is the same as the subject of 2.
       ;; 2. an intransitive verb.
       (let [agr-of-subj-of-main-verb (ref :top)]
-        (unifyc
+        (unify
          verb-aux
          verb-subjective
          avere-common
@@ -324,7 +306,7 @@
 
    "bello"
    [;; non-comparative
-    (unifyc adjective
+    (unify adjective
            {:synsem {:sem {:pred :bello
                            :comparative false
                            }}}) ;; for now, no restrictions on what can be beautiful.
@@ -333,7 +315,7 @@
           complement-sem (ref {:pred :di
                                :mod complement-complement-sem})
           subject-sem (ref :top)] ;; subject can be anything.
-      (unifyc adjective
+      (unify adjective
               comparative
               {:synsem {:sem {:pred :bello
                               :arg1 subject-sem
@@ -369,7 +351,7 @@
                     :obj {:drinkable true}}}}
 
    "bianco"
-   (unifyc adjective
+   (unify adjective
           {:synsem {:cat :adjective
                     :sem {:pred :bianco
                           :comparative false
@@ -380,7 +362,7 @@
                       :cat :adjective}})
 
    "birra"
-   (unifyc agreement-noun
+   (unify agreement-noun
            drinkable-noun
            feminine-noun
            {:synsem {:sem {:pred :birra
@@ -388,7 +370,7 @@
 
 
    "braccio"
-   (unifyc agreement-noun
+   (unify agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -404,7 +386,7 @@
    "brutto"
    ;; non-comparative
    ;; TODO: add comparative
-   (unifyc adjective
+   (unify adjective
           {:synsem {:cat :adjective
                     :sem {:pred :brutto
                           :comparative false
@@ -426,7 +408,7 @@
 
    "calzoni"
    ;; inherently plural
-   (unifyc agreement-noun
+   (unify agreement-noun
            common-noun
            countable-noun
            masculine-noun
@@ -454,7 +436,7 @@
                             :pred :cenare}}}
 
    "camicia"
-    (unifyc agreement-noun
+    (unify agreement-noun
            common-noun
            countable-noun
            feminine-noun
@@ -467,7 +449,7 @@
                            :clothing true}}})
 
    "cane"
-   (unifyc agreement-noun
+   (unify agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -483,7 +465,7 @@
                       :sem {:pred :understand}}}
 
    "casa"
-    (unifyc agreement-noun
+    (unify agreement-noun
            common-noun
            countable-noun
            feminine-noun
@@ -494,7 +476,7 @@
                            :place true}}})
 
     "cattivo"
-     (unifyc adjective
+     (unify adjective
             {:synsem {:cat :adjective
                       :sem {:pred :cattivo
                             :comparative false
@@ -504,7 +486,7 @@
 
       ;; working on: "mi sono comprato un nuovo cellulare"
      "cellulare"
-     (unifyc agreement-noun
+     (unify agreement-noun
              masculine-noun
              common-noun
              countable-noun
@@ -546,7 +528,7 @@
                   :case pronoun-acc}}
 
       "cipolla"
-      (unifyc agreement-noun
+      (unify agreement-noun
              common-noun
              feminine-noun
              {:synsem {:sem {:pred :cipolla
@@ -562,7 +544,7 @@
                        :subj {:animate true}}}}
 
       "città"
-      (unifyc agreement-noun
+      (unify agreement-noun
              common-noun
              countable-noun
              feminine-noun
@@ -586,7 +568,7 @@
                        :subj {:animate true}}}}]
       
       "compito"
-      (unifyc agreement-noun
+      (unify agreement-noun
              common-noun
              countable-noun
              masculine-noun
@@ -623,7 +605,7 @@
              complement-sem (ref {:pred :di
                                   :mod complement-complement-sem})
              subject-sem (ref {:place true})]
-         (unifyc adjective
+         (unify adjective
                 comparative
                 {:synsem {:sem {:pred :contento
                                 :arg1 subject-sem
@@ -634,7 +616,7 @@
                                      :sem complement-sem}}}})
 
          ;; non-comparative
-         (unifyc adjective
+         (unify adjective
                 {:synsem {:cat :adjective
                           :sem {:pred :contento
                                 :comparative false
@@ -652,7 +634,7 @@
              complement-sem (ref {:pred :di
                                   :mod complement-complement-sem})
              subject-sem (ref {:human true})] ;; only humans can be short.
-        (unifyc adjective
+        (unify adjective
                comparative
                {:synsem {:sem {:pred :corto
                                :arg1 subject-sem
@@ -663,7 +645,7 @@
                                       :sem complement-sem}}}}))
 
        ;; non-comparative
-       (unifyc adjective
+       (unify adjective
               {:synsem {:cat :adjective
                         :sem {:pred :corto
                               :comparative false
@@ -754,7 +736,7 @@
       "difficile"
       ;; non-comparative
       ;; TODO: add comparative
-      (unifyc adjective
+      (unify adjective
              {:synsem {:cat :adjective
                        :sem {:pred :difficile
                              :comparative false
@@ -775,7 +757,7 @@
                    :italiano {:passato "dipinto"}}
 
       "domani"
-      (unifyc sentential-adverb
+      (unify sentential-adverb
              {:synsem {:cat :sent-modifier
                        :sem {:pred :domani}
                        :subcat {:1 {:infl :futuro
@@ -784,7 +766,7 @@
               :italiano "domani"})
 
       "donna"
-      (unifyc agreement-noun
+      (unify agreement-noun
               common-noun
               countable-noun
               feminine-noun
@@ -793,7 +775,7 @@
                               :child false}}})
       
       "dopodomani"
-      (unifyc sentential-adverb
+      (unify sentential-adverb
               {:synsem {:cat :sent-modifier
                         :sem {:pred :dopodomani}
                         :subcat {:1 {:infl :futuro
@@ -868,7 +850,7 @@
          ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
          (let [gender (ref :top)
                number (ref :top)]
-           (unifyc
+           (unify
             essere-common
             {:notes "essere-adjective"
              :synsem {:cat :verb
@@ -885,13 +867,13 @@
                                    :agr {:gender gender
                                          :number number}}}}}))
 
-           (unifyc essere-common {:synsem {:sem {:pred :essere}}})
+           (unify essere-common {:synsem {:sem {:pred :essere}}})
 
            ;; essere: copula ;; note that we don't enforce agreement the same here as we do in essere-adjective: TODO: try to make more consistent.
            (let [gender (ref :top)
                  number (ref :top)
                  human (ref :top)]
-             (unifyc
+             (unify
               transitive
               essere-common
               {:notes "copula" ;; significant only for debugging.
@@ -922,7 +904,7 @@
                            {:activity false
                             :pred comp-pred
                             :discrete false})]
-             (unifyc
+             (unify
               verb-subjective
               essere-common
               {:notes "essere-intensifer"
@@ -936,7 +918,7 @@
                               :intensified true
                               :obj comp-sem}}}))
 
-           (unifyc essere-common
+           (unify essere-common
                    verb-aux
                    verb-subjective
                    {:italiano {:notes "essere-aux"}})])
@@ -962,7 +944,7 @@
                                    :subj {:human false}}}}
 
       "gatto"
-      (unifyc agreement-noun
+      (unify agreement-noun
              common-noun
              countable-noun
              masculine-noun
@@ -985,7 +967,7 @@
                            :sem {:pred :guidare}}}
       
       "i"
-      (unifyc determiner
+      (unify determiner
              {:synsem {:cat :det
                        :def :def
                        :gender :masc
@@ -993,7 +975,7 @@
 
 
       "il"
-      (unifyc determiner
+      (unify determiner
               {:synsem {:cat :det
                         :def :def
                         :gender :masc
@@ -1133,9 +1115,9 @@
                                 :number :sing}
                           :sem {:pred :lei} ;; note: we don't specify human=true (english "it").
                           :subcat '()}}]
-     (unifyc common
+     (unify common
              {:synsem {:sem {:human false}}})
-     (unifyc common
+     (unify common
              {:synsem {:sem {:human true}}}))
 
    "leggere"
@@ -1149,7 +1131,7 @@
                           
 
    "libro"
-   (unifyc agreement-noun
+   (unify agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -1215,13 +1197,13 @@
                                       :number :sing}
                                 :sem {:pred :lui} ;; note: we don't specify human=true (english "it").
                                 :subcat '()}}]
-           (unifyc common
+           (unify common
                    {:synsem {:sem {:human false}}})
-           (unifyc common
+           (unify common
                    {:synsem {:sem {:human true}}}))
 
    "madre"
-   (unifyc agreement-noun
+   (unify agreement-noun
           common-noun
           countable-noun
           feminine-noun
@@ -1249,7 +1231,7 @@
    ;; non-comparative
    ;; TODO: add comparative
    "nero"
-   (unifyc adjective
+   (unify adjective
           {:synsem {:cat :adjective
                     :sem {:pred :nero
                           :comparative false
@@ -1277,7 +1259,7 @@
               :subcat '()}}]
    "pane"
    ;; inherently singular.
-   (unifyc agreement-noun
+   (unify agreement-noun
           common-noun
           masculine-noun
           {:synsem {:sem {:pred :pane
@@ -1298,11 +1280,11 @@
                          :subj {:human true}}}}]
 
      (list
-      (unifyc common1 transitive
+      (unify common1 transitive
               {:synsem {:obj {:speakable true}}})
-      (unifyc common1 intransitive intransitive-unspecified-obj)
+      (unify common1 intransitive intransitive-unspecified-obj)
 
-      (unifyc common2 intransitive intransitive-unspecified-obj)))
+      (unify common2 intransitive intransitive-unspecified-obj)))
 
    "portare"  {:synsem {:cat :verb
                         :sem {:pred :portare}}}
@@ -1332,7 +1314,7 @@
    ;; non-comparative
    ;; TODO: add comparative
    "rosso"
-   (unifyc adjective
+   (unify adjective
           {:synsem {:cat :adjective
                     :sem {:pred :rosso
                           :comparative false
@@ -1451,7 +1433,7 @@
                               :obj {:human false}}}}
 
    "vino"
-   (unifyc drinkable-noun
+   (unify drinkable-noun
           agreement-noun
           masculine-noun
           {:synsem {:sem {:pred :vino
