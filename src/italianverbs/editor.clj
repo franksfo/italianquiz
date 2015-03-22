@@ -20,70 +20,6 @@
    [korma.core :as k]
 ))
 
-(defn show-selects []
-  (let [select (str "SELECT source,target,source_spec::text,target_spec::text FROM translation_select")]
-    (html
-     [:table.striped
-      [:tr
-       [:th]
-       [:th "Source"]
-       [:th "Target"]
-       [:th "Source Spec"]
-       [:th "Target Spec"]]
-      (map (fn [row]
-             [:tr
-              [:td]
-              [:td (:source row)]
-              [:td (:target row)]
-              [:td (html/tablize (json/read-str (:source_spec row)))]
-              [:td (html/tablize (json/read-str (:target_spec row)))]
-              ])
-           (k/exec-raw [select] :results))])))
-
-(defn show-expressions [source target & [source-spec target-spec]]
-  (let [source-spec (if source-spec source-spec {})
-        target-spec (if target-spec target-spec {})
-        json-source-spec (json/write-str (strip-refs source-spec))
-        json-target-spec (json/write-str (strip-refs target-spec))
-        select (str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
-                                                    target.surface AS target
-                                               FROM expression AS source
-                                         INNER JOIN expression AS target
-                                                 ON source.language = ? 
-                                                AND target.language = ?
-                                                AND source.structure @> '" json-source-spec "'
-                                                AND target.structure @> '" json-target-spec "'
-                                                AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
-        debug (log/debug (str "expressions select sql: \n" select))
-        results (k/exec-raw [select [source target]] :results)]
-    (html
-     [:div.specs [:h4 "Constraints"]
-     [:div.spec 
-      [:h4 "Source"]
-      (if (= source-spec {}) [:i "none"]
-          (html/tablize source-spec))
-      ]
-
-     [:div.spec 
-      [:h4 "Target"]
-      (if (= target-spec {}) [:i "none"]
-          (html/tablize target-spec))
-      ]]
-
-     [:table.striped
-      [:tr
-       [:th ]
-       [:th (str "Source")]
-       [:th (str "Target")]
-       ]
-      (map (fn [result]
-             [:tr 
-              [:td ]
-              [:td (:source result)]
-              [:td (:target result)]])
-           results)
-      ])))
-
 (defn insert-constraint [name source target source-spec target-spec]
   (k/exec-raw [(str "INSERT INTO translation_select (name,source,target,source_spec,target_spec) VALUES (?,?,?,'" source-spec " ','" target-spec "')")
                [name source target]]))
@@ -112,6 +48,65 @@
 (declare tenses-per-game)
 (declare verbs-per-game)
 (declare short-language-name-to-long)
+
+(defn show-expression [name source target & [source-spec target-spec]]
+  (let [source-spec (if source-spec source-spec {})
+        target-spec (if target-spec target-spec {})
+        json-source-spec (json/write-str (strip-refs source-spec))
+        json-target-spec (json/write-str (strip-refs target-spec))
+        select (str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
+                                                    target.surface AS target
+                                               FROM expression AS source
+                                         INNER JOIN expression AS target
+                                                 ON source.language = ? 
+                                                AND target.language = ?
+                                                AND source.structure @> '" json-source-spec "'
+                                                AND target.structure @> '" json-target-spec "'
+                                                AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs LIMIT 10")
+        debug (log/debug (str "expressions select sql: \n" (k/sql-only [select [source target]])))
+        results (k/exec-raw [select [source target]] :results)]
+    (html
+     [:div.specs
+      [:h3 (str name)]
+      [:div.spec 
+       [:h4 "Source"]
+       (if (= source-spec {}) [:i (str "no source spec.")]
+           (html/tablize source-spec))
+       ]
+
+      [:div.spec 
+       [:h4 "Target"]
+       (if (= target-spec {}) [:i (str "no target spec.")]
+           (html/tablize target-spec))
+       ]
+      
+      [:table.striped
+       [:tr
+        [:th ]
+        [:th (str (short-language-name-to-long source))]
+        [:th (str (short-language-name-to-long target))]
+        ]
+       (map (fn [result]
+              [:tr 
+               [:td ]
+               [:td (:source result)]
+               [:td (:target result)]])
+            results)
+       ]])))
+
+(defn show-expressions []
+  (let [select (str "SELECT name,source,target,source_spec::text AS source_spec ,target_spec::text AS target_spec FROM translation_select")
+        results (k/exec-raw [select] :results)]
+    (html
+     (if (empty? results)
+       (str "no expressions to show.")
+       [:div {:style "float:left"}
+        (map (fn [result]
+               (show-expression (:name result)
+                                (:source result)
+                                (:target result)
+                                (json/read-str (:source_spec result)) (json/read-str (:target_spec result))))
+             results)]))))
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
@@ -449,17 +444,15 @@
         games-to-use (set (mapcat vals (k/exec-raw ["SELECT * FROM games_to_use"] :results)))]
     (html
      [:div.user-alert (:message (:params request))]
-
-     [:div
-      (show-selects)
-      ]
      
-     [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it"
-                                                                    {:synsem {:sem {:tense :futuro}}})]
-                                                                    
-     [:div.expressions [:h3 "English → Spanish"] (show-expressions "en" "es"
-                                                                   {}
-                                                                   {:head {:espanol {:espanol "enseñar"}}})])))
+     (show-expressions))))
+     
+;     [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it"
+;                                                                    {:synsem {:sem {:tense :futuro}}})]
+;                                                                    
+;     [:div.expressions [:h3 "English → Spanish"] (show-expressions "en" "es"
+;                                                                   {}
+;                                                                   {:head {:espanol {:espanol "enseñar"}}})])))
 
 (defn tenses-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))

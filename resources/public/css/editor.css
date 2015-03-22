@@ -48,12 +48,25 @@ div.expressions {
 
 div.specs {
     float:left;
-    width:15%;
 }
+
+div.specs h3 {
+    width:100%;
+    float:left;
+}
+div.spec {
+    float:left;
+    width:50%;
+}
+
 div.spec h4 {
     width:100%;
     float:left;
 }
 div.expressions table {
     float:right;
+}
+div.specs table.striped {
+    float:left;
+    width:100%;
 }
