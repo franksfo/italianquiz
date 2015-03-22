@@ -85,6 +85,18 @@
           {:status 302
            :headers {"Location" "/tour/it/generate-q-and-a"}}))))
 
+(defn get-game-spec [target-language]
+  (let [results (k/exec-raw
+                 [(str "SELECT name,source,target,
+                              source_spec::text AS source_spec,
+                             target_spec::text AS target_spec 
+                          FROM translation_select
+                         WHERE target=? LIMIT 1") [target-language]] :results)]
+    {:target_spec
+     (get (first results) :target_spec)
+     :source_spec
+     (get (first results) :source_spec)}))
+
 (defn generate-q-and-a [target-language target-locale request]
   "generate a question in English and a set of possible correct answers in the target language, given parameters in request"
   (let [headers {"Content-Type" "application/json;charset=utf-8"
@@ -92,6 +104,8 @@
                  "Pragma" "no-cache"
                  "Expires" "0"}]
     (try (let [spec (get (:form-params request) "spec" :top)
+               game-spec (get-game-spec target-language)
+               debug (log/debug (str "game-spec: " game-spec))
                pair 
                (generate-question-and-correct-set spec source-language source-locale
                                                   target-language target-locale)]

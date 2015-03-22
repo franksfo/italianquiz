@@ -20,24 +20,24 @@
     (log/debug (str "spec pre-borges/generate:" spec))
     (generate spec source-language target-language)))
 
-(defn generate-question-and-correct-set [spec source-language source-locale target-language target-locale]
+(defn generate-question-and-correct-set [target-spec source-language source-locale target-language target-locale]
   "Return a set of semantically-equivalent expressions, for a given spec in the target language, and
    and a single expression in the source language that contains the semantics shared by this set.
    To rephrase, the set of expressions in the target language share an identical semantics, and the single expression in the source
    language contains that semantics."
-  (log/debug (str "generate target language set with spec: " spec))
-  (let [spec (unify spec
+  (log/debug (str "generate target language set with spec: " target-spec))
+  (let [target-spec (unify target-spec
                     {:synsem {:subcat '()}})
 
         ;; normalize for JSON lookup: convert a spec which is simply :top to be {}.
-        json-input-spec (if (= :top spec)
+        json-input-spec (if (= :top target-spec)
                           {}
-                          spec)
+                          target-spec)
         
-        json-spec (json/write-str (strip-refs json-input-spec))
+        target-json-spec (json/write-str (strip-refs json-input-spec))
         ]
-    (log/debug (str "looking for expressions in language: " target-language " with spec: " spec))
-    (log/debug (str "looking for expressions in language: " target-language " with json-spec: " json-spec))
+    (log/debug (str "looking for expressions in language: " target-language " with spec: " target-spec))
+    (log/debug (str "looking for expressions in language: " target-language " with json-spec: " target-json-spec))
 
     ;; get the structure of a random expression in the target language that matches the specification _spec_.
     ;; TODO: this is wasteful - we are getting *all* possible expressions, when we only need one (random) expression.
@@ -46,14 +46,14 @@
                                        WHERE target.language=?
                                          AND target.structure IS NOT NULL
                                          AND target.surface != ''
-                                         AND target.structure @> '" json-spec "'
+                                         AND target.structure @> '" target-json-spec "'
 ")
                                 [target-language]]
                                :results)]
       (if (empty? results)
         (do
-          (log/error (str "nothing found in target language: " target-language " that matches spec: " spec))
-          (throw (Exception. (str "nothing found in target language: " target-language " that matches spec: " spec))))
+          (log/error (str "nothing found in target language: " target-language " that matches spec: " target-spec))
+          (throw (Exception. (str "nothing found in target language: " target-language " that matches spec: " target-spec))))
 
         ;; choose a random expression from the results of the above.
         (let [size-of-results (.size results)
