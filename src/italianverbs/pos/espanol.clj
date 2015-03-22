@@ -4,6 +4,11 @@
 (require '[italianverbs.unify :refer (unifyc)])
 (require '[italianverbs.lexiconfn :as lexiconfn :refer (map-function-on-map-vals)])
 
+(def agreement-noun pos/agreement-noun)
+(def cat-of-pronoun pos/cat-of-pronoun)
+(def common-noun pos/common-noun)
+(def determiner pos/determiner)
+
 (def noun-agreement
   (let [agr (ref :top)]
     {:espanol {:agr agr}
