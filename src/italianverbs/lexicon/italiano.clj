@@ -106,7 +106,6 @@
     {:synsem {:essere false
               :sem {:pred :aiutare
                     :activity true
-                    :subj {:human true}
                     :obj {:human true}}}}
 
    "alto"
