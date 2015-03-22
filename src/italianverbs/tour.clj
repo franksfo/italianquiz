@@ -146,7 +146,7 @@
      (cond (= language "it")
            "Non lo so"
            (= language "es")
-           "No se"
+           "No sé"
            true
            "")]))
 
