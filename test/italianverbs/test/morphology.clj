@@ -921,13 +921,13 @@ so in this example, will be feminine rather than masculine."
 
 (deftest yo-dormo
   (let [structure {:a {:initial true
-                                  :espanol "yo"}
-                             :b {:espanol "dormir"
-                                  :essere :top
-                                  :infl :present
-                                  :agr {:person :1st
-                                        :gender :masc
-                                        :number :sing}
-                                  :initial false}}]
+                       :espanol "yo"}
+                   :b {:espanol "dormir"
+                       :essere :top
+                       :infl :present
+                       :agr {:person :1st
+                             :gender :masc
+                             :number :sing}
+                       :initial false}}]
     (is (= (espanol/get-string structure)
            "yo dormo"))))
