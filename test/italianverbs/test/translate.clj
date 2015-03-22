@@ -21,7 +21,6 @@
 ;; TODO: move this test to italianverbs.test.italiano
 (deftest test-roundtrip-italian
   (let [retval (it/generate (get-meaning (parse "io dormo")))]
-    (is (seq? retval))
-    (is (not (empty? retval)))
-    (is (= "io dormo" (fo (first retval))))))
+    (is (= "io dormo" (fo retval)))))
+
 
