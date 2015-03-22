@@ -91,7 +91,7 @@
               (throw (Exception. (str "could not generate a sentence in target language '" target-language "' for this semantics: " semantics "; source language expression was: " source-language-surface))))
 
             (if (= source-language-surface "")
-              (throw (Exception. (str "could not generate a sentence in source language '" source-language "' for this semantics: " semantics))))
+              (throw (Exception. (str "could not generate a sentence in source language '" source-language "' for this semantics: " semantics "; target language was: " target-language))))
 
             (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
                               "'" (json/write-str (strip-refs target-language-sentence)) "'"
