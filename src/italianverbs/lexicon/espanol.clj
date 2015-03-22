@@ -76,7 +76,9 @@
                                            :sem {:pred :share}}}
 
                      "comprar" {:synsem {:cat :verb
-                                         :sem {:pred :comprare}}}
+                                         :sem {:pred :comprare
+                                               :subj {:human true}
+                                               :obj {:buyable true}}}}
 
                      "comprender" {:synsem {:cat :verb
                                             :sem {:pred :understand}}}
