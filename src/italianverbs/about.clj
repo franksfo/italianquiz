@@ -40,7 +40,7 @@
       ]
 
 
-     [:div.flag {:style "float:right"}
+     [:div.flag
 
       [:a {:href "/tour/es/MX"}
        [:img {:src "/png/Flag_of_Mexico.svg.png" }]]
@@ -50,7 +50,7 @@
        ]
       ]
 
-     [:div.flag {:style "float:right"}
+     [:div.flag
 
       [:a {:href "/tour/es/ES"}
        [:img {:src "/png/Flag_of_Spain.svg.png" }]]
@@ -61,6 +61,14 @@
       ]
      ]
 
+     [:div.flag
+
+      [:img {:src "/png/Flag_of_France.svg.png" }]
+      [:div.language "Français"]
+
+      [:i {:style "text-align:center;color:#ccc"} "Coming soon" ]]
 
 ])
+
+
 
