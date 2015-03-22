@@ -20,6 +20,26 @@
    [korma.core :as k]
 ))
 
+(defn show-selects []
+  (let [select (str "SELECT source,target,source_spec::text,target_spec::text FROM translation_select")]
+    (html
+     [:table.striped
+      [:tr
+       [:th]
+       [:th "Source"]
+       [:th "Target"]
+       [:th "Source Spec"]
+       [:th "Target Spec"]]
+      (map (fn [row]
+             [:tr
+              [:td]
+              [:td (:source row)]
+              [:td (:target row)]
+              [:td (html/tablize (json/read-str (:source_spec row)))]
+              [:td (html/tablize (json/read-str (:target_spec row)))]
+              ])
+           (k/exec-raw [select] :results))])))
+
 (defn show-expressions [source target & [source-spec target-spec]]
   (let [source-spec (if source-spec source-spec {})
         target-spec (if target-spec target-spec {})
@@ -429,6 +449,10 @@
         games-to-use (set (mapcat vals (k/exec-raw ["SELECT * FROM games_to_use"] :results)))]
     (html
      [:div.user-alert (:message (:params request))]
+
+     [:div
+      (show-selects)
+      ]
      
      [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it"
                                                                     {:synsem {:sem {:tense :futuro}}})]
