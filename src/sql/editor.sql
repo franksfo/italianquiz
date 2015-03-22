@@ -32,6 +32,7 @@ CREATE SEQUENCE translation_select_id_seq
                      CACHE 1;
 ALTER TABLE ONLY translation_select ALTER COLUMN id SET DEFAULT nextval('translation_select_id_seq'::regclass);
 
+ALTER TABLE translation_select ADD COLUMN name TEXT;
 ALTER TABLE translation_select ADD COLUMN source TEXT;
 ALTER TABLE translation_select ADD COLUMN target TEXT;
 ALTER TABLE translation_select ADD COLUMN source_spec JSONB; 

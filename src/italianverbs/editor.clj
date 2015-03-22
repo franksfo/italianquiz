@@ -84,9 +84,9 @@
            results)
       ])))
 
-(defn insert-constraint [source target source-spec target-spec]
-  (k/exec-raw [(str "INSERT INTO translation_select (source,target,source_spec,target_spec) VALUES (?,?,'" source-spec " ','" target-spec "')")
-               [source target]]))
+(defn insert-constraint [name source target source-spec target-spec]
+  (k/exec-raw [(str "INSERT INTO translation_select (name,source,target,source_spec,target_spec) VALUES (?,?,?,'" source-spec " ','" target-spec "')")
+               [name source target]]))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
