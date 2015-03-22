@@ -86,3 +86,7 @@
 (deftest antonia-plays
   (let [antonia-plays (fo (engine/generate {:synsem {:infl :present :sem {:subj {:pred :antonia} :pred :suonare}}} small :enrich true))]
     (is (= "Antonia plays" antonia-plays))))
+
+(deftest parse-test-1-en
+  (is (= "a cat" (fo (first (parse "a cat"))))))
+

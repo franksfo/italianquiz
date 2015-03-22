@@ -9,6 +9,7 @@
    [italianverbs.lexiconfn :as lexiconfn]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer (overc overh)]
+   [italianverbs.parse :refer (toks)]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]
    ))
@@ -77,6 +78,16 @@
   (is (= (fo la-donna-mangia-il-pane) "la donna mangia il pane")))
 
 ;;(get-in (engine/generate {:synsem {:cat :noun :sem {:number :plur :pred :donna}}} it/medium) [:italiano :b])
+
+(deftest tokenization-1
+  "there should be only 2 tokens, even though there's 3 tokens at first according to initial tokenization."
+  (let [result (toks "la sua birra" it/lexicon it/lookup)]
+    (is (= (.size result) 2))))
+
+(deftest tokenization-1
+  "there should be 3 tokens, for each of the tokens according to initial tokenization (there is no way to combine any initial tokens in to larger tokens as there was in the test immediately above."
+  (let [result (toks "il gatto nero" it/lexicon it/lookup)]
+    (is (= (.size result) 3))))
 
 (def parse-1 (it/parse "un gatto"))
 
