@@ -136,7 +136,7 @@
     (is (> (.size result) 0)))
 
   ;; The next tests whether (it) rules out regular, but incorrect, forms.
-  ;; in thi case, "mancarò" is not possible due the the above exceptional form.
+  ;; In this case, "mancarò" is not possible due the the above exceptional form.
   ;; However, this test is disabled for now with "(or true ..)" because
   ;; italiano/analyze does not have a way to prevent regular forms that are wrong.
   ;; e.g. it will analyze "mancarò" as 1st person singular, future, even though
