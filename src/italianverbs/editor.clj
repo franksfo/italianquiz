@@ -84,7 +84,7 @@
         results (k/exec-raw [select [source target]] :results)]
     (html
      [:div.specs
-      [:h3 (str name)]
+     [:h4 {:style ""} (str name)]
       [:div.spec 
        [:h4 (short-language-name-to-long source)]
        (if (empty? source-specs) [:i (str "no source spec.")]
@@ -455,6 +455,9 @@
         game-id (:game (:params request))]
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
+(defn show-games []
+  "The games..")
+
 (defn home-page [request]
   (let [links (links request :home)
         games (show request)
@@ -462,7 +465,14 @@
     (html
      [:div.user-alert (:message (:params request))]
      
-     (show-expressions))))
+     [:div [:h3 "Games"]
+
+      (show-games)
+
+      ]
+     
+     [:div [:h3 "Expressions"]
+      (show-expressions)])))
      
 ;     [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it"
 ;                                                                    {:synsem {:sem {:tense :futuro}}})]

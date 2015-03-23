@@ -48,6 +48,9 @@ div.expressions {
 
 div.specs {
     float:left;
+    border:2px solid #ccc;
+    padding:1%;
+    margin:1%;
 }
 
 div.specs h3 {
