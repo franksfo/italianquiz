@@ -17,6 +17,9 @@ CREATE TABLE expression (
 
 CREATE INDEX ON expression USING gin ((((structure -> 'synsem'::text) -> 'sem'::text)));
 
--- see all the english->italian pairs:
--- SELECT DISTINCT en.surface AS en, it.surface AS it FROM expression AS en RIGHT JOIN expression AS it ON (en.structure->'synsem'->'sem') @> (it.structure->'synsem'->'sem') AND en.language='en' AND en.language='en' WHERE it.language='it';
+-- maybe needed, maybe not.
+-- CREATE INDEX ON expression language;
+
+-- maybe needed, maybe not.
+-- CREATE INDEX ON expression USING gin ((((structure -> 'head'::text) -> 'espanol'::text -> 'espanol'::text)));
 
