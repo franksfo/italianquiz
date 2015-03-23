@@ -49,35 +49,52 @@
 (declare verbs-per-game)
 (declare short-language-name-to-long)
 
-(defn show-expression [name source target & [source-spec target-spec]]
-  (let [source-spec (if source-spec source-spec {})
-        target-spec (if target-spec target-spec {})
-        json-source-spec (json/write-str (strip-refs source-spec))
-        json-target-spec (json/write-str (strip-refs target-spec))
+(defn show-expression [name source target & [source-specs target-specs]]
+  (let [source-sqls (let [non-empty-specs (filter #(not (= % {}))
+                                                  source-specs)]
+                      (if (not (empty? non-empty-specs))
+                        (string/join " AND " 
+                                     (map (fn [source-spec]
+                                            (let [json-source-spec (json/write-str (strip-refs source-spec))]
+                                              (str "source.structure @> '" json-source-spec "'")))
+                                          non-empty-specs))
+                      " true "))
+
+        target-sqls (let [non-empty-specs (filter #(not (= % {}))
+                                                  target-specs)]
+                      (if (not (empty? non-empty-specs))
+                        (string/join " AND "
+                                     (map (fn [spec]
+                                            (let [json-spec (json/write-str (strip-refs spec))]
+                                              (str "target.structure @> '" json-spec "'")))
+                                          non-empty-specs))
+                      " true "))
+                     
         select (str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
                                                     target.surface AS target
                                                FROM expression AS source
                                          INNER JOIN expression AS target
                                                  ON source.language = ? 
-                                                AND target.language = ?
-                                                AND source.structure @> '" json-source-spec "'
-                                                AND target.structure @> '" json-target-spec "'
-                                                AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs LIMIT 10")
-        debug (log/debug (str "expressions select sql: \n" (k/sql-only [select [source target]])))
+                                                AND target.language = ? "
+                                              " AND " source-sqls
+                                              " AND " target-sqls
+                                              " AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs
+                                              LIMIT 10")
+        debug (log/debug (str "expressions select sql: " select))
         results (k/exec-raw [select [source target]] :results)]
     (html
      [:div.specs
       [:h3 (str name)]
       [:div.spec 
        [:h4 (short-language-name-to-long source)]
-       (if (= source-spec {}) [:i (str "no source spec.")]
-           (html/tablize source-spec))
+       (if (empty? source-specs) [:i (str "no source spec.")]
+           (html/tablize source-specs))
        ]
 
       [:div.spec 
        [:h4 (short-language-name-to-long target)]
-       (if (= target-spec {}) [:i (str "no target spec.")]
-           (html/tablize target-spec))
+       (if (empty? target-specs) [:i (str "no target spec.")]
+           (html/tablize target-specs))
        ]
       
       [:table.striped
@@ -105,7 +122,7 @@
                (show-expression (:name result)
                                 (:source result)
                                 (:target result)
-                                (json/read-str (:source_spec result)) (json/read-str (:target_spec result))))
+                                (list (json/read-str (:source_spec result))) (list (json/read-str (:target_spec result)))))
              results)]))))
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
