@@ -73,3 +73,11 @@ div.specs table.striped {
     float:left;
     width:100%;
 }
+div.section {
+    float:left;
+    width:100%;
+}
+
+div.section button {
+    float:right;
+}

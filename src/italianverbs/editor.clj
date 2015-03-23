@@ -48,6 +48,7 @@
 (declare tenses-per-game)
 (declare verbs-per-game)
 (declare short-language-name-to-long)
+(declare unabbrev)
 
 (defn show-expression [name source target & [source-specs target-specs]]
   (let [source-sqls (let [non-empty-specs (filter #(not (= % {}))
@@ -456,7 +457,41 @@
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
 (defn show-games []
-  "The games..")
+  (let [results (k/exec-raw ["SELECT name,source,target FROM game"] :results)]
+    (html
+     [:button "New Game"]
+     [:table.striped
+      [:tr
+       [:th "Name"]
+       [:th "Source"]
+       [:th "Target"]]
+      (map (fn [result]
+             [:tr 
+              [:td (:name result)]
+              [:td (unabbrev (:source result))]
+              [:td (unabbrev (:target result))]])
+           results)])))
+
+(defn show-cities []
+  "Show which cities are set for which games"
+  (let [results (k/exec-raw [(str "SELECT city.name AS city ,game.name AS game 
+                                     FROM city 
+                               INNER JOIN city_game 
+                                       ON (city_game.city = city.id) 
+                               INNER JOIN game 
+                                       ON (city_game.game = game.id)
+                                 ORDER BY city.name")] :results)]
+    (html
+     [:table.striped
+      [:tr
+       [:th "City"]
+       [:th "Game"]]
+      (map (fn [result]
+             [:tr 
+              [:td (:city result)]
+              [:td (:game result)]])
+           results)
+      ])))
 
 (defn home-page [request]
   (let [links (links request :home)
@@ -464,22 +499,24 @@
         games-to-use (set (mapcat vals (k/exec-raw ["SELECT * FROM games_to_use"] :results)))]
     (html
      [:div.user-alert (:message (:params request))]
+
+     [:div.section [:h3 "Cities"]
+
+      (show-cities)
+
+      ]
      
-     [:div [:h3 "Games"]
+
+     [:div.section [:h3 "Games"]
 
       (show-games)
 
       ]
      
-     [:div [:h3 "Expressions"]
+     [:div.section [:h3 "Translation Selects"]
+      [:button "New Translation Select"]
+
       (show-expressions)])))
-     
-;     [:div.expressions [:h3 "English → Italiano"] (show-expressions "en" "it"
-;                                                                    {:synsem {:sem {:tense :futuro}}})]
-;                                                                    
-;     [:div.expressions [:h3 "English → Spanish"] (show-expressions "en" "es"
-;                                                                   {}
-;                                                                   {:head {:espanol {:espanol "enseñar"}}})])))
 
 (defn tenses-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))
@@ -579,5 +616,8 @@
         (= lang "en") "English"
         (= lang "es") "Spanish"
         true "???"))
+
+(defn unabbrev [lang]
+  (short-language-name-to-long lang))
 
   
