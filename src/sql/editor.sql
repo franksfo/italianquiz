@@ -1,65 +1,59 @@
-DROP TABLE games CASCADE;
-DROP TABLE words_per_game CASCADE;
-DROP SEQUENCE games_id_seq;
-DROP TABLE games_to_use;
-
-CREATE TABLE games (id bigint NOT NULL, name text);
-CREATE SEQUENCE games_id_seq
+DROP TABLE or_group CASCADE;
+DROP TABLE game CASCADE;
+CREATE TABLE or_group (id bigint NOT NULL, name text, selects jsonb[]);
+CREATE SEQUENCE or_group_id_seq
                      START WITH 1
                      INCREMENT BY 1
                      NO MINVALUE
                      NO MAXVALUE
                      CACHE 1;
-ALTER TABLE ONLY games ALTER COLUMN id SET DEFAULT nextval('games_id_seq'::regclass);
-ALTER TABLE ONLY games ADD CONSTRAINT games_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY or_group ALTER COLUMN id SET DEFAULT nextval('or_group_id_seq'::regclass);
+ALTER TABLE ONLY or_group ADD CONSTRAINT or_group_key PRIMARY KEY (id);
 
-CREATE TABLE words_per_game (game bigint REFERENCES games(id),word text);
+CREATE TABLE game (id bigint NOT NULL, 
+                   source_set bigint[], -- the game's source_set is the set of (keys of) or_groups.
+       		   target_set bigint[],
+                   name text, source text,target text);
 
-CREATE TABLE games_to_use (game bigint REFERENCES games(id));
-
-CREATE TABLE inflections_per_game (game bigint REFERENCES games(id),inflection text);
-
-ALTER TABLE games ADD COLUMN target text;
-ALTER TABLE games ADD COLUMN source text;
-
-CREATE TABLE translation_select (id bigint NOT NULL);
-ALTER TABLE translation_select ADD CONSTRAINT select_pkey PRIMARY KEY (id);
-CREATE SEQUENCE translation_select_id_seq
-                     START WITH 1
-                     INCREMENT BY 1
-                     NO MINVALUE
-                     NO MAXVALUE
-                     CACHE 1;
-ALTER TABLE ONLY translation_select ALTER COLUMN id SET DEFAULT nextval('translation_select_id_seq'::regclass);
-
-ALTER TABLE translation_select ADD COLUMN name TEXT;
-ALTER TABLE translation_select ADD COLUMN source TEXT;
-ALTER TABLE translation_select ADD COLUMN target TEXT;
-ALTER TABLE translation_select ADD COLUMN source_spec JSONB; 
-ALTER TABLE translation_select ADD COLUMN target_spec JSONB; 
-
+DROP SEQUENCE game_id_seq;
 CREATE SEQUENCE game_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+                     START WITH 1
+                     INCREMENT BY 1
+                     NO MINVALUE
+                     NO MAXVALUE
+                     CACHE 1;
 
-CREATE TABLE game (
-    id integer DEFAULT nextval('game_id_seq'::regclass) NOT NULL,
-    name text,
-    source text,   -- source language
-    target text);  -- target language
-
+ALTER TABLE ONLY game ALTER COLUMN id SET DEFAULT nextval('game_id_seq'::regclass);
 ALTER TABLE ONLY game ADD CONSTRAINT game_pkey PRIMARY KEY (id);
 
-INSERT INTO game (name,source,target) VALUES ('default English to Italian','en','it');
-INSERT INTO game (name,source,target) VALUES ('default English to Spanish','en','es');
+INSERT INTO or_group (name,selects) VALUES ('Useful Spanish Verbs',
+       ARRAY['{"espanol":{"espanol": "ayudar" }}'::jsonb,
+             '{"espanol":{"espanol": "comer" }}'::jsonb,
+	     -- ... etc .. add more verbs here..
+             '{"espanol":{"espanol": "hablar" }}'::jsonb]);
 
--- join table with translation_select.
-CREATE TABLE game_selects (
-    game bigint REFERENCES game(id),
-    translation_select bigint REFERENCES translation_select(id));
+INSERT INTO or_group (name,selects) VALUES ('Present tense',
+                                            ARRAY['{"synsem":{"sem":{"infl":"tense"}}}'::jsonb]);
+
+INSERT INTO or_group (name,selects) VALUES ('Empty','{}');
+
+INSERT INTO game (name,source_set,target_set,source,target) 
+     SELECT 'The Useful Spanish game', ARRAY[source.id],ARRAY[target.id],'en','es' 
+       FROM or_group AS source
+ INNER JOIN or_group AS target
+         ON source.name = 'Empty'
+        AND (target.name = 'Useful Spanish Verbs'
+         OR  target.name = 'Present tense');
+
+-- Get selects for all or_groups for the game called 'The Useful Spanish game':
+-- 
+    SELECT source.selects AS source,target.selects AS target
+      FROM game 
+INNER JOIN or_group AS source
+        ON source.id = ANY(game.source_set) 
+INNER JOIN or_group AS target
+        ON target.id = ANY(game.target_set) 
+     WHERE game.name='The Useful Spanish game';
 
 CREATE SEQUENCE city_id_seq
     START WITH 1
@@ -104,3 +98,4 @@ INSERT INTO city_game (city,game)
         FROM game 
   INNER JOIN city 
           ON (game.source = 'en' AND game.target='es' AND city.country='mx');
+

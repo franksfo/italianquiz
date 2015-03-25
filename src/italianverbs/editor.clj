@@ -20,9 +20,9 @@
    [korma.core :as k]
 ))
 
-(defn insert-constraint [name source target source-spec target-spec]
-  (k/exec-raw [(str "INSERT INTO translation_select (name,source,target,source_spec,target_spec) VALUES (?,?,?,'" source-spec " ','" target-spec "')")
-               [name source target]]))
+(defn insert-constraint [name language spec]
+  (k/exec-raw [(str "INSERT INTO expression_select (name,language,spec) VALUES (?,?,'" spec "')")
+               [name language]]))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
@@ -113,7 +113,7 @@
        ]])))
 
 (defn show-expressions []
-  (let [select (str "SELECT name,source,target,source_spec::text AS source_spec ,target_spec::text AS target_spec FROM translation_select")
+  (let [select (str "SELECT name,source,target,source_spec::text AS source_spec ,target_spec::text AS target_spec FROM expression_select")
         results (k/exec-raw [select] :results)]
     (html
      (if (empty? results)
@@ -145,6 +145,9 @@
 
    (POST "/create" request
          (is-admin (create request)))
+
+   (POST "/game/new" REQUEST
+         (is-admin (create-game request)))
 
    (GET "/read" request
         (is-admin
@@ -459,7 +462,7 @@
 (defn show-games []
   (let [results (k/exec-raw ["SELECT name,source,target FROM game"] :results)]
     (html
-     [:button "New Game"]
+     [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
      [:table.striped
       [:tr
        [:th "Name"]
@@ -545,6 +548,10 @@
     inflections))
 
 (def game-default-values {})
+
+(defn create-game [request]
+  {:status 302
+   :headers {"Location" (str "/editor/?message=Game+created.")}})
 
 (defn create [request]
   (log/info (str "editor/new with request: " (:form-params request)))
