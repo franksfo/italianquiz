@@ -4,6 +4,7 @@
   :description "Italian language learning app"
   :dependencies [[clj-time "0.7.0"]
                  [clojail "1.0.6"]
+                 [clojure.jdbc "0.4.0"]
                  [clojurewerkz/mailer "1.2.0"]
                  [com.cemerick/drawbridge "0.0.6"
                   :exclusions [ring/ring-core]] ;; https://github.com/cemerick/drawbridge/issues/8
@@ -27,7 +28,7 @@
                  [org.clojure/data.json "0.2.5"]
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [org.postgresql/postgresql "9.2-1002-jdbc4"]
+                 [org.postgresql/postgresql "9.4-1201-jdbc41-SNAPSHOT"]
                  [org.webjars/foundation "4.0.4"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [postmark "1.1.0" :exclusions [org.clojure/clojure]]
@@ -38,8 +39,11 @@
   :min-lein-version "2.0.0"
   :plugins [
             [lein-environ "1.0.0"]
+            [lein-localrepo "0.4.0"]
             [lein-pprint "1.1.1"]
             [lein-ring "0.7.3"]]
+
+  :repositories {"eugene" "file:///Users/ekoontz/.m2/repository"}
 
   :resource-paths ["resources"]
 
