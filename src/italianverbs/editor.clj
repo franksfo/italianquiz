@@ -33,6 +33,7 @@
 (declare body)
 (declare control-panel)
 (declare create)
+(declare create-game)
 (declare create-form)
 (declare delete)
 (declare delete-form)
@@ -126,6 +127,17 @@
                                 (list (json/read-str (:source_spec result))) (list (json/read-str (:target_spec result)))))
              results)]))))
 
+(defn show-selects-of-game [game-id]
+  (let [select (str "SELECT source.selects AS source,target.selects AS target
+                       FROM game 
+                 INNER JOIN or_group AS source
+                         ON source.id = ANY(game.source_set) 
+                 INNER JOIN or_group AS target
+                         ON target.id = ANY(game.target_set) 
+                      WHERE game.name='The Useful Spanish game'")
+        results (k/exec-raw [select] :results)]
+    results))
+
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
 (def routes
@@ -146,7 +158,7 @@
    (POST "/create" request
          (is-admin (create request)))
 
-   (POST "/game/new" REQUEST
+   (POST "/game/new" request
          (is-admin (create-game request)))
 
    (GET "/read" request
