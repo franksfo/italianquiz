@@ -15,8 +15,6 @@
 ))
 
 (deftest insert_new_game_en2es
-  (k/exec-raw "TRUNCATE or_group")
-  (k/exec-raw "TRUNCATE game")
   (let [source-spec {:synsem {:sem {:tense :futuro}}}
         target-spec {:head {:espanol {:espanol "enseñar"}}}
         source-group (insert-or-group "English future tense" [source-spec])
