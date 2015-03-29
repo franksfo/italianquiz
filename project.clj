@@ -28,7 +28,7 @@
                  [org.clojure/data.json "0.2.5"]
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [org.postgresql/postgresql "9.4-1201-jdbc41-SNAPSHOT"]
+                 [org.postgresql/postgresql "9.4-1201-jsonb-jdbc41-SNAPSHOT"]
                  [org.webjars/foundation "4.0.4"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [postmark "1.1.0" :exclusions [org.clojure/clojure]]
@@ -43,7 +43,10 @@
             [lein-pprint "1.1.1"]
             [lein-ring "0.7.3"]]
 
-  :repositories {"eugene" "file:///Users/ekoontz/.m2/repository"}
+  ;; The 'eugene' repository hosts my slightly-modified Postgres JDBC
+  ;; driver that copes with JSONB-typed columns.  Source code
+  ;; available at: https://github.com/ekoontz/pgjdbc/tree/jsonb
+  :repositories {"eugene" "http://hiro-tan.org/~ekoontz/mvn/repository"}
 
   :resource-paths ["resources"]
 
