@@ -187,28 +187,38 @@
              results)]))))
 
 (defn selects-of-game [game-id]
-  (let [select (str "SELECT source.selects AS source,target.selects AS target
-                       FROM game 
-                 INNER JOIN or_group AS source
-                         ON source.id = ANY(game.source_set) 
-                 INNER JOIN or_group AS target
-                         ON target.id = ANY(game.target_set) 
-                      WHERE game.id=?")
-        results (first (k/exec-raw [select [game-id]] :results))]
-    {:target (map #(json/read-str %
-                                  :key-fn keyword
-                                  :value-fn (fn [k v]
-                                              (cond (string? v)
-                                                    (keyword v)
-                                                    :else v)))
-                  (.getArray (:target results)))
-     :source (map #(json/read-str %
-                                  :key-fn keyword
-                                  :value-fn (fn [k v]
-                                              (cond (string? v)
-                                                    (keyword v)
-                                                    :else v)))
-                  (.getArray (:source results)))}))
+  (let [source-select 
+        (str "SELECT source.selects AS source
+                FROM game 
+          INNER JOIN or_group AS source
+                  ON source.id = ANY(game.source_set)
+               WHERE game.id=?")
+        target-select
+        (str "SELECT target.selects AS target
+                FROM game 
+          INNER JOIN or_group AS target
+                  ON target.id = ANY(game.target_set)
+               WHERE game.id=?")
+        source-results (k/exec-raw [source-select [game-id]] :results)
+        target-results (k/exec-raw [target-select [game-id]] :results)]
+    {:target (map (fn [target-result]
+                    (map #(json/read-str %
+                                         :key-fn keyword
+                                         :value-fn (fn [k v]
+                                                     (cond (string? v)
+                                                           (keyword v)
+                                                           :else v)))
+                         (.getArray (:target target-result))))
+                  target-results)
+     :source (map (fn [source-result]
+                    (map #(json/read-str %
+                                         :key-fn keyword
+                                         :value-fn (fn [k v]
+                                                     (cond (string? v)
+                                                           (keyword v)
+                                                           :else v)))
+                         (.getArray (:source source-result))))
+                  source-results)}))
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 

@@ -24,16 +24,27 @@
     (is (integer? game-id))
     (let [selects (selects-of-game game-id)]
       (is (map? selects))
+
       (is (= 1 (.size (:source selects))))
-      (is (= 2 (.size (:target selects))))
-      (is (= (first (:source selects))
+      (is (= 1 (.size (nth (:source selects) 0))))
+      (is (= (first (first (:source selects)))
              {:synsem {:sem {:tense :futuro}}}))
-      (is (not (empty? (filter #(= % {:head {:espanol {:espanol :enseñar}}})
-                               (:target selects)))))
-      (is (not (empty? (filter #(= % {:head {:espanol {:espanol :hablar}}})
-                               (:target selects))))))))
 
+      (is (= 2 (.size (:target selects))))
+      (is (or (not (empty? (filter #(= % {:head {:espanol {:espanol :enseñar}}})
+                                   (nth (:target selects) 0))))
+              (not (empty? (filter #(= % {:head {:espanol {:espanol :enseñar}}})
+                                   (nth (:target selects) 1))))))
+      
+      (is (or (not (empty? (filter #(= % {:head {:espanol {:espanol :hablar}}})
+                                   (nth (:target selects) 0))))
+              (not (empty? (filter #(= % {:head {:espanol {:espanol :hablar}}})
+                                   (nth (:target selects) 1))))))
 
+      (is (or (not (empty? (filter #(= % {:synsem {:sem {:tense :futuro}}})
+                                   (nth (:target selects) 0))))
+              (not (empty? (filter #(= % {:synsem {:sem {:tense :futuro}}})
+                                   (nth (:target selects) 1)))))))))
 
 
 
