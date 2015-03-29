@@ -20,9 +20,27 @@
    [korma.core :as k]
 ))
 
-(defn insert-constraint [name language spec]
-  (k/exec-raw [(str "INSERT INTO expression_select (name,language,spec) VALUES (?,?,'" spec "')")
-               [name language]]))
+(defn insert-game [name source target source-set target-set]
+  (let [source-or-groups [1]
+        target-or-groups [2]
+        source-or-str (string/join "," source-or-groups)
+        target-or-str (string/join "," target-or-groups)
+        sql (str "INSERT INTO game (name,source_set,target_set,source,target) 
+                       SELECT ?, ARRAY[" source-or-str "],ARRAY[" target-or-str "],?,?")]
+    (log/debug (str "inserting new game with sql: " sql))
+    (k/exec-raw [sql [name source target]])))
+
+(defn insert-or-group [name selects]
+  (let [as-json-array (str "ARRAY['"
+                           (string/join "'::jsonb,'"
+                                        (map #(json/write-str (strip-refs %))
+                                             selects))
+
+                           "'::jsonb]")
+        sql (str "INSERT INTO or_group (name,selects) VALUES (?," as-json-array ")")]
+    (log/debug (str "inserting new or-group with sql: " sql))
+    (k/exec-raw [sql
+                 [name]])))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}

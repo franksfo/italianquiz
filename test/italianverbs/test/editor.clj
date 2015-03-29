@@ -26,14 +26,14 @@
          results)]))
 
 (deftest insert_new_select_en2it
-  (let [source-spec (json/write-str {:synsem {:sem {:tense :futuro}}})
-        target-spec (json/write-str {})]
-    (insert-constraint "Future Tense" "en" "it" source-spec target-spec)))
+  (let [source-spec {:synsem {:sem {:tense :futuro}}}
+        target-spec {}]
+    (insert-or-group "Future Tense" [source-spec])))
 
 (deftest insert_new_select_en2es
   (let [source-spec (json/write-str {})
         target-spec (json/write-str {:head {:espanol {:espanol "enseñar"}}})]
-    (insert-constraint "Enseñar: 'to show' or 'to teach'" "en" "es" source-spec target-spec)))
+    (insert-game "Enseñar: 'to show' or 'to teach'" "en" "es" [1] [2])))
 
 (deftest get-select
   (let [results (set (mapcat vals (k/exec-raw ["SELECT source,target,source_spec,target_spec FROM translation_select"] 
