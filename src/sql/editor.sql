@@ -1,6 +1,7 @@
 DROP TABLE or_group CASCADE;
 DROP TABLE game CASCADE;
 CREATE TABLE or_group (id bigint NOT NULL, name text, selects jsonb[]);
+DROP SEQUENCE or_group_id_seq;
 CREATE SEQUENCE or_group_id_seq
                      START WITH 1
                      INCREMENT BY 1
@@ -25,6 +26,10 @@ CREATE SEQUENCE game_id_seq
 
 ALTER TABLE ONLY game ALTER COLUMN id SET DEFAULT nextval('game_id_seq'::regclass);
 ALTER TABLE ONLY game ADD CONSTRAINT game_pkey PRIMARY KEY (id);
+
+DROP TABLE city CASCADE;
+DROP SEQUENCE city_id_seq CASCADE;
+DROP TABLE city_game CASCADE;
 
 CREATE SEQUENCE city_id_seq
     START WITH 1
