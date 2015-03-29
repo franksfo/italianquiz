@@ -14,35 +14,20 @@
    [korma.core :as k]
 ))
 
-(def select "SELECT surface FROM expression LIMIT 10")
-
-(def results (k/exec-raw [select] :results))
-
-(def table-results
-  (html
-   [:table
-    (map (fn [result]
-           [:tr [:td (:surface result)]])
-         results)]))
-
-(deftest insert_new_select_en2it
+(deftest insert_new_game_en2es
+  (k/exec-raw "TRUNCATE or_group")
+  (k/exec-raw "TRUNCATE game")
   (let [source-spec {:synsem {:sem {:tense :futuro}}}
-        target-spec {}]
-    (insert-or-group "Future Tense" [source-spec])))
-
-(deftest insert_new_select_en2es
-  (let [source-spec (json/write-str {})
-        target-spec (json/write-str {:head {:espanol {:espanol "enseñar"}}})]
-    (insert-game "Enseñar: 'to show' or 'to teach'" "en" "es" [1] [2])))
-
-(deftest get-select
-  (let [results (set (mapcat vals (k/exec-raw ["SELECT source,target,source_spec,target_spec FROM translation_select"] 
-                                              :results)))]
-    (log/debug (str "results: " results))))
-
-(def foo (:target (nth (show-selects-of-game 5) 0)))
-
-(def bar (.getArray foo))
-
-(def baz (map #(json/read-str %)
-              bar))
+        target-spec {:head {:espanol {:espanol "enseñar"}}}
+        source-group (insert-or-group "English future tense" [source-spec])
+        target-group (insert-or-group "Enseñar: 'to show' or 'to teach'" [target-spec])]
+    (let [game-id (insert-game "The Useful Spanish Game" "en" "es" source-group target-group)]
+      (is (integer? game-id))
+      (let [selects (selects-of-game game-id)]
+        (is (map? selects))
+        (is (= 1 (.size (:target selects))))
+        (is (= 1 (.size (:source selects))))
+        (is (= (first (:target selects))
+               {:head {:espanol {:espanol :enseñar}}}))
+        (is (= (first (:source selects))
+               {:synsem {:sem {:tense :futuro}}}))))))
