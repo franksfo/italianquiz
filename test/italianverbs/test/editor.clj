@@ -15,17 +15,25 @@
 ))
 
 (deftest insert_new_game_en2es
-  (let [source-spec {:synsem {:sem {:tense :futuro}}}
-        target-spec {:head {:espanol {:espanol "enseñar"}}}
-        source-group (insert-or-group "English future tense" [source-spec])
-        target-group (insert-or-group "Enseñar: 'to show' or 'to teach'" [target-spec])]
-    (let [game-id (insert-game "The Useful Spanish Game" "en" "es" source-group target-group)]
-      (is (integer? game-id))
-      (let [selects (selects-of-game game-id)]
-        (is (map? selects))
-        (is (= 1 (.size (:target selects))))
-        (is (= 1 (.size (:source selects))))
-        (is (= (first (:target selects))
-               {:head {:espanol {:espanol :enseñar}}}))
-        (is (= (first (:source selects))
-               {:synsem {:sem {:tense :futuro}}}))))))
+  (let [source-group (insert-or-group "English future tense" [{:synsem {:sem {:tense :futuro}}}])
+        target-group-1 (insert-or-group "Common Spanish verbs"
+                                        [{:head {:espanol {:espanol "enseñar"}}}
+                                         {:head {:espanol {:espanol "hablar"}}}])
+        target-group-2 (insert-or-group "Spanish future tense" [{:synsem {:sem {:tense :futuro}}}])
+        game-id (insert-game "The Useful Spanish Game" "en" "es" [source-group] [target-group-1 target-group-2])]
+    (is (integer? game-id))
+    (let [selects (selects-of-game game-id)]
+      (is (map? selects))
+      (is (= 1 (.size (:source selects))))
+      (is (= 2 (.size (:target selects))))
+      (is (= (first (:source selects))
+             {:synsem {:sem {:tense :futuro}}}))
+      (is (not (empty? (filter #(= % {:head {:espanol {:espanol :enseñar}}})
+                               (:target selects)))))
+      (is (not (empty? (filter #(= % {:head {:espanol {:espanol :hablar}}})
+                               (:target selects))))))))
+
+
+
+
+

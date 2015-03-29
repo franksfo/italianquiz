@@ -26,10 +26,15 @@
   language. Each array is an integer which refers to a set of
   'or-groups', each member of which is a possible specification in its
   respective language. See example usage in test/editor.clj."
-  (let [source-or-str (string/join "," source-set)
-        target-or-str (string/join "," target-set)
+  (log/debug (str "source-set: " source-set))
+  (log/debug (str "source-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")))
+  (log/debug (str "target-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")))
+
+  (let [source-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")
+
+        target-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")
         sql (str "INSERT INTO game (name,source_set,target_set,source,target) 
-                       SELECT ?, ARRAY[" source-or-str "],ARRAY[" target-or-str "],?,? RETURNING id")]
+                       SELECT ?, " source-or-str "," target-or-str ",?,? RETURNING id")]
     (log/debug (str "inserting new game with sql: " sql))
     ;; return the row ID of the game that has been inserted.
     (:id (first (k/exec-raw [sql [name source target]] :results)))))
@@ -38,7 +43,10 @@
   "Create an or-group, each of which is a spec which maps to a subset
    of expressions within the set of all available expressions. We join
    all members together in an OR-clause when selecting."
-  (let [as-json-array (str "ARRAY['"
+  (let [selects (if (not (seq? selects))
+                  (vec selects)
+                  selects)
+        as-json-array (str "ARRAY['"
                            (string/join "'::jsonb,'"
                                         (map #(json/write-str (strip-refs %))
                                              selects))
@@ -49,6 +57,31 @@
     (map #(:id %)
          (k/exec-raw [sql
                       [name]] :results))))
+
+(declare selects-of-game)
+
+(defn sql-for-game [game-id]
+  (let [selects-of-game (selects-of-game game-id)
+        source-sqls (let [non-empty-specs (filter #(not (= % {}))
+                                                  (:source selects-of-game))]
+                      (if (not (empty? non-empty-specs))
+                        (string/join " OR " 
+                                     (map (fn [source-spec]
+                                            (let [json-source-spec (json/write-str (strip-refs source-spec))]
+                                              (str "source.structure @> '" json-source-spec "'")))
+                                          non-empty-specs))
+                        " true "))
+
+        target-sqls (let [non-empty-specs (filter #(not (= % {}))
+                                                  (:target selects-of-game))]
+                      (if (not (empty? non-empty-specs))
+                        (string/join " OR " 
+                                     (map (fn [source-spec]
+                                            (let [json-source-spec (json/write-str (strip-refs source-spec))]
+                                              (str "target.structure @> '" json-source-spec "'")))
+                                          non-empty-specs))
+                        " true "))]
+    (str source-sqls " AND " target-sqls)))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
