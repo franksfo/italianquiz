@@ -64,66 +64,49 @@ game to find what expressions are appropriate for particular game."
 
 (declare selects-of-game)
 
-(defn target-expressions-per-game [game-id]
-  (let [sql 
-        "SELECT surface AS target FROM (SELECT surface,COUNT(grouping) AS groups
-                                          FROM (  SELECT DISTINCT surface,target_grouping.id AS grouping
+(defn expressions-for-game [game-id]
+  (let [sql "
+SELECT source_expression.surface AS source,target_expression.surface AS target,
+       source_expression.structure AS source_structure,
+       target_expression.structure AS target_structure
+  FROM (SELECT surface,structure,COUNT(grouping) AS groups
+                                          FROM (  SELECT DISTINCT surface,structure,target_grouping.id AS grouping
                                                     FROM expression AS target_expression
                                               INNER JOIN spec AS target_grouping
                                                       ON target_expression.structure @> ANY(target_grouping.any_of)
-                                              INNER JOIN game 
-                                                      ON game.id = ? AND target_grouping.id = ANY(game.target_specs))
+                                              INNER JOIN game
+                                                      ON game.id = ? AND target_grouping.id = ANY(game.target_specs)
+                                                     AND game.target = target_expression.language)
                                                       AS surface_per_grouping
-                                                GROUP BY surface 
+                                                GROUP BY surface,structure
                                                 ORDER BY groups desc) AS target_expression
-                                           WHERE groups=(SELECT COUNT(*) 
-                                                           FROM spec AS target_grouping
-                                                     INNER JOIN game 
-                                                             ON target_grouping.id = ANY(game.target_specs)
-                                                            AND game.id = ?)"]
+
+                  INNER JOIN (SELECT surface,structure,COUNT(grouping) AS groups
+                                          FROM (  SELECT DISTINCT surface,structure, source_grouping.id AS grouping
+                                                    FROM expression AS source_expression
+                                              INNER JOIN spec AS source_grouping
+                                                      ON source_expression.structure @> ANY(source_grouping.any_of)
+                                              INNER JOIN game
+                                                      ON game.id = ? AND source_grouping.id = ANY(game.source_specs)
+                                                     AND game.source = source_expression.language)
+                                                      AS surface_per_grouping
+                                                GROUP BY surface,structure
+                                                ORDER BY groups desc) AS source_expression
+                          ON ((target_expression.structure->'synsem'->'sem') @> (source_expression.structure->'synsem'->'sem'))
+
+                                           WHERE target_expression.groups=(SELECT COUNT(*)
+                                                                   FROM spec AS target_grouping
+                                                             INNER JOIN game
+                                                                     ON target_grouping.id = ANY(game.target_specs)
+                                                                    AND game.id = ?)
+                                            AND source_expression.groups=(SELECT COUNT(*)
+                                                                   FROM spec AS source_grouping
+                                                             INNER JOIN game
+                                                                     ON source_grouping.id = ANY(game.source_specs)
+                                                                    AND game.id = ?)"]
+    
     (k/exec-raw [sql
-                 [game-id game-id]] :results)))
-
-(defn expressions-for-game [game-id]
-  (let [selects-of-game (selects-of-game game-id)
-
-        source-sql (string/join " AND "
-                                (map (fn [anyof-set]
-                                       (str " source.structure @> ANY(ARRAY['"
-                                            (string/join "'::jsonb,'" (map json/write-str anyof-set))
-                                            "'::jsonb])"))
-                                     (:source selects-of-game)))
-
-        target-sql (string/join " AND "
-                                (map (fn [anyof-set]
-                                       (str " target.structure @> ANY(ARRAY['"
-                                            (string/join "'::jsonb,'" (map json/write-str anyof-set))
-                                            "'::jsonb])"))
-                                     (:target selects-of-game)))
-
-        source-language (:source (first (k/exec-raw [(str "SELECT source FROM game WHERE id=?")
-                                                     [game-id]] :results)))
-        target-language (:target (first (k/exec-raw [(str "SELECT target FROM game WHERE id=?")
-                                                     [game-id]] :results)))]
-
-    (let [sql (str "SELECT DISTINCT * FROM (SELECT      
-                                               source.surface AS source, 
-                                               target.surface AS target,
-                                             source.structure AS source_structure, 
-                                             target.structure AS target_structure
-                                              FROM expression AS source
-                                        INNER JOIN expression AS target
-                                                ON source.language = ? 
-                                               AND target.language = ? "
-                                             " AND " source-sql
-                                             " AND " target-sql
-                                             " AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
-          debug (log/debug (str "select expressions with: " sql))]
-      (k/exec-raw
-       [sql
-        [source-language
-         target-language]]
-     :results))))
+                 [game-id game-id game-id game-id]] :results)))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
