@@ -1,33 +1,33 @@
-TRUNCATE or_group;
+TRUNCATE grouping;
 
-INSERT INTO or_group (name,selects) VALUES ('Useful Spanish Verbs',
+INSERT INTO grouping (name,selects) VALUES ('Useful Spanish Verbs',
        ARRAY['{"espanol":{"espanol": "ayudar" }}'::jsonb,
              '{"espanol":{"espanol": "comer" }}'::jsonb,
 	     -- ... etc .. add more verbs here..
              '{"espanol":{"espanol": "hablar" }}'::jsonb]);
 
-INSERT INTO or_group (name,selects) VALUES ('Present tense',
+INSERT INTO grouping (name,selects) VALUES ('Present tense',
                                             ARRAY['{"synsem":{"sem":{"infl":"tense"}}}'::jsonb]);
 
-INSERT INTO or_group (name,selects) VALUES ('Empty','{}');
+INSERT INTO grouping (name,selects) VALUES ('Empty','{}');
 
 TRUNCATE game;
 
 INSERT INTO game (name,source_set,target_set,source,target) 
      SELECT 'The Useful Spanish game', ARRAY[source.id],ARRAY[target.id],'en','es' 
-       FROM or_group AS source
- INNER JOIN or_group AS target
+       FROM grouping AS source
+ INNER JOIN grouping AS target
          ON source.name = 'Empty'
         AND (target.name = 'Useful Spanish Verbs'
          OR  target.name = 'Present tense');
 
--- Get selects for all or_groups for the game called 'The Useful Spanish game':
+-- Get selects for all groupings for the game called 'The Useful Spanish game':
 -- 
     SELECT source.selects AS source,target.selects AS target
       FROM game 
-INNER JOIN or_group AS source
+INNER JOIN grouping AS source
         ON source.id = ANY(game.source_set) 
-INNER JOIN or_group AS target
+INNER JOIN grouping AS target
         ON target.id = ANY(game.target_set) 
      WHERE game.name='The Useful Spanish game';
 

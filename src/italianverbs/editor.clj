@@ -33,7 +33,7 @@
   (let [source-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")
 
         target-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")
-        sql (str "INSERT INTO game (name,source_specs,target_specs,source,target) 
+        sql (str "INSERT INTO game (name,source_groupings,target_groupings,source,target) 
                        SELECT ?, " source-or-str "," target-or-str ",?,? RETURNING id")]
     (log/debug (str "inserting new game with sql: " sql))
     ;; return the row ID of the game that has been inserted.
@@ -41,7 +41,7 @@
 
 (defn insert-anyof-set [name selects]
 
-  "Create an anyof-set. This is a set of specs, any of which may be
+  "Create an anyof-set. This is a set of groupings, any of which may be
 true for the whole anyof-set's semantics to be true. The set's
 semantics are evaluated by OR-ing together the selects
 when (expressions-per-game) evaluates the anyof-sets for a particular
@@ -56,7 +56,7 @@ game to find what expressions are appropriate for particular game."
                                              selects))
 
                            "'::jsonb]")
-        sql (str "INSERT INTO spec (name,any_of) VALUES (?," as-json-array ") RETURNING id")]
+        sql (str "INSERT INTO grouping (name,any_of) VALUES (?," as-json-array ") RETURNING id")]
     (log/debug (str "inserting new anyof-set with sql: " sql))
     (map #(:id %)
          (k/exec-raw [sql
@@ -73,37 +73,35 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
   FROM (SELECT surface,structure,COUNT(grouping) AS groups
                                           FROM (  SELECT DISTINCT surface,structure,target_grouping.id AS grouping
                                                     FROM expression AS target_expression
-                                              INNER JOIN spec AS target_grouping
+                                              INNER JOIN grouping AS target_grouping
                                                       ON target_expression.structure @> ANY(target_grouping.any_of)
                                               INNER JOIN game
-                                                      ON game.id = ? AND target_grouping.id = ANY(game.target_specs)
+                                                      ON game.id = ? AND target_grouping.id = ANY(game.target_groupings)
                                                      AND game.target = target_expression.language)
                                                       AS surface_per_grouping
-                                                GROUP BY surface,structure
-                                                ORDER BY groups desc) AS target_expression
+                                                GROUP BY surface,structure) AS target_expression
 
                   INNER JOIN (SELECT surface,structure,COUNT(grouping) AS groups
                                           FROM (  SELECT DISTINCT surface,structure, source_grouping.id AS grouping
                                                     FROM expression AS source_expression
-                                              INNER JOIN spec AS source_grouping
+                                              INNER JOIN grouping AS source_grouping
                                                       ON source_expression.structure @> ANY(source_grouping.any_of)
                                               INNER JOIN game
-                                                      ON game.id = ? AND source_grouping.id = ANY(game.source_specs)
+                                                      ON game.id = ? AND source_grouping.id = ANY(game.source_groupings)
                                                      AND game.source = source_expression.language)
                                                       AS surface_per_grouping
-                                                GROUP BY surface,structure
-                                                ORDER BY groups desc) AS source_expression
+                                                GROUP BY surface,structure) AS source_expression
                           ON ((target_expression.structure->'synsem'->'sem') @> (source_expression.structure->'synsem'->'sem'))
 
                                            WHERE target_expression.groups=(SELECT COUNT(*)
-                                                                   FROM spec AS target_grouping
+                                                                   FROM grouping AS target_grouping
                                                              INNER JOIN game
-                                                                     ON target_grouping.id = ANY(game.target_specs)
+                                                                     ON target_grouping.id = ANY(game.target_groupings)
                                                                     AND game.id = ?)
                                             AND source_expression.groups=(SELECT COUNT(*)
-                                                                   FROM spec AS source_grouping
+                                                                   FROM grouping AS source_grouping
                                                              INNER JOIN game
-                                                                     ON source_grouping.id = ANY(game.source_specs)
+                                                                     ON source_grouping.id = ANY(game.source_groupings)
                                                                     AND game.id = ?)"]
     
     ;; Parse the returned JSON in clojure maps.  TODO: the :value-fns
@@ -156,25 +154,25 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
 (declare short-language-name-to-long)
 (declare unabbrev)
 
-(defn show-expression [name source target & [source-specs target-specs]]
-  (let [source-sqls (let [non-empty-specs (filter #(not (= % {}))
-                                                  source-specs)]
-                      (if (not (empty? non-empty-specs))
+(defn show-expression [name source target & [source-groupings target-groupings]]
+  (let [source-sqls (let [non-empty-groupings (filter #(not (= % {}))
+                                                  source-groupings)]
+                      (if (not (empty? non-empty-groupings))
                         (string/join " AND " 
-                                     (map (fn [source-spec]
-                                            (let [json-source-spec (json/write-str (strip-refs source-spec))]
-                                              (str "source.structure @> '" json-source-spec "'")))
-                                          non-empty-specs))
+                                     (map (fn [source-grouping]
+                                            (let [json-source-grouping (json/write-str (strip-refs source-grouping))]
+                                              (str "source.structure @> '" json-source-grouping "'")))
+                                          non-empty-groupings))
                       " true "))
 
-        target-sqls (let [non-empty-specs (filter #(not (= % {}))
-                                                  target-specs)]
-                      (if (not (empty? non-empty-specs))
+        target-sqls (let [non-empty-groupings (filter #(not (= % {}))
+                                                  target-groupings)]
+                      (if (not (empty? non-empty-groupings))
                         (string/join " AND "
-                                     (map (fn [spec]
-                                            (let [json-spec (json/write-str (strip-refs spec))]
-                                              (str "target.structure @> '" json-spec "'")))
-                                          non-empty-specs))
+                                     (map (fn [grouping]
+                                            (let [json-grouping (json/write-str (strip-refs grouping))]
+                                              (str "target.structure @> '" json-grouping "'")))
+                                          non-empty-groupings))
                       " true "))
                      
         select (str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
@@ -194,14 +192,14 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
      [:h4 {:style ""} (str name)]
       [:div.spec 
        [:h4 (short-language-name-to-long source)]
-       (if (empty? source-specs) [:i (str "no source spec.")]
-           (html/tablize source-specs))
+       (if (empty? source-groupings) [:i (str "no source grouping.")]
+           (html/tablize source-groupings))
        ]
 
       [:div.spec 
        [:h4 (short-language-name-to-long target)]
-       (if (empty? target-specs) [:i (str "no target spec.")]
-           (html/tablize target-specs))
+       (if (empty? target-groupings) [:i (str "no target grouping.")]
+           (html/tablize target-groupings))
        ]
       
       [:table.striped
@@ -219,7 +217,7 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
        ]])))
 
 (defn show-expressions []
-  (let [select (str "SELECT name,source,target,source_spec::text AS source_spec ,target_spec::text AS target_spec FROM expression_select")
+  (let [select (str "SELECT name,source,target,source_grouping::text AS source_grouping ,target_grouping::text AS target_grouping FROM expression_select")
         results (k/exec-raw [select] :results)]
     (html
      (if (empty? results)
@@ -229,21 +227,21 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                (show-expression (:name result)
                                 (:source result)
                                 (:target result)
-                                (list (json/read-str (:source_spec result))) (list (json/read-str (:target_spec result)))))
+                                (list (json/read-str (:source_grouping result))) (list (json/read-str (:target_grouping result)))))
              results)]))))
 
 (defn selects-of-game [game-id]
   (let [source-select 
         (str "SELECT source.any_of AS source
                 FROM game 
-          INNER JOIN spec AS source
-                  ON source.id = ANY(game.source_specs)
+          INNER JOIN grouping AS source
+                  ON source.id = ANY(game.source_groupings)
                WHERE game.id=?")
         target-select
         (str "SELECT target.any_of AS target
                 FROM game 
-          INNER JOIN spec AS target
-                  ON target.id = ANY(game.target_specs)
+          INNER JOIN grouping AS target
+                  ON target.id = ANY(game.target_groupings)
                WHERE game.id=?")
         source-results (k/exec-raw [source-select [game-id]] :results)
         target-results (k/exec-raw [target-select [game-id]] :results)]
@@ -266,16 +264,16 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                          (.getArray (:source source-result))))
                   source-results)}))
 
-(defn expressions-for-target-specs [game-id]
+(defn expressions-for-target-groupings [game-id]
   (let [sql
         (str "SELECT target_expression.surface,
-                     target_spec.any_of 
+                     target_grouping.any_of 
                 FROM expression AS target_expression
-          INNER JOIN spec AS target_spec
+          INNER JOIN grouping AS target_grouping
                   ON target_expression.structure @> ALL(any_of)
           INNER JOIN game
                   ON (game.id=?
-                 AND  target_spec.id = ANY(game.source_specs))
+                 AND  target_grouping.id = ANY(game.source_groupings))
                WHERE (target_expression.language = game.target)")]
     (k/exec-raw [sql [game-id]] :results)))
 
