@@ -60,28 +60,56 @@
 
 (declare selects-of-game)
 
-(defn sql-for-game [game-id]
+(defn expressions-for-game [game-id]
   (let [selects-of-game (selects-of-game game-id)
         source-sqls (let [non-empty-specs (filter #(not (= % {}))
                                                   (:source selects-of-game))]
                       (if (not (empty? non-empty-specs))
-                        (string/join " OR " 
-                                     (map (fn [source-spec]
-                                            (let [json-source-spec (json/write-str (strip-refs source-spec))]
-                                              (str "source.structure @> '" json-source-spec "'")))
-                                          non-empty-specs))
+                        (string/join " AND " 
+                                     (map (fn [or-group]
+                                            (str " ( "
+                                                 (string/join " OR "
+                                                              (map (fn [spec]
+                                                                     (let [json-spec (json/write-str spec)]
+                                                                       (str "source.structure @> '" json-spec "'")))
+                                                                   or-group))
+                                                 " ) "))
+                                          (:source selects-of-game)))
                         " true "))
 
         target-sqls (let [non-empty-specs (filter #(not (= % {}))
                                                   (:target selects-of-game))]
                       (if (not (empty? non-empty-specs))
-                        (string/join " OR " 
-                                     (map (fn [source-spec]
-                                            (let [json-source-spec (json/write-str (strip-refs source-spec))]
-                                              (str "target.structure @> '" json-source-spec "'")))
-                                          non-empty-specs))
-                        " true "))]
-    (str source-sqls " AND " target-sqls)))
+                        (string/join " AND "
+                                     (map (fn [or-group]
+                                            (str " ( "
+                                                 (string/join " OR "
+                                                              (map (fn [spec]
+                                                                     (let [json-spec (json/write-str spec)]
+                                                                       (str "target.structure @> '" json-spec "'")))
+                                                                   or-group))
+                                                 " ) "))
+                                            (:target selects-of-game)))
+                        " true "))
+
+        source-language (:source (first (k/exec-raw [(str "SELECT source FROM game WHERE id=?")
+                                                     [game-id]] :results)))
+        target-language (:target (first (k/exec-raw [(str "SELECT target FROM game WHERE id=?")
+                                                     [game-id]] :results)))]
+
+    (k/exec-raw
+     [(str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
+                                           target.surface AS target
+                                               FROM expression AS source
+                                         INNER JOIN expression AS target
+                                                 ON source.language = ? 
+                                                AND target.language = ? "
+                                              " AND " source-sqls
+                                              " AND " target-sqls
+                                              " AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
+      [source-language
+       target-language]]
+     :results)))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}

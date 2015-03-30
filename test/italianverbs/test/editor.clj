@@ -44,7 +44,15 @@
       (is (or (not (empty? (filter #(= % {:synsem {:sem {:tense :futuro}}})
                                    (nth (:target selects) 0))))
               (not (empty? (filter #(= % {:synsem {:sem {:tense :futuro}}})
-                                   (nth (:target selects) 1)))))))))
+                                   (nth (:target selects) 1)))))))
+
+
+    ;; TODO: these tests have a dependence on borges/writer's having ran before these tests.
+    ;; Otherwise the results will be empty and the tests will fail.
+    (let [expressions (expressions-for-game 1)]
+      (is (not (empty? expressions))))))
+
+
 
 
 
