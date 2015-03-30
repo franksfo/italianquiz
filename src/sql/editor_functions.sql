@@ -26,14 +26,14 @@ SELECT source_expression.surface AS source,
                                                 ORDER BY groups desc) AS source_expression
           ON ((target_expression.structure->'synsem'->'sem') @> (source_expression.structure->'synsem'->'sem'))
 
-                       WHERE target_expression.groups=(SELECT COUNT(*)
-                                                         FROM spec AS target_grouping
-                                                   INNER JOIN game
-                                                           ON target_grouping.id = ANY(game.target_specs)
-                                                          AND game.id = 1)
-                         AND source_expression.groups=(SELECT COUNT(*)
-                                                         FROM spec AS source_grouping
-                                                   INNER JOIN game
-                                                           ON source_grouping.id = ANY(game.source_specs)
-                                                          AND game.id = 1);
+        WHERE target_expression.groups=(SELECT COUNT(*)
+                                          FROM spec AS target_grouping
+                                    INNER JOIN game
+                                            ON target_grouping.id = ANY(game.target_specs)
+                                           AND game.id = 1)
+         AND source_expression.groups=(SELECT COUNT(*)
+                                         FROM spec AS source_grouping
+                                   INNER JOIN game
+                                           ON source_grouping.id = ANY(game.source_specs)
+                                          AND game.id = 1);
 
