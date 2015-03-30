@@ -66,35 +66,27 @@ game to find what expressions are appropriate for particular game."
 
 (defn expressions-for-game [game-id]
   (let [selects-of-game (selects-of-game game-id)
-        source-sqls (let [non-empty-specs (filter #(not (= % {}))
-                                                  (:source selects-of-game))]
-                      (if (not (empty? non-empty-specs))
-                        (string/join " AND " 
-                                     (map (fn [anyof-set]
-                                            (str " ( "
-                                                 (string/join " OR "
-                                                              (map (fn [spec]
-                                                                     (let [json-spec (json/write-str spec)]
-                                                                       (str "source.structure @> '" json-spec "'")))
-                                                                   anyof-set))
-                                                 " ) "))
-                                          (:source selects-of-game)))
-                        " true "))
-
-        target-sqls (let [non-empty-specs (filter #(not (= % {}))
-                                                  (:target selects-of-game))]
-                      (if (not (empty? non-empty-specs))
-                        (string/join " AND "
-                                     (map (fn [anyof-set]
-                                            (str " ( "
-                                                 (string/join " OR "
+        source-sqls (string/join " AND " 
+                                 (map (fn [anyof-set]
+                                        (str " ( "
+                                             (string/join " OR "
+                                                          (map (fn [spec]
+                                                                 (let [json-spec (json/write-str spec)]
+                                                                   (str "source.structure @> '" json-spec "'")))
+                                                                 anyof-set))
+                                             " ) "))
+                                      (:source selects-of-game)))
+    
+        target-sqls (string/join " AND "
+                                 (map (fn [anyof-set]
+                                        (str " ( "
+                                             (string/join " OR "
                                                               (map (fn [spec]
                                                                      (let [json-spec (json/write-str spec)]
                                                                        (str "target.structure @> '" json-spec "'")))
                                                                    anyof-set))
-                                                 " ) "))
-                                            (:target selects-of-game)))
-                        " true "))
+                                             " ) "))
+                                      (:target selects-of-game)))
 
         source-language (:source (first (k/exec-raw [(str "SELECT source FROM game WHERE id=?")
                                                      [game-id]] :results)))
