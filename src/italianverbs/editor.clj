@@ -64,6 +64,26 @@ game to find what expressions are appropriate for particular game."
 
 (declare selects-of-game)
 
+(defn target-expressions-per-game [game-id]
+  (let [sql 
+        "SELECT surface AS target FROM (SELECT surface,COUNT(grouping) AS groups
+                                          FROM (  SELECT DISTINCT surface,target_grouping.id AS grouping
+                                                    FROM expression AS target_expression
+                                              INNER JOIN spec AS target_grouping
+                                                      ON target_expression.structure @> ANY(target_grouping.any_of)
+                                              INNER JOIN game 
+                                                      ON game.id = ? AND target_grouping.id = ANY(game.target_specs))
+                                                      AS surface_per_grouping
+                                                GROUP BY surface 
+                                                ORDER BY groups desc) AS target_expression
+                                           WHERE groups=(SELECT COUNT(*) 
+                                                           FROM spec AS target_grouping
+                                                     INNER JOIN game 
+                                                             ON target_grouping.id = ANY(game.target_specs)
+                                                            AND game.id = ?)"]
+    (k/exec-raw [sql
+                 [game-id game-id]] :results)))
+
 (defn expressions-for-game [game-id]
   (let [selects-of-game (selects-of-game game-id)
 
@@ -241,6 +261,19 @@ game to find what expressions are appropriate for particular game."
                                                            :else v)))
                          (.getArray (:source source-result))))
                   source-results)}))
+
+(defn expressions-for-target-specs [game-id]
+  (let [sql
+        (str "SELECT target_expression.surface,
+                     target_spec.any_of 
+                FROM expression AS target_expression
+          INNER JOIN spec AS target_spec
+                  ON target_expression.structure @> ALL(any_of)
+          INNER JOIN game
+                  ON (game.id=?
+                 AND  target_spec.id = ANY(game.source_specs))
+               WHERE (target_expression.language = game.target)")]
+    (k/exec-raw [sql [game-id]] :results)))
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
