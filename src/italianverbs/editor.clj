@@ -65,6 +65,7 @@ game to find what expressions are appropriate for particular game."
 (declare selects-of-game)
 
 (defn expressions-for-game [game-id]
+  "Return possible source->target mappings given a game-id."
   (let [sql "
 SELECT source_expression.surface AS source,target_expression.surface AS target,
        source_expression.structure AS source_structure,
@@ -105,8 +106,24 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                                                                      ON source_grouping.id = ANY(game.source_specs)
                                                                     AND game.id = ?)"]
     
-    (k/exec-raw [sql
-                 [game-id game-id game-id game-id]] :results)))
+    (map (fn [row]
+           {:source (:source row)
+            :target (:target row)
+            :source-structure (json/read-str (str (:source_structure row))
+                                             :key-fn keyword
+                                             :value-fn (fn [k v]
+                                                         (cond (string? v)
+                                                               (keyword v)
+                                                               :else v)))
+            :target-structure (json/read-str (str (:target_structure row))
+                                             :key-fn keyword
+                                             :value-fn (fn [k v]
+                                                         (cond (string? v)
+                                                               (keyword v)
+                                                               :else v)))})
+
+         (k/exec-raw [sql
+                      [game-id game-id game-id game-id]] :results))))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
