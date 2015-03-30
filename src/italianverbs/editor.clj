@@ -102,8 +102,10 @@ game to find what expressions are appropriate for particular game."
                                                      [game-id]] :results)))]
 
     (k/exec-raw
-     [(str "SELECT DISTINCT * FROM (SELECT source.surface AS source, 
-                                           target.surface AS target
+     [(str "SELECT DISTINCT * FROM (SELECT      source.surface AS source, 
+                                                target.surface AS target,
+                                              source.structure AS source_structure, 
+                                              target.structure AS target_structure
                                                FROM expression AS source
                                          INNER JOIN expression AS target
                                                  ON source.language = ? 
