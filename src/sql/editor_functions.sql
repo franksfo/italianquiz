@@ -1,6 +1,6 @@
-SELECT source_expression.surface AS source,target_expression.surface AS target,
-       source_expression.structure AS source_structure,
-       target_expression.structure AS target_structure
+SELECT source_expression.surface AS source,
+       target_expression.surface AS target
+
   FROM (SELECT surface,structure,COUNT(grouping) AS groups
                                           FROM (  SELECT DISTINCT surface,structure,target_grouping.id AS grouping
                                                     FROM expression AS target_expression
@@ -13,8 +13,8 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                                                 GROUP BY surface,structure
                                                 ORDER BY groups desc) AS target_expression
 
-                  INNER JOIN (SELECT surface,structure,COUNT(grouping) AS groups
-                                          FROM (  SELECT DISTINCT surface,structure, source_grouping.id AS grouping
+  INNER JOIN (SELECT surface,structure,COUNT(grouping) AS groups
+                                         FROM (  SELECT DISTINCT surface,structure, source_grouping.id AS grouping
                                                     FROM expression AS source_expression
                                               INNER JOIN spec AS source_grouping
                                                       ON source_expression.structure @> ANY(source_grouping.any_of)
@@ -24,16 +24,16 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                                                       AS surface_per_grouping
                                                 GROUP BY surface,structure
                                                 ORDER BY groups desc) AS source_expression
-                          ON ((target_expression.structure->'synsem'->'sem') @> (source_expression.structure->'synsem'->'sem'))
+          ON ((target_expression.structure->'synsem'->'sem') @> (source_expression.structure->'synsem'->'sem'))
 
-                                           WHERE target_expression.groups=(SELECT COUNT(*)
-                                                                   FROM spec AS target_grouping
-                                                             INNER JOIN game
-                                                                     ON target_grouping.id = ANY(game.target_specs)
-                                                                    AND game.id = 1)
-                                            AND source_expression.groups=(SELECT COUNT(*)
-                                                                   FROM spec AS source_grouping
-                                                             INNER JOIN game
-                                                                     ON source_grouping.id = ANY(game.source_specs)
-                                                                    AND game.id = 1);
+                       WHERE target_expression.groups=(SELECT COUNT(*)
+                                                         FROM spec AS target_grouping
+                                                   INNER JOIN game
+                                                           ON target_grouping.id = ANY(game.target_specs)
+                                                          AND game.id = 1)
+                         AND source_expression.groups=(SELECT COUNT(*)
+                                                         FROM spec AS source_grouping
+                                                   INNER JOIN game
+                                                           ON source_grouping.id = ANY(game.source_specs)
+                                                          AND game.id = 1);
 
