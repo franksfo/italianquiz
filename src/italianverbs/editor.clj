@@ -86,21 +86,24 @@ game to find what expressions are appropriate for particular game."
         target-language (:target (first (k/exec-raw [(str "SELECT target FROM game WHERE id=?")
                                                      [game-id]] :results)))]
 
-    (k/exec-raw
-     [(str "SELECT DISTINCT * FROM (SELECT      source.surface AS source, 
-                                                target.surface AS target,
-                                              source.structure AS source_structure, 
-                                              target.structure AS target_structure
-                                               FROM expression AS source
-                                         INNER JOIN expression AS target
-                                                 ON source.language = ? 
-                                                AND target.language = ? "
-                                              " AND " source-sql
-                                              " AND " target-sql
-                                              " AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
-      [source-language
-       target-language]]
-     :results)))
+    (let [sql (str "SELECT DISTINCT * FROM (SELECT      
+                                               source.surface AS source, 
+                                               target.surface AS target,
+                                             source.structure AS source_structure, 
+                                             target.structure AS target_structure
+                                              FROM expression AS source
+                                        INNER JOIN expression AS target
+                                                ON source.language = ? 
+                                               AND target.language = ? "
+                                             " AND " source-sql
+                                             " AND " target-sql
+                                             " AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
+          debug (log/debug (str "select expressions with: " sql))]
+      (k/exec-raw
+       [sql
+        [source-language
+         target-language]]
+     :results))))
 
 (def route-graph
   {:home {:create {:get "Create new game"}}
