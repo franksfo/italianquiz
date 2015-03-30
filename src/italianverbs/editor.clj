@@ -39,12 +39,11 @@
     ;; return the row ID of the game that has been inserted.
     (:id (first (k/exec-raw [sql [name source target]] :results)))))
 
-(defn insert-anyof-set [name selects]
-
-  "Create an anyof-set. This is a set of groupings, any of which may be
-true for the whole anyof-set's semantics to be true. The set's
+(defn insert-grouping [name selects]
+  "Create a grouping. This is a set of specifications, any of which may be
+true for an expression to be part of the grouping. The grouping's
 semantics are evaluated by OR-ing together the selects
-when (expressions-per-game) evaluates the anyof-sets for a particular
+when (expressions-per-game) evaluates the grouping for a particular
 game to find what expressions are appropriate for particular game."
 
   (let [selects (if (not (seq? selects))
@@ -93,16 +92,16 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                                                 GROUP BY surface,structure) AS source_expression
                           ON ((target_expression.structure->'synsem'->'sem') @> (source_expression.structure->'synsem'->'sem'))
 
-                                           WHERE target_expression.groups=(SELECT COUNT(*)
-                                                                   FROM grouping AS target_grouping
-                                                             INNER JOIN game
-                                                                     ON target_grouping.id = ANY(game.target_groupings)
-                                                                    AND game.id = ?)
-                                            AND source_expression.groups=(SELECT COUNT(*)
-                                                                   FROM grouping AS source_grouping
-                                                             INNER JOIN game
-                                                                     ON source_grouping.id = ANY(game.source_groupings)
-                                                                    AND game.id = ?)"]
+                       WHERE target_expression.groups=(SELECT COUNT(*) 
+                                                         FROM grouping AS target_grouping
+                                                   INNER JOIN game
+                                                           ON target_grouping.id = ANY(game.target_groupings)
+                                                          AND game.id = ?)
+                         AND source_expression.groups=(SELECT COUNT(*)
+                                                         FROM grouping AS source_grouping
+                                                   INNER JOIN game
+                                                           ON source_grouping.id = ANY(game.source_groupings)
+                                                          AND game.id = ?)"]
     
     ;; Parse the returned JSON in clojure maps.  TODO: the :value-fns
     ;; below are wrongfully converting things to keywords that should
