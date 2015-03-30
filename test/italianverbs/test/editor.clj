@@ -49,6 +49,7 @@
 
     ;; TODO: these tests have a dependence on borges/writer's having ran before these tests.
     ;; Otherwise the results will be empty and the tests will fail.
+    ;; Or simply use borges/writer here to generate some sentences that will match the game's criteria.
     (let [expressions (expressions-for-game 1)]
       (is (not (empty? expressions))))))
 
