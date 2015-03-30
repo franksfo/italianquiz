@@ -229,53 +229,6 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                                 (list (json/read-str (:source_grouping result))) (list (json/read-str (:target_grouping result)))))
              results)]))))
 
-(defn selects-of-game [game-id]
-  (let [source-select 
-        (str "SELECT source.any_of AS source
-                FROM game 
-          INNER JOIN grouping AS source
-                  ON source.id = ANY(game.source_groupings)
-               WHERE game.id=?")
-        target-select
-        (str "SELECT target.any_of AS target
-                FROM game 
-          INNER JOIN grouping AS target
-                  ON target.id = ANY(game.target_groupings)
-               WHERE game.id=?")
-        source-results (k/exec-raw [source-select [game-id]] :results)
-        target-results (k/exec-raw [target-select [game-id]] :results)]
-    {:target (map (fn [target-result]
-                    (map #(json/read-str %
-                                         :key-fn keyword
-                                         :value-fn (fn [k v]
-                                                     (cond (string? v)
-                                                           (keyword v)
-                                                           :else v)))
-                         (.getArray (:target target-result))))
-                  target-results)
-     :source (map (fn [source-result]
-                    (map #(json/read-str %
-                                         :key-fn keyword
-                                         :value-fn (fn [k v]
-                                                     (cond (string? v)
-                                                           (keyword v)
-                                                           :else v)))
-                         (.getArray (:source source-result))))
-                  source-results)}))
-
-(defn expressions-for-target-groupings [game-id]
-  (let [sql
-        (str "SELECT target_expression.surface,
-                     target_grouping.any_of 
-                FROM expression AS target_expression
-          INNER JOIN grouping AS target_grouping
-                  ON target_expression.structure @> ALL(any_of)
-          INNER JOIN game
-                  ON (game.id=?
-                 AND  target_grouping.id = ANY(game.source_groupings))
-               WHERE (target_expression.language = game.target)")]
-    (k/exec-raw [sql [game-id]] :results)))
-
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
 (def routes
@@ -777,4 +730,50 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
 (defn unabbrev [lang]
   (short-language-name-to-long lang))
 
-  
+;; scaffolding functions used to develop (expressions-for-game) (above).
+(defn selects-of-game [game-id]
+  (let [source-select 
+        (str "SELECT source.any_of AS source
+                FROM game 
+          INNER JOIN grouping AS source
+                  ON source.id = ANY(game.source_groupings)
+               WHERE game.id=?")
+        target-select
+        (str "SELECT target.any_of AS target
+                FROM game 
+          INNER JOIN grouping AS target
+                  ON target.id = ANY(game.target_groupings)
+               WHERE game.id=?")
+        source-results (k/exec-raw [source-select [game-id]] :results)
+        target-results (k/exec-raw [target-select [game-id]] :results)]
+    {:target (map (fn [target-result]
+                    (map #(json/read-str %
+                                         :key-fn keyword
+                                         :value-fn (fn [k v]
+                                                     (cond (string? v)
+                                                           (keyword v)
+                                                           :else v)))
+                         (.getArray (:target target-result))))
+                  target-results)
+     :source (map (fn [source-result]
+                    (map #(json/read-str %
+                                         :key-fn keyword
+                                         :value-fn (fn [k v]
+                                                     (cond (string? v)
+                                                           (keyword v)
+                                                           :else v)))
+                         (.getArray (:source source-result))))
+                  source-results)}))
+
+(defn expressions-for-target-groupings [game-id]
+  (let [sql
+        (str "SELECT target_expression.surface,
+                     target_grouping.any_of 
+                FROM expression AS target_expression
+          INNER JOIN grouping AS target_grouping
+                  ON target_expression.structure @> ALL(any_of)
+          INNER JOIN game
+                  ON (game.id=?
+                 AND  target_grouping.id = ANY(game.source_groupings))
+               WHERE (target_expression.language = game.target)")]
+    (k/exec-raw [sql [game-id]] :results)))
