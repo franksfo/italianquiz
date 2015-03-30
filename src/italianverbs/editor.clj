@@ -106,6 +106,10 @@ SELECT source_expression.surface AS source,target_expression.surface AS target,
                                                                      ON source_grouping.id = ANY(game.source_specs)
                                                                     AND game.id = ?)"]
     
+    ;; Parse the returned JSON in clojure maps.  TODO: the :value-fns
+    ;; below are wrongfully converting things to keywords that should
+    ;; legitimately stay strings (e.g. values of the :espanol,
+    ;; :italiano, and :english keys).
     (map (fn [row]
            {:source (:source row)
             :target (:target row)
