@@ -66,27 +66,20 @@ game to find what expressions are appropriate for particular game."
 
 (defn expressions-for-game [game-id]
   (let [selects-of-game (selects-of-game game-id)
-        source-sqls (string/join " AND " 
-                                 (map (fn [anyof-set]
-                                        (str " ( "
-                                             (string/join " OR "
-                                                          (map (fn [spec]
-                                                                 (let [json-spec (json/write-str spec)]
-                                                                   (str "source.structure @> '" json-spec "'")))
-                                                                 anyof-set))
-                                             " ) "))
-                                      (:source selects-of-game)))
-    
-        target-sqls (string/join " AND "
-                                 (map (fn [anyof-set]
-                                        (str " ( "
-                                             (string/join " OR "
-                                                              (map (fn [spec]
-                                                                     (let [json-spec (json/write-str spec)]
-                                                                       (str "target.structure @> '" json-spec "'")))
-                                                                   anyof-set))
-                                             " ) "))
-                                      (:target selects-of-game)))
+
+        source-sql (string/join " AND "
+                                (map (fn [anyof-set]
+                                       (str " source.structure @> ANY(ARRAY['"
+                                            (string/join "'::jsonb,'" (map json/write-str anyof-set))
+                                            "'::jsonb])"))
+                                     (:source selects-of-game)))
+
+        target-sql (string/join " AND "
+                                (map (fn [anyof-set]
+                                       (str " target.structure @> ANY(ARRAY['"
+                                            (string/join "'::jsonb,'" (map json/write-str anyof-set))
+                                            "'::jsonb])"))
+                                     (:target selects-of-game)))
 
         source-language (:source (first (k/exec-raw [(str "SELECT source FROM game WHERE id=?")
                                                      [game-id]] :results)))
@@ -102,8 +95,8 @@ game to find what expressions are appropriate for particular game."
                                          INNER JOIN expression AS target
                                                  ON source.language = ? 
                                                 AND target.language = ? "
-                                              " AND " source-sqls
-                                              " AND " target-sqls
+                                              " AND " source-sql
+                                              " AND " target-sql
                                               " AND (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')) AS pairs")
       [source-language
        target-language]]
