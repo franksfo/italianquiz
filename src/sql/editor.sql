@@ -1,19 +1,19 @@
-DROP TABLE or_group CASCADE;
+DROP TABLE spec CASCADE;
 DROP TABLE game CASCADE;
-CREATE TABLE or_group (id bigint NOT NULL, name text, selects jsonb[]);
-DROP SEQUENCE or_group_id_seq;
-CREATE SEQUENCE or_group_id_seq
+CREATE TABLE spec (id bigint NOT NULL, name text, any_of jsonb[]);
+DROP SEQUENCE spec_id_seq;
+CREATE SEQUENCE spec_id_seq
                      START WITH 1
                      INCREMENT BY 1
                      NO MINVALUE
                      NO MAXVALUE
                      CACHE 1;
-ALTER TABLE ONLY or_group ALTER COLUMN id SET DEFAULT nextval('or_group_id_seq'::regclass);
-ALTER TABLE ONLY or_group ADD CONSTRAINT or_group_key PRIMARY KEY (id);
+ALTER TABLE ONLY spec ALTER COLUMN id SET DEFAULT nextval('spec_id_seq'::regclass);
+ALTER TABLE ONLY spec ADD CONSTRAINT spec_key PRIMARY KEY (id);
 
 CREATE TABLE game (id bigint NOT NULL, 
-                   source_set bigint[], -- the game's source_set is the set of (keys of) or_groups.
-       		   target_set bigint[],
+                   source_specs bigint[], -- the game's source_specs is the set of specs that select the source sentences.
+       		   target_specs bigint[], -- the game's target_specs is the set of specs that select the target sentences.
                    name text, source text,target text);
 
 DROP SEQUENCE game_id_seq;

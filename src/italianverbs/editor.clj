@@ -24,7 +24,7 @@
   "Create a game with a name, a source and target language and two
   arrays, one for the source language and one for the target
   language. Each array is an integer which refers to a set of
-  'or-groups', each member of which is a possible specification in its
+  'anyof-sets', each member of which is a possible specification in its
   respective language. See example usage in test/editor.clj."
   (log/debug (str "source-set: " source-set))
   (log/debug (str "source-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")))
@@ -33,16 +33,20 @@
   (let [source-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")
 
         target-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")
-        sql (str "INSERT INTO game (name,source_set,target_set,source,target) 
+        sql (str "INSERT INTO game (name,source_specs,target_specs,source,target) 
                        SELECT ?, " source-or-str "," target-or-str ",?,? RETURNING id")]
     (log/debug (str "inserting new game with sql: " sql))
     ;; return the row ID of the game that has been inserted.
     (:id (first (k/exec-raw [sql [name source target]] :results)))))
 
-(defn insert-or-group [name selects]
-  "Create an or-group, each of which is a spec which maps to a subset
-   of expressions within the set of all available expressions. We join
-   all members together in an OR-clause when selecting."
+(defn insert-anyof-set [name selects]
+
+  "Create an anyof-set. This is a set of specs, any of which may be
+true for the whole anyof-set's semantics to be true. The set's
+semantics are evaluated by OR-ing together the selects
+when (expressions-per-game) evaluates the anyof-sets for a particular
+game to find what expressions are appropriate for particular game."
+
   (let [selects (if (not (seq? selects))
                   (vec selects)
                   selects)
@@ -52,8 +56,8 @@
                                              selects))
 
                            "'::jsonb]")
-        sql (str "INSERT INTO or_group (name,selects) VALUES (?," as-json-array ") RETURNING id")]
-    (log/debug (str "inserting new or-group with sql: " sql))
+        sql (str "INSERT INTO spec (name,any_of) VALUES (?," as-json-array ") RETURNING id")]
+    (log/debug (str "inserting new anyof-set with sql: " sql))
     (map #(:id %)
          (k/exec-raw [sql
                       [name]] :results))))
@@ -66,13 +70,13 @@
                                                   (:source selects-of-game))]
                       (if (not (empty? non-empty-specs))
                         (string/join " AND " 
-                                     (map (fn [or-group]
+                                     (map (fn [anyof-set]
                                             (str " ( "
                                                  (string/join " OR "
                                                               (map (fn [spec]
                                                                      (let [json-spec (json/write-str spec)]
                                                                        (str "source.structure @> '" json-spec "'")))
-                                                                   or-group))
+                                                                   anyof-set))
                                                  " ) "))
                                           (:source selects-of-game)))
                         " true "))
@@ -81,13 +85,13 @@
                                                   (:target selects-of-game))]
                       (if (not (empty? non-empty-specs))
                         (string/join " AND "
-                                     (map (fn [or-group]
+                                     (map (fn [anyof-set]
                                             (str " ( "
                                                  (string/join " OR "
                                                               (map (fn [spec]
                                                                      (let [json-spec (json/write-str spec)]
                                                                        (str "target.structure @> '" json-spec "'")))
-                                                                   or-group))
+                                                                   anyof-set))
                                                  " ) "))
                                             (:target selects-of-game)))
                         " true "))
@@ -216,16 +220,16 @@
 
 (defn selects-of-game [game-id]
   (let [source-select 
-        (str "SELECT source.selects AS source
+        (str "SELECT source.any_of AS source
                 FROM game 
-          INNER JOIN or_group AS source
-                  ON source.id = ANY(game.source_set)
+          INNER JOIN spec AS source
+                  ON source.id = ANY(game.source_specs)
                WHERE game.id=?")
         target-select
-        (str "SELECT target.selects AS target
+        (str "SELECT target.any_of AS target
                 FROM game 
-          INNER JOIN or_group AS target
-                  ON target.id = ANY(game.target_set)
+          INNER JOIN spec AS target
+                  ON target.id = ANY(game.target_specs)
                WHERE game.id=?")
         source-results (k/exec-raw [source-select [game-id]] :results)
         target-results (k/exec-raw [target-select [game-id]] :results)]

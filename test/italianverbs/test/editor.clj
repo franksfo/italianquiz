@@ -15,11 +15,11 @@
 ))
 
 (deftest insert_new_game_en2es
-  (let [source-group (insert-or-group "English future tense" [{:synsem {:sem {:tense :futuro}}}])
-        target-group-1 (insert-or-group "Common Spanish verbs"
+  (let [source-group (insert-anyof-set "English future tense" [{:synsem {:sem {:tense :futuro}}}])
+        target-group-1 (insert-anyof-set "Common Spanish verbs"
                                         [{:head {:espanol {:espanol "enseñar"}}}
                                          {:head {:espanol {:espanol "hablar"}}}])
-        target-group-2 (insert-or-group "Spanish future tense" [{:synsem {:sem {:tense :futuro}}}])
+        target-group-2 (insert-anyof-set "Spanish future tense" [{:synsem {:sem {:tense :futuro}}}])
         game-id (insert-game "The Useful Spanish Game" "en" "es" [source-group] [target-group-1 target-group-2])]
     (is (integer? game-id))
     (let [selects (selects-of-game game-id)]
