@@ -5,7 +5,11 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]
    [clojure.test :refer :all]
+   [italianverbs.borges.writer :refer [populate]]
+   [italianverbs.engine :refer [generate]]
    [italianverbs.editor :refer :all]
+   [italianverbs.english :as en]
+   [italianverbs.espanol :as es]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.korma :as db]
    [italianverbs.unify :refer [get-in]]
@@ -48,11 +52,15 @@
                                    (nth (:target selects) 1)))))))
 
 
-    ;; TODO: these tests have a dependence on borges/writer's having ran before these tests.
-    ;; Otherwise the results will be empty and the tests will fail.
-    ;; Or simply use borges/writer here to generate some sentences that will match the game's criteria.
-    (let [expressions (expressions-for-game 1)]
-      (is (not (empty? expressions))))))
+    ;; generate expressions in English and Spanish that should match our newly-created game's criteria,
+    ;; so that (expressions-for-game <our game>) is not empty:
+    (let [do-populate (do
+                        (populate 1 en/small es/small {:synsem {:sem {:tense :futuro
+                                                                      :subj {:pred :io}
+                                                                      :pred :speak}}}))]
+      
+      (let [expressions (expressions-for-game 1)]
+        (is (not (empty? expressions)))))))
 
 
 
