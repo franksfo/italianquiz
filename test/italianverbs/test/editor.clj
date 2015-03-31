@@ -17,7 +17,8 @@
 (deftest insert_new_game_en2es
   (let [source-group (insert-grouping "English future tense" [{:synsem {:sem {:tense :futuro}}}])
         target-group-1 (insert-grouping "Common Spanish verbs"
-                                        [{:head {:espanol {:espanol "enseñar"}}}
+                                        [{:head {:espanol {:espanol "comer"}}}
+                                         {:head {:espanol {:espanol "enseñar"}}}
                                          {:head {:espanol {:espanol "hablar"}}}])
         target-group-2 (insert-grouping "Spanish future tense" [{:synsem {:sem {:tense :futuro}}}])
         game-id (insert-game "The Useful Spanish Game" "en" "es" [source-group] [target-group-1 target-group-2])]
