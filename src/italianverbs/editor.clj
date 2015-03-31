@@ -100,8 +100,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                          INNER JOIN game
                                  ON source_grouping.id = ANY(game.source_groupings)
                                 AND game.id = ?)) AS source
-       ON (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')"]
-    
+       ON ((target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')
+           OR
+           (source.structure->'synsem'->'sem') @> (target.structure->'synsem'->'sem'))"]
+
     ;; Parse the returned JSON in clojure maps.  TODO: the :value-fns
     ;; below are wrongfully converting things to keywords that should
     ;; legitimately stay strings (e.g. values of the :espanol,

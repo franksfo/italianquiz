@@ -132,6 +132,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                          INNER JOIN game
                                  ON source_grouping.id = ANY(game.source_groupings)
                                 AND game.id = 1)) AS source
-       ON (target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem');
+       ON ((target.structure->'synsem'->'sem') @> (source.structure->'synsem'->'sem')
+           OR
+           (source.structure->'synsem'->'sem') @> (target.structure->'synsem'->'sem'));
+
+
 
 
