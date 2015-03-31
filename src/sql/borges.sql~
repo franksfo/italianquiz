@@ -1,5 +1,0 @@
-CREATE TABLE italian (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, syntax JSON, semantics JSON);
-
-CREATE TABLE english (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, syntax JSON, semantics JSON);
-
-CREATE TABLE spanish (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), surface TEXT, syntax JSON, semantics JSON);
