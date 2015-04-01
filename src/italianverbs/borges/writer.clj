@@ -60,21 +60,6 @@
             target-language-surface (fo target-language-sentence)
             debug (log/debug (str "lang-1 surface: " target-language-surface))
 
-            source-language-sentence (engine/generate {:synsem {:sem semantics
-                                                                :subcat '()}}
-                                                      source-language-model
-                                                      :enrich true)
-            source-language-surface (fo source-language-sentence)
-            debug (log/debug (str "lang-2 surface: " source-language-surface))
-
-            error (if (nil? target-language-surface)
-                    (do (log/error (str "surface of target-language was null with semantics: " semantics ))
-                        (throw (Exception. (str "surface of target-language was null with semantics: " semantics )))))
-
-            error (if (nil? source-language-surface)
-                    (do (log/error (str "surface of source-language was null with semantics: " semantics))
-                        (throw (Exception. (str "surface of source-language was null with semantics: " semantics )))))
-
             source-language (:language (if (future? source-language-model)
                                          @source-language-model
                                          source-language-model))
@@ -82,42 +67,54 @@
             target-language (:language (if (future? target-language-model)
                                          @target-language-model
                                          target-language-model))
+            
+            error (if (or (nil? target-language-surface)
+                          (= target-language-surface ""))
+                    (let [message (str "Could not generate a sentence in target language '" target-language 
+                                       "' for this semantics: " semantics)]
+                      (if (= true mask-populate-errors)
+                        (log/warn message)
+                        ;; else
+                        (throw (Exception. message)))))
+
+            source-language-sentence (engine/generate {:synsem {:sem semantics
+                                                                :subcat '()}}
+                                                      source-language-model
+                                                      :enrich true)
+            source-language-surface (fo source-language-sentence)
+            debug (log/debug (str "lang-2 surface: " source-language-surface))
+
+            error (if (or (nil? source-language-surface)
+                          (= source-language-surface ""))
+                    (let [message (str "Could not generate a sentence in source language '" source-language 
+                                       "' for this semantics: " semantics "; target language was: " target-language 
+                                       "; target expression was: '" (fo target-language-sentence) "'")]
+                      (if (= true mask-populate-errors)
+                        (log/warn message)
+                        ;; else
+                        (throw (Exception. message)))))
 
             ]
         
-        (try
-          (do
-            (if (= target-language-surface "")
-              (throw (Exception. (str "could not generate a sentence in target language '" target-language 
-                                      "' for this semantics: " semantics "; source language expression was: " source-language-surface))))
+        (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
+                          "'" (json/write-str (strip-refs target-language-sentence)) "'"
+                          ","
+                          "'" (str (serialize target-language-sentence)) "'"
+                          ","
+                          "?,?)")
+                     [target-language-surface
+                      target-language
+                      (:name target-language-model)]])
 
-            (if (= source-language-surface "")
-              (throw (Exception. (str "could not generate a sentence in source language '" source-language 
-                                      "' for this semantics: " semantics "; target language was: " target-language))))
-
-            (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
-                              "'" (json/write-str (strip-refs target-language-sentence)) "'"
-                              ","
-                              "'" (str (serialize target-language-sentence)) "'"
-                              ","
-                              "?,?)")
-                       [target-language-surface
-                        target-language
-                        (:name target-language-model)]])
-
-            (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
-                              "'" (json/write-str (strip-refs source-language-sentence)) "'"
-                              ","
-                              "'" (str (serialize source-language-sentence)) "'"
-                              ","
-                              "?,?)")
-                         [source-language-surface
-                          source-language
-                          (:name source-language-model)]]))
-          (catch Exception e 
-            (do (log/error (str "Could not add expression pair to database - caused by: " e)))
-            (if (= false mask-populate-errors)
-              (throw e))))))))
+        (k/exec-raw [(str "INSERT INTO expression (surface, structure, serialized, language, model) VALUES (?,"
+                          "'" (json/write-str (strip-refs source-language-sentence)) "'"
+                          ","
+                          "'" (str (serialize source-language-sentence)) "'"
+                          ","
+                          "?,?)")
+                     [source-language-surface
+                      source-language
+                      (:name source-language-model)]])))))
 
 (defn fill [num source-lm target-lm & [spec]]
   "wipe out current table and replace with (populate num spec)"
