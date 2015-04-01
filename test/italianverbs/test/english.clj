@@ -90,3 +90,11 @@
 (deftest parse-test-1-en
   (is (= "a cat" (fo (first (parse "a cat"))))))
 
+(deftest imperfect-noi
+  (let [generated (engine/generate
+                   {:synsem {:sem {:aspect :progressive 
+                                   :tense :past 
+                                   :subj {:pred :noi}  }}}
+                   small :enrich true)]
+    (is (not (nil? generated)))))
+
