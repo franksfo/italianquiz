@@ -564,26 +564,39 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
 (defn show-games []
-  (let [results (k/exec-raw ["SELECT name,source,target,source_groupings,target_groupings FROM game"] :results)]
+  (let [results (k/exec-raw ["SELECT game.name AS game, 
+                                     game.source,
+                                     game.target,                                                     
+                                     array_sort_unique(array_agg(source_groupings.name)) AS source_groups,
+                                     array_sort_unique(array_agg(target_groupings.name)) AS target_groups
+                       FROM game                                                                                              
+                 INNER JOIN grouping AS source_groupings                                       
+                         ON source_groupings.id = ANY(source_groupings)
+                 INNER JOIN grouping AS target_groupings
+                         ON target_groupings.id = ANY(target_groupings)
+                      GROUP BY game,source,target"] :results)]
     (html
      [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
      [:table {:class "striped padded"}
       [:tr
-       [:th "Name"]
-       [:th "Source"]
-       [:th "Target"]
-       [:th "Source Groups"]
-       [:th "Target Groups"]
-
+       [:th {:style "width:15%"} "Name"]
+       [:th {:style "width:5%"} "Source"]
+       [:th {:style "width:5%"} "Target"]
+       [:th {:style "width:35%"} "Source must have all of"]
+       [:th {:style "width:35%"} "Target must have all of"]
        ]
+      
       (map (fn [result]
              [:tr 
-              [:td (:name result)]
+              [:td (:game result)]
               [:td (unabbrev (:source result))]
               [:td (unabbrev (:target result))]
-              [:td (:source_groupings result)]
-              [:td (:target_groupings result)]
-              ])
+              [:td (str "<div class='sourcegroup'>"
+                        (string/join "</div><div class='sourcegroup'>" (.getArray (:source_groups result)))
+                        "</div>")]
+              [:td (str "<div class='targetgroup'>"
+                        (string/join "</div><div class='targetgroup'>" (.getArray (:target_groups result)))
+                        "</div>")]])
            results)])))
 
 (defn show-cities []
@@ -613,23 +626,21 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
      [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
      [:table {:class "striped padded"}
       [:tr
-       [:th "ID"]
        [:th "Name"]
-       [:th "Anyof"]
+       [:th "Any Of"]
 
        ]
       (map (fn [result]
              [:tr 
-              [:td (:id result)]
               [:td (:name result)]
-              [:td (str "<tt>" (string/join "," (map #(json/read-str %
-                                                         :key-fn keyword
-                                                         :value-fn (fn [k v]
-                                                                     (cond (string? v)
-                                                                           (keyword v)
-                                                                           :else v)))
-                                         (.getArray (:any_of result))))
-                        "</tt>")]
+              [:td (str "<div class='anyof'>" (string/join "</div><div class='anyof'>" (map #(json/read-str %
+                                                                           :key-fn keyword
+                                                                           :value-fn (fn [k v]
+                                                                                       (cond (string? v)
+                                                                                             (keyword v)
+                                                                                             :else v)))
+                                                           (.getArray (:any_of result))))
+                        "</div>")]
               ])
            results)])))
 

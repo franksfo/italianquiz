@@ -85,3 +85,40 @@ div.section button {
 table.padded th,td {
     padding:0.5em;
 }
+
+div.anyof {
+    font-family:monospace;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    border:1px solid #18ab29;
+    float:left;
+    background:ivory;
+    padding:0.5em;
+    width:15%;
+    margin-right:1em;
+}
+
+div.sourcegroup {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    margin-top:5px;
+    border-radius:5px;
+    border:1px solid #18ab29;
+    float:left;
+    background:lightblue;
+    padding:0.5em;
+    margin-right:1em;
+}
+
+div.targetgroup {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    margin-top:5px;
+    border-radius:5px;
+    border:1px solid #18ab29;
+    float:left;
+    background:lightblue;
+    padding:0.5em;
+    margin-right:1em;
+}
