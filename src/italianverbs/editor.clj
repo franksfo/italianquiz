@@ -564,19 +564,26 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
 (defn show-games []
-  (let [results (k/exec-raw ["SELECT name,source,target FROM game"] :results)]
+  (let [results (k/exec-raw ["SELECT name,source,target,source_groupings,target_groupings FROM game"] :results)]
     (html
      [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
-     [:table.striped
+     [:table {:class "striped padded"}
       [:tr
        [:th "Name"]
        [:th "Source"]
-       [:th "Target"]]
+       [:th "Target"]
+       [:th "Source Groups"]
+       [:th "Target Groups"]
+
+       ]
       (map (fn [result]
              [:tr 
               [:td (:name result)]
               [:td (unabbrev (:source result))]
-              [:td (unabbrev (:target result))]])
+              [:td (unabbrev (:target result))]
+              [:td (:source_groupings result)]
+              [:td (:target_groupings result)]
+              ])
            results)])))
 
 (defn show-cities []
@@ -600,6 +607,32 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
            results)
       ])))
 
+(defn show-groups []
+  (let [results (k/exec-raw ["SELECT id,name,any_of FROM grouping"] :results)]
+    (html
+     [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
+     [:table {:class "striped padded"}
+      [:tr
+       [:th "ID"]
+       [:th "Name"]
+       [:th "Anyof"]
+
+       ]
+      (map (fn [result]
+             [:tr 
+              [:td (:id result)]
+              [:td (:name result)]
+              [:td (str "<tt>" (string/join "," (map #(json/read-str %
+                                                         :key-fn keyword
+                                                         :value-fn (fn [k v]
+                                                                     (cond (string? v)
+                                                                           (keyword v)
+                                                                           :else v)))
+                                         (.getArray (:any_of result))))
+                        "</tt>")]
+              ])
+           results)])))
+
 (defn home-page [request]
   (let [links (links request :home)
         games (show request)
@@ -607,23 +640,20 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     (html
      [:div.user-alert (:message (:params request))]
 
-     [:div.section [:h3 "Cities"]
-
-      (show-cities)
-
-      ]
-     
-
      [:div.section [:h3 "Games"]
 
       (show-games)
 
       ]
      
-     [:div.section [:h3 "Translation Selects"]
-      [:button "New Translation Select"]
 
-      (show-expressions)])))
+     [:div.section [:h3 "Groups"]
+
+      (show-groups)
+
+      ]
+
+)))
 
 (defn tenses-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))

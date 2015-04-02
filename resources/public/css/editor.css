@@ -81,3 +81,7 @@ div.section {
 div.section button {
     float:right;
 }
+
+table.padded th,td {
+    padding:0.5em;
+}
