@@ -61,6 +61,14 @@ game to find what expressions are appropriate for particular game."
          (k/exec-raw [sql
                       [name]] :results))))
 
+(defn edit-game [request]
+  (let [gameid (:game (:params request))]
+    (html/page
+     "Editing game.."
+     [:div 
+      (str "Editing game: " gameid)
+      ])))
+
 (defn expressions-for-game [game-id]
   "Return possible source->target mappings given a game-id."
   (let [sql "SELECT source.surface AS source,source.structure AS source_structure,
@@ -241,6 +249,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
    (POST "/create" request
          (is-admin (create request)))
+
+   (GET "/game/edit/:game" request
+        (is-admin (edit-game request)))
 
    (GET "/game/new" request
         (do
@@ -563,7 +574,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
 (defn show-games []
   (let [results (k/exec-raw [
-                             "SELECT game.name AS game,
+                             "SELECT game.name AS game,game.id AS id,
                                      source,target,
                                      uniq(array_agg(source_groupings.name)) AS source_groups,
                                      uniq(array_agg(target_groupings.name)) AS target_groups 
@@ -585,7 +596,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
       
       (map (fn [result]
              [:tr 
-              [:td [:button "Edit"] ]
+              [:td [:button {:onclick (str "document.location='/editor/game/edit/" (:id result) "';")}
+                    "Edit"] ]
               [:td (:game result)]
               [:td (unabbrev (:source result))]
               [:td (unabbrev (:target result))]
@@ -659,18 +671,12 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
      [:div.user-alert (:message (:params request))]
 
      [:div.section [:h3 "Games"]
-
       (show-games)
-
       ]
      
-
      [:div.section [:h3 "Groups"]
-
       (show-groups)
-
       ]
-
 )))
 
 (defn tenses-per-game [game-id]
