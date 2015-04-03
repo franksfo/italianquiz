@@ -30,9 +30,9 @@
   (log/debug (str "source-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")))
   (log/debug (str "target-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")))
 
-  (let [source-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")
+  (let [source-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]::integer[]")
 
-        target-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")
+        target-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]::integer[]")
         sql (str "INSERT INTO game (name,source_groupings,target_groupings,source,target) 
                        SELECT ?, " source-or-str "," target-or-str ",?,? RETURNING id")]
     (log/debug (str "inserting new game with sql: " sql))
@@ -60,8 +60,6 @@ game to find what expressions are appropriate for particular game."
     (map #(:id %)
          (k/exec-raw [sql
                       [name]] :results))))
-
-(declare selects-of-game)
 
 (defn expressions-for-game [game-id]
   "Return possible source->target mappings given a game-id."
@@ -126,12 +124,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
          (k/exec-raw [sql
                       [game-id game-id game-id game-id]] :results))))
-
-(def route-graph
-  {:home {:create {:get "Create new game"}}
-   :create {:home {:get "Cancel"}
-            :create {:post {:button "New Game"}}}
-   :read {:home {:get "Show all games"}}})
 
 (declare body)
 (declare control-panel)
@@ -249,6 +241,12 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
    (POST "/create" request
          (is-admin (create request)))
+
+   (GET "/game/new" request
+        (do
+          (insert-game "untitled" "" "" [] [])
+          (is-admin {:status 302
+                     :headers {"Location" "/editor"}})))
 
    (POST "/game/new" request
          (is-admin (create-game request)))
@@ -564,21 +562,20 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
 (defn show-games []
-  (let [results (k/exec-raw ["SELECT game.name AS game, 
-                                     game.source,
-                                     game.target,                                                     
-                                     array_sort_unique(array_agg(source_groupings.name)) AS source_groups,
-                                     array_sort_unique(array_agg(target_groupings.name)) AS target_groups
-                       FROM game                                                                                              
-                 INNER JOIN grouping AS source_groupings                                       
-                         ON source_groupings.id = ANY(source_groupings)
-                 INNER JOIN grouping AS target_groupings
-                         ON target_groupings.id = ANY(target_groupings)
-                      GROUP BY game,source,target"] :results)]
+  (let [results (k/exec-raw [
+                             "SELECT game.name AS game,
+                                     source,target,
+                                     uniq(array_agg(source_groupings.name)) AS source_groups,
+                                     uniq(array_agg(target_groupings.name)) AS target_groups 
+                                FROM game 
+                           LEFT JOIN grouping AS source_groupings 
+                                  ON source_groupings.id = ANY(source_groupings) 
+                           LEFT JOIN grouping AS target_groupings 
+                                  ON target_groupings.id = ANY(target_groupings) GROUP BY game.id"] :results)]
     (html
-     [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
      [:table {:class "striped padded"}
       [:tr
+       [:th {:style "width:3%"} ""]
        [:th {:style "width:15%"} "Name"]
        [:th {:style "width:5%"} "Source"]
        [:th {:style "width:5%"} "Target"]
@@ -588,16 +585,23 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
       
       (map (fn [result]
              [:tr 
+              [:td [:button "Edit"] ]
               [:td (:game result)]
               [:td (unabbrev (:source result))]
               [:td (unabbrev (:target result))]
-              [:td (str "<div class='sourcegroup'>"
-                        (string/join "</div><div class='sourcegroup'>" (.getArray (:source_groups result)))
+              [:td (str "<div class='group sourcegroup'>"
+                        (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
                         "</div>")]
-              [:td (str "<div class='targetgroup'>"
-                        (string/join "</div><div class='targetgroup'>" (.getArray (:target_groups result)))
+              [:td (str "<div class='group targetgroup'>"
+                        (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
                         "</div>")]])
-           results)])))
+           results)]
+
+     [:div.new {:style "float:left"}
+      [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
+      ]
+
+)))
 
 (defn show-cities []
   "Show which cities are set for which games"
@@ -623,7 +627,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (defn show-groups []
   (let [results (k/exec-raw ["SELECT id,name,any_of FROM grouping"] :results)]
     (html
-     [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
      [:table {:class "striped padded"}
       [:tr
        [:th "Name"]
@@ -632,7 +635,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
        ]
       (map (fn [result]
              [:tr 
-              [:td (:name result)]
+              [:td [:div.group (:name result)]]
               [:td (str "<div class='anyof'>" (string/join "</div><div class='anyof'>" (map #(json/read-str %
                                                                            :key-fn keyword
                                                                            :value-fn (fn [k v]
@@ -642,7 +645,11 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                                            (.getArray (:any_of result))))
                         "</div>")]
               ])
-           results)])))
+           results)]
+     [:div.new
+      [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
+      ]
+)))
 
 (defn home-page [request]
   (let [links (links request :home)
@@ -695,8 +702,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (def game-default-values {})
 
 (defn create-game [request]
-  {:status 302
-   :headers {"Location" (str "/editor/?message=Game+created.")}})
+  (do
+    (log/debug (str "redirecting to /editor"))
+    {:status 302
+     :headers {"Location" (str "/editor/?message=Game+created.")}}))
 
 (defn create [request]
   (log/info (str "editor/new with request: " (:form-params request)))
@@ -772,50 +781,3 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (defn unabbrev [lang]
   (short-language-name-to-long lang))
 
-;; scaffolding functions used to develop (expressions-for-game) (above).
-(defn selects-of-game [game-id]
-  (let [source-select 
-        (str "SELECT source.any_of AS source
-                FROM game 
-          INNER JOIN grouping AS source
-                  ON source.id = ANY(game.source_groupings)
-               WHERE game.id=?")
-        target-select
-        (str "SELECT target.any_of AS target
-                FROM game 
-          INNER JOIN grouping AS target
-                  ON target.id = ANY(game.target_groupings)
-               WHERE game.id=?")
-        source-results (k/exec-raw [source-select [game-id]] :results)
-        target-results (k/exec-raw [target-select [game-id]] :results)]
-    {:target (map (fn [target-result]
-                    (map #(json/read-str %
-                                         :key-fn keyword
-                                         :value-fn (fn [k v]
-                                                     (cond (string? v)
-                                                           (keyword v)
-                                                           :else v)))
-                         (.getArray (:target target-result))))
-                  target-results)
-     :source (map (fn [source-result]
-                    (map #(json/read-str %
-                                         :key-fn keyword
-                                         :value-fn (fn [k v]
-                                                     (cond (string? v)
-                                                           (keyword v)
-                                                           :else v)))
-                         (.getArray (:source source-result))))
-                  source-results)}))
-
-(defn expressions-for-target-groupings [game-id]
-  (let [sql
-        (str "SELECT target_expression.surface,
-                     target_grouping.any_of 
-                FROM expression AS target_expression
-          INNER JOIN grouping AS target_grouping
-                  ON target_expression.structure @> ALL(any_of)
-          INNER JOIN game
-                  ON (game.id=?
-                 AND  target_grouping.id = ANY(game.source_groupings))
-               WHERE (target_expression.language = game.target)")]
-    (k/exec-raw [sql [game-id]] :results)))

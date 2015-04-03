@@ -20,13 +20,16 @@
    [korma.core :as k]
 ))
 
+(declare selects-of-game)
+
 (deftest insert_new_game_en2es
-  (let [source-group (insert-grouping "English future tense" [{:synsem {:sem {:tense :futuro}}}])
+  (let [future-tense (insert-grouping "Future tense" [{:synsem {:sem {:tense :futuro}}}])
+        source-group future-tense
         target-group-1 (insert-grouping "Common Spanish verbs"
                                         [{:head {:espanol {:espanol "comer"}}}
                                          {:head {:espanol {:espanol "enseñar"}}}
                                          {:head {:espanol {:espanol "hablar"}}}])
-        target-group-2 (insert-grouping "Spanish future tense" [{:synsem {:sem {:tense :futuro}}}])
+        target-group-2 future-tense
         game-id (insert-game "The Useful Spanish Game" "en" "es" [source-group] [target-group-1 target-group-2])]
     (is (integer? game-id))
     (let [selects (selects-of-game game-id)]
@@ -64,7 +67,57 @@
       (let [expressions (expressions-for-game 1)]
         (is (not (empty? expressions)))))))
 
+;; scaffolding functions used to develop (expressions-for-game) (above).
+(defn selects-of-game [game-id]
+  (let [source-select 
+        (str "SELECT source.any_of AS source
+                FROM game 
+          INNER JOIN grouping AS source
+                  ON source.id = ANY(game.source_groupings)
+               WHERE game.id=?")
+        target-select
+        (str "SELECT target.any_of AS target
+                FROM game 
+          INNER JOIN grouping AS target
+                  ON target.id = ANY(game.target_groupings)
+               WHERE game.id=?")
+        source-results (k/exec-raw [source-select [game-id]] :results)
+        target-results (k/exec-raw [target-select [game-id]] :results)]
+    {:target (map (fn [target-result]
+                    (map #(json/read-str %
+                                         :key-fn keyword
+                                         :value-fn (fn [k v]
+                                                     (cond (string? v)
+                                                           (keyword v)
+                                                           :else v)))
+                         (.getArray (:target target-result))))
+                  target-results)
+     :source (map (fn [source-result]
+                    (map #(json/read-str %
+                                         :key-fn keyword
+                                         :value-fn (fn [k v]
+                                                     (cond (string? v)
+                                                           (keyword v)
+                                                           :else v)))
+                         (.getArray (:source source-result))))
+                  source-results)}))
 
+(defn expressions-for-target-groupings [game-id]
+  (let [sql
+        (str "SELECT target_expression.surface,
+                     target_grouping.any_of 
+                FROM expression AS target_expression
+          INNER JOIN grouping AS target_grouping
+                  ON target_expression.structure @> ALL(any_of)
+          INNER JOIN game
+                  ON (game.id=?
+                 AND  target_grouping.id = ANY(game.source_groupings))
+               WHERE (target_expression.language = game.target)")]
+    (k/exec-raw [sql [game-id]] :results)))
 
-
-
+;; Not used; an experiment that hasn't gone anywhere yet.
+(def route-graph
+  {:home {:create {:get "Create new game"}}
+   :create {:home {:get "Cancel"}
+            :create {:post {:button "New Game"}}}
+   :read {:home {:get "Show all games"}}})

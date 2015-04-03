@@ -57,7 +57,7 @@ END;
 $body$ LANGUAGE plpgsql;
 
 -- thanks to http://stackoverflow.com/questions/3994556/eliminate-duplicate-array-values-in-postgres
-CREATE OR REPLACE FUNCTION array_sort_unique (ANYARRAY) RETURNS ANYARRAY
+CREATE OR REPLACE FUNCTION uniq (ANYARRAY) RETURNS ANYARRAY
 LANGUAGE SQL
 AS $body$
   SELECT ARRAY(
