@@ -17,6 +17,7 @@
    [italianverbs.engine :refer :all :exclude [routes]]
    [italianverbs.english :as en]
    [italianverbs.english :refer [en]]
+   [italianverbs.espanol :as es]
    [italianverbs.italiano :as it]
    [italianverbs.italiano :refer [it]]
    [italianverbs.morphology :refer [fo fo-ps]]
@@ -28,6 +29,10 @@
    [italianverbs.unify :refer [get-in remove-false strip-refs]]
 ))
 
+;; this does some sample runtime behavior (generates sentences)
+;; which allow certain things to get initialized so that remote (i.e. HTTP
+;; requests to the same things will not fail with cryptic 'undefined'
+;; stack traces.
 ;(def avoid-init-errors (nounphrase))
 (def avoid-init-errors true)
 

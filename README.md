@@ -29,10 +29,14 @@ Phrase Structure Grammar</a> [Pollard and Sag 1994].
     nil
     user=> (in-ns 'italianverbs.workbook)
     #<Namespace italianverbs.workbook>
-    italianverbs.workbook> (fo (sentence))
-    "loro l'amavano"
-    italianverbs.workbook> (translate "I speak")
-    "io parlo"
+    italianverbs.workbook> (fo (en/generate {:synsem {:subcat '() :cat :verb :sem {:pred :speak}}}))
+    "he speaks"
+
+    italianverbs.workbook> (fo (it/generate {:synsem {:subcat '() :cat :verb :sem {:pred :speak}}}))
+    "voi avete parlato"
+
+    italianverbs.workbook> (fo (es/generate {:synsem {:subcat '() :cat :verb :sem {:pred :speak}}}))
+    "la mujer hablaba"
 
 ## Benchmarking
 
