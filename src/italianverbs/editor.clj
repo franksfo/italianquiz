@@ -20,6 +20,24 @@
    [korma.core :as k]
 ))
 
+(declare show-games)
+(declare show-groups)
+
+(defn home-page [ & [ {game-to-edit :game-to-edit
+                       group-to-edit :group-to-edit
+                       message :message} ]]
+  (html
+   [:div.user-alert message]
+   
+   [:div.section [:h3 "Games"]
+    (show-games {:game-to-edit game-to-edit})
+    ]
+   
+   [:div.section [:h3 "Groups"]
+    (show-groups {:group-to-edit :group})
+    ]
+   ))
+
 (defn insert-game [name source target source-set target-set]
   "Create a game with a name, a source and target language and two
   arrays, one for the source language and one for the target
@@ -60,14 +78,6 @@ game to find what expressions are appropriate for particular game."
     (map #(:id %)
          (k/exec-raw [sql
                       [name]] :results))))
-
-(defn edit-game [request]
-  (let [gameid (:game (:params request))]
-    (html/page
-     "Editing game.."
-     [:div 
-      (str "Editing game: " gameid)
-      ])))
 
 (defn expressions-for-game [game-id]
   "Return possible source->target mappings given a game-id."
@@ -250,8 +260,12 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
    (POST "/create" request
          (is-admin (create request)))
 
-   (GET "/game/edit/:game" request
-        (is-admin (edit-game request)))
+   (GET "/game/edit/:game-to-edit" request
+        (let [game-to-edit (:game-to-edit (:route-params request))]
+          (is-admin {:body (body (str "Editor: Editing game: " game-to-edit)
+                                 (home-page {:game-to-edit game-to-edit}) request)
+                     :status 200
+                     :headers headers})))
 
    (GET "/game/new" request
         (do
@@ -578,7 +592,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         game-id (:game (:params request))]
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
-(defn show-games []
+(defn show-games [ & [ {game-to-edit :game-to-edit} ]]
   (let [results (k/exec-raw [
                              "SELECT game.name AS game,game.id AS id,
                                      source,target,
@@ -598,28 +612,47 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
        [:th {:style "width:5%"} "Target"]
        [:th {:style "width:35%"} "Source must have all of"]
        [:th {:style "width:35%"} "Target must have all of"]
+       (if (not (nil? game-to-edit))
+         [:th "Delete"])
        ]
       
       (map (fn [result]
-             [:tr 
-              [:td [:button {:onclick (str "document.location='/editor/game/edit/" (:id result) "';")}
-                    "Edit"] ]
-              [:td (:game result)]
-              [:td (unabbrev (:source result))]
-              [:td (unabbrev (:target result))]
-              [:td (str "<div class='group sourcegroup'>"
-                        (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
-                        "</div>")]
-              [:td (str "<div class='group targetgroup'>"
-                        (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
-                        "</div>")]])
-           results)]
+             (let [game-id (:id result)
+                   game-to-edit (if game-to-edit (Integer. game-to-edit))]
+               [:tr 
+                [:td
+                (if (= game-to-edit game-id)
+                  [:button {:onclick (str "submit();")} "Update"]
+                  ;; else
+                  [:button {:onclick (str "document.location='/editor/game/edit/" (:id result) "';")}
+                   "Edit"])]
+                [:td
+                 (if (= game-to-edit game-id)
+                   [:input {:size (+ 5 (.length (:game result))) 
+                            :value (:game result)}]
+                   (:game result))]
+                [:td (unabbrev (:source result))]
+                [:td (unabbrev (:target result))]
+                [:td (str "<div class='group sourcegroup'>"
+                          (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
+                          "</div>")]
+                [:td (str "<div class='group targetgroup'>"
+                          (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
+                          "</div>")]
 
-     [:div.new {:style "float:left"}
-      [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
+
+                (if (= game-to-edit game-id)
+                  [:td [:button {:onclick (str "confirm_delete('/editor/game/delete/" (:id result) "');")}
+                        "Delete"]]
+                  [:td "" ])
+                
+
+                ]))
+           results)
       ]
-
-)))
+     [:div.new
+      [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
+      ])))
 
 (defn show-cities []
   "Show which cities are set for which games"
@@ -642,7 +675,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
            results)
       ])))
 
-(defn show-groups []
+(defn show-groups [ [& request ]]
   (let [results (k/exec-raw ["SELECT id,name,any_of FROM grouping"] :results)]
     (html
      [:table {:class "striped padded"}
@@ -666,22 +699,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
            results)]
      [:div.new
       [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
-      ]
-)))
-
-(defn home-page [request]
-  (let [links (links request :home)
-        games (show request)
-        games-to-use (set (mapcat vals (k/exec-raw ["SELECT * FROM games_to_use"] :results)))]
-    (html
-     [:div.user-alert (:message (:params request))]
-
-     [:div.section [:h3 "Games"]
-      (show-games)
-      ]
-     
-     [:div.section [:h3 "Groups"]
-      (show-groups)
       ]
 )))
 
