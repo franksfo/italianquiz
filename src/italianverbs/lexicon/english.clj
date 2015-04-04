@@ -664,6 +664,7 @@
    {:synsem {:cat :verb
              :sem {:pred :throw-out}}
     :english {:past "threw out"
+              :present {:3sing "throws out"}
               :participle "throwing out"}}
 
    "take"  {:synsem {:cat :verb
