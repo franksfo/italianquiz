@@ -105,7 +105,7 @@
                         :2plur "are missing"
                         :3plur "are missing"}
               :past {:1sing "was missing"
-                    :2sing "were missing"
+                     :2sing "were missing"
                      :3sing "was missing"
                      :1plur "were missing"
                      :2plur "were missing"
@@ -359,7 +359,8 @@
              :sem {:pred :hope}}}
    
    "hug"
-   {:synsem {:sem {:pred :abbracciare
+   {:synsem {:cat :verb
+             :sem {:pred :abbracciare
                    :subj {:human true}
                    :obj {:animate true}}}
     :english {:past "hugged"
