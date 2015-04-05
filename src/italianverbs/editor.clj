@@ -22,8 +22,6 @@
    [korma.core :as k]
 ))
 
-(declare create-game)
-(declare game-form)
 (declare show-games)
 (declare show-groups)
 (declare unabbrev)
@@ -56,11 +54,11 @@
   (log/debug (str "source-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")))
   (log/debug (str "target-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")))
 
-  (let [source-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]::integer[]")
+  (let [source-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]::integer[]")
 
-        target-or-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]::integer[]")
+        target-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]::integer[]")
         sql (str "INSERT INTO game (name,source_groupings,target_groupings,source,target) 
-                       SELECT ?, " source-or-str "," target-or-str ",?,? RETURNING id")]
+                       SELECT ?, " source-grouping-str "," target-grouping-str ",?,? RETURNING id")]
     (log/debug (str "inserting new game with sql: " sql))
     ;; return the row ID of the game that has been inserted.
     (:id (first (k/exec-raw [sql [name source target]] :results)))))
@@ -81,7 +79,7 @@
                            LEFT JOIN grouping AS source_groupings 
                                   ON source_groupings.id = ANY(source_groupings) 
                            LEFT JOIN grouping AS target_groupings 
-                                  ON target_groupings.id = ANY(target_groupings) GROUP BY game.id"] :results)]
+                                  ON target_groupings.id = ANY(target_groupings) GROUP BY game.id ORDER BY game.id"] :results)]
     (html
 
      [:table {:class "striped padded"}
@@ -175,7 +173,7 @@
                 
            results)]
 
-
+     ;; TODO: should be a POST (form submit), not a GET.
      [:div.new
       [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
       ]
@@ -187,9 +185,16 @@
        ;; make the hidden game-editing forms.
        (map (fn [result]
               (let [game-id (:id result)
+                    debug (log/debug (str "ALL GAME INFO: " result))
                     game-to-edit game-to-edit
                     problems nil ;; TODO: should be optional param of this (defn)
-                    game-to-delete game-to-delete]
+                    game-to-delete game-to-delete
+
+                    source-groups (vec (remove nil? (.getArray (:source_group_ids result))))
+                    target-groups (vec (remove nil? (.getArray (:target_group_ids result))))
+                    debug (log/debug (str "SOURCE GROUPS: " source-groups))
+                    debug (log/debug (str "TARGET GROUPS: " target-groups))
+                    ]
                 [:div.editgame
                  {:id (str "editgame" game-id)}
                  [:h2 (str "Editing game: " (:game_name result))]
@@ -210,7 +215,7 @@
                                        {:value "it" :label "Italian"}
                                        {:value "es" :label "Spanish"}]}
                           
-                            {:name :source_groups 
+                            {:name :source_groupings
                              :type :checkboxes
                              :cols 3
                              :options (map (fn [grouping]
@@ -218,7 +223,7 @@
                                               :label (:name grouping)})
                                            all-groups)}
 
-                            {:name :target_groups 
+                            {:name :target_groupings
                              :type :checkboxes
                              :cols 3
                              :options (map (fn [grouping]
@@ -232,10 +237,8 @@
                    :values {:name (:game_name result)
                             :target (:target result)
                             :source (:source result)
-                            :source_groups 
-                            (.getArray (:source_group_ids result))
-                            :target_groups
-                            (.getArray (:target_group_ids result))}
+                            :source_groupings source-groups
+                            :target_groupings target-groups}
 
                    :validations [[:required [:name]   
                                   :action "/editor/create"
@@ -468,15 +471,13 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
          (is-admin (edit (:game-to-edit (:route-params request))
                          (:params request))))
 
+   ;; TODO: should be a POST
    (GET "/game/new" request
         (do
           ;; Defaults: source language=English, target language=Italian.
           (insert-game "untitled" "en" "it" [] [])
           (is-admin {:status 302
                      :headers {"Location" "/editor"}})))
-
-   (POST "/game/new" request
-         (is-admin (create-game request)))
 
    (GET "/group/new" request
         (is-admin
@@ -518,23 +519,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                        AS predicate
                                      FROM expression
                                  ORDER BY predicate")] :results)))
-
-(def game-form
-  {:fields [{:name :name :size 50 :label "Name"}
-            {:name :source :type :select 
-             :label "Source Language"
-             :options [{:value "en" :label "English"}
-                       {:value "it" :label "Italian"}
-                       {:value "es" :label "Spanish"}]}
-            {:name :target :type :select 
-             :label "Target Language"
-             :options [{:value "en" :label "English"}
-                       {:value "it" :label "Italian"}
-                       {:value "es" :label "Spanish"}]}
-;            {:name :source_groups :type :checkboxes}
-            {:name :target_groups :type :checkboxes}]
-   :cancel-href "/editor"
-   :validations [[:required [:name]]]})
 
 (defn onload []
   (string/join " " 
@@ -618,55 +602,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                   [:td [:div {:onclick "toggle_expand(this);" :style "height:100px; width:200px ;overflow:scroll"} (html/tablize target_sem)]]]))
              examples)]])]))
 
-(defn read-request [request]
-  "show a single game, along with UI to edit or delete the game."
-  (let [game-id (:game (:params request))
-        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)] ] 
-                                    :results))]
-    (body (str "Showing game: " (:name game-row))
-          (html
-           [:h3 (:name game-row)]
-
-           [:div.gameinfo
-            [:div
-             [:h4 "Predicates"]
-             (let [verbs (show-words-per-game request)]
-               (if (empty? verbs)
-                 [:p "No predicates chosen."]
-                [:ul
-                 (map (fn [word]
-                        [:li (str word)])
-                      (map #(:word %)
-                           verbs))]))]
-            [:div
-             [:h4 "Tenses"]
-             (let [inflections (show-inflections-per-game request)]
-               (if (empty? inflections)
-                 [:p "No tenses chosen."]
-                 [:ul
-                  (map (fn [inflection]
-                         [:li (str inflection)])
-                       (map #(:inflection %)
-                            inflections))]))]
-
-            (example-table request)
-
-            ] ;; div.gameinfo
-                 
-
-           [:h4 {:style "float:left;width:100%;"} "Edit"]
-
-           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
-           [:div.user-alert (:message (:params request))]
-
-           (update-form request game-row)
-           
-           [:div.delete
-            [:button {:onclick (str "javascript:window.location.href = '/editor/delete/' + '" game-id "';")}
-             "Delete" ]]
-           (links request :read))
-          request)))
-
 (defn update-verb-for-game [game-id words]
   (if (not (empty? words))
     (let [word (first words)]
@@ -729,16 +664,56 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
 (defn edit [game-id params]
   (log/debug (str "EDITING GAME WITH PARAMS: " params))
-  (let [game-id game-id]
-    (log/debug (str "Editing game with id= " game-id))
-    (k/exec-raw ["UPDATE game SET (name,source,target) = (?,?,?) WHERE id=?" 
-                 [(:name params)
-                  (:source params)
-                  (:target params)
-                  (Integer. game-id)]])
+  (let [game-id game-id
 
-    {:status 302
-     :headers {"Location" (str "/editor/" "?message=Edited+game:" game-id)}}))
+        source-grouping-set (:source_groupings params)
+        target-grouping-set (:target_groupings params)
+
+        debug (log/debug (str "edit: source-groupings type(1):" (type source-grouping-set)))
+        debug (log/debug (str "edit: target-groupings type(1):" (type target-grouping-set)))
+
+        debug (log/debug (str "edit: source-groupings(1):" source-grouping-set))
+        debug (log/debug (str "edit: target-groupings(1):" target-grouping-set))
+
+
+        ;; cleanup
+        source-grouping-set (vec (map #(Integer/parseInt %)
+                                      (remove #(= "" %)
+                                              source-grouping-set)))
+        
+        target-grouping-set (vec (map #(Integer/parseInt %)
+                                      (remove #(= "" %)
+                                              target-grouping-set)))
+                                 
+        debug (log/debug (str "edit: source-groupings length(2):" (.length source-grouping-set)))
+        debug (log/debug (str "edit: target-groupings length(2):" (.length target-grouping-set)))
+
+        debug (log/debug (str "edit: source-groupings type(2):" (type source-grouping-set)))
+        debug (log/debug (str "edit: target-groupings type(2):" (type target-grouping-set)))
+
+        debug (log/debug (str "edit: source-groupings(2):" source-grouping-set))
+        debug (log/debug (str "edit: target-groupings(2):" target-grouping-set))
+
+
+        source-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," (str %)) "]")
+                                                                source-grouping-set)) "]::integer[]")
+        target-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," (str %)) "]")
+                                                                target-grouping-set)) "]::integer[]")]
+
+    (log/debug (str "Editing game with id= " game-id))
+
+    (let [sql (str "UPDATE game SET (name,source,target,source_groupings,target_groupings) = (?,?,?," 
+                   source-grouping-str "," target-grouping-str ") WHERE id=?")]
+
+      (log/debug (str "UPDATE sql: " sql))
+      (k/exec-raw [sql
+                   [(:name params)
+                    (:source params)
+                    (:target params)
+                    (Integer. game-id)]])
+
+      {:status 302
+       :headers {"Location" (str "/editor/" "?message=Edited+game:" game-id)}})))
 
 (defn delete-form [request]
  (let [game-id (:game (:params request))
@@ -868,61 +843,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 ;                   :fields [{:name :source_groups
 ;                                              :type :checkboxes
 ;                                              :options ["Chocolate" "Vanilla"]}]
-
-
-(defn create-form [request & [:problems problems]]
-  {:status 200
-   :body (body "Editor: Create a new game"
-               (let [links (links request :create)]
-                 (html
-                  [:div
-                   (f/render-form 
-                    {:fields [{:name :name :size 50 :label "Name"}
-                              {:name :source :type :select 
-                               :label "Source Language"
-                               :options [{:value "en" :label "English"}
-                                         {:value "it" :label "Italian"}
-                                         {:value "es" :label "Spanish"}]}
-                   
-                              {:name :target :type :select 
-                               :label "Target Language"
-                               :options [{:value "en" :label "English"}
-                                         {:value "it" :label "Italian"}
-                                         {:value "es" :label "Spanish"}]}
-
-;                              {:name :source_groups :type :checkboxes}
-;                              {:name :target_groups :type :checkboxes}
-
-                              ]
-
-                     :cancel-href "/editor"
-                     :validations [[:required [:name]                   
-                                    :values (merge game-default-values (:form-params request))
-                                    :action "/editor/create"
-                                    :method "post"
-                                    :problems problems]]})]))
-               request)
-   :headers headers})
-
-;; TODO: update-form should be a complete request structure (with :status, :body, and :headers), just like
-;; (create-form) above.
-(defn update-form [request game & [:problems problems]]
-  (log/debug (str "update-form with game: " game))
-  (let [game-id (:id game)]
-    (html
-     [:div
-      (f/render-form (assoc game-form
-                       :values (merge game-default-values
-                                      (:form-params request)
-                                      {:name (:name game)
-                                       :source (:source game)
-                                       :target (:target game)
-                                       :game game-id
-                                       :words (verbs-per-game game-id)
-                                       :inflections (inflections-per-game game-id)})
-                       :action (str "/editor/update/" (:id game))
-                       :method "post"
-                       :problems problems))])))
 
 (defn short-language-name-to-long [lang]
   (cond (= lang "it") "Italian"
