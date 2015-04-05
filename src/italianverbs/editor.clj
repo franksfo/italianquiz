@@ -72,7 +72,9 @@
                              "SELECT game.name AS game_name,game.id AS id,
                                      source,target,
                                      uniq(array_agg(source_groupings.name)) AS source_groups,
-                                     uniq(array_agg(target_groupings.name)) AS target_groups 
+                                     uniq(array_agg(source_groupings.id)) AS source_group_ids,
+                                     uniq(array_agg(target_groupings.name)) AS target_groups,
+                                     uniq(array_agg(target_groupings.id)) AS target_group_ids
                                 FROM game 
                            LEFT JOIN grouping AS source_groupings 
                                   ON source_groupings.id = ANY(source_groupings) 
@@ -165,34 +167,71 @@
       [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
       ]
 
+     
+     (let [all-groups
+           (k/exec-raw ["SELECT id,name FROM grouping"] :results)]
 
-     ;; make the hidden game-editing forms.
-     (map (fn [result]
-            (let [game-id (:id result)
-                  game-to-edit game-to-edit
-                  problems nil ;; TODO: should be optional param of this (defn)
-                  game-to-delete game-to-delete]
-              [:div.editgame
-               {:id (str "editgame" game-id)}
-               [:h2 (str "Editing game: " (:game_name result))]
+       ;; make the hidden game-editing forms.
+       (map (fn [result]
+              (let [game-id (:id result)
+                    game-to-edit game-to-edit
+                    problems nil ;; TODO: should be optional param of this (defn)
+                    game-to-delete game-to-delete]
+                [:div.editgame
+                 {:id (str "editgame" game-id)}
+                 [:h2 (str "Editing game: " (:game_name result))]
 
-               (f/render-form (assoc game-form
-                                :values {:name (:game_name result)
-                                         :source (:source result)
-                                         :target (:target result)
-                                         :source_groups (.getArray (:source_groups result))
-                                         :target_groups (.getArray (:target_groups result))}
-                                :action (str "/editor/game/edit/" game-id)
-                                :method "post"
-                                :problems problems))
-                                         
+                 (f/render-form 
+                  {:action (str "/editor/game/edit/" game-id)
+                   :method :post
+                   :fields [{:name :name :size 50 :label "Name"}
+                            {:name :source :type :select 
+                             :label "Source Language"
+                             :options [{:value "en" :label "English"}
+                                       {:value "it" :label "Italian"}
+                                       {:value "es" :label "Spanish"}]}
+                            
+                            {:name :target :type :select 
+                             :label "Target Language"
+                             :options [{:value "en" :label "English"}
+                                       {:value "it" :label "Italian"}
+                                       {:value "es" :label "Spanish"}]}
+                          
+                            {:name :source_groups 
+                             :type :checkboxes
+                             :cols 3
+                             :options (map (fn [grouping]
+                                             {:value (:id grouping)
+                                              :label (:name grouping)})
+                                           all-groups)}
 
-               ]
-              ))
-          
-          results)
+                            {:name :target_groups 
+                             :type :checkboxes
+                             :cols 3
+                             :options (map (fn [grouping]
+                                             {:value (:id grouping)
+                                              :label (:name grouping)})
+                                           all-groups)}
 
+                            ]
+                   
+                   :cancel-href "/editor"
+                   :values {:name (:game_name result)
+                            :target (:target result)
+                            :source (:source result)
+                            :source_groups 
+                            (.getArray (:source_group_ids result))
+                            :target_groups
+                            (.getArray (:target_group_ids result))}
+
+                   :validations [[:required [:name]   
+                                  :action "/editor/create"
+                                  :method "post"
+                                  :problems problems]]})]
+                ))
+            results))
      )))
+
 
 (defn insert-grouping [name selects]
   "Create a grouping. This is a set of specifications, any of which may be
@@ -476,13 +515,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
              :options [{:value "en" :label "English"}
                        {:value "it" :label "Italian"}
                        {:value "es" :label "Spanish"}]}
-
-
-
-            ]
+;            {:name :source_groups :type :checkboxes}
+            {:name :target_groups :type :checkboxes}]
    :cancel-href "/editor"
-   :validations [[:required [:name]]
-                 [:min-length 1 :groups "Select one or more groups"]]})
+   :validations [[:required [:name]]]})
 
 (defn onload []
   (string/join " " 
@@ -813,18 +849,42 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
       ])))
 
+;                   :fields [{:name :source_groups
+;                                              :type :checkboxes
+;                                              :options ["Chocolate" "Vanilla"]}]
+
+
 (defn create-form [request & [:problems problems]]
   {:status 200
    :body (body "Editor: Create a new game"
                (let [links (links request :create)]
                  (html
                   [:div
-                   (f/render-form (assoc game-form
+                   (f/render-form 
+                    {:fields [{:name :name :size 50 :label "Name"}
+                              {:name :source :type :select 
+                               :label "Source Language"
+                               :options [{:value "en" :label "English"}
+                                         {:value "it" :label "Italian"}
+                                         {:value "es" :label "Spanish"}]}
+                   
+                              {:name :target :type :select 
+                               :label "Target Language"
+                               :options [{:value "en" :label "English"}
+                                         {:value "it" :label "Italian"}
+                                         {:value "es" :label "Spanish"}]}
+
+;                              {:name :source_groups :type :checkboxes}
+;                              {:name :target_groups :type :checkboxes}
+
+                              ]
+
+                     :cancel-href "/editor"
+                     :validations [[:required [:name]                   
                                     :values (merge game-default-values (:form-params request))
                                     :action "/editor/create"
                                     :method "post"
-                                    :problems problems))
-                   ]))
+                                    :problems problems]]})]))
                request)
    :headers headers})
 
