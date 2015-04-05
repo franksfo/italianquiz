@@ -4,14 +4,15 @@
    [clojure.data.json :as json]
    [clojure.tools.logging :as log]
    [clojure.string :as string]
+
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
+
    [formative.core :as f]
    [formative.parse :as fp]
+
    [italianverbs.auth :refer [is-admin is-authenticated]]
    [italianverbs.borges.reader :refer :all]
-   [italianverbs.english_rt :as en]
    [italianverbs.html :as html]
-   [italianverbs.italiano_rt :as it]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.korma :as db]
    [italianverbs.unify :refer [get-in strip-refs]]
