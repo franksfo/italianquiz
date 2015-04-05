@@ -277,8 +277,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (declare body)
 (declare control-panel)
 (declare create)
-(declare create-game)
-(declare create-form)
 (declare delete)
 (declare delete-form)
 (declare edit)
@@ -385,9 +383,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         {:status 302
          :headers {"Location" "/editor"}})
   
-   (GET "/create" request
-        (is-admin (create-form request)))
-
    (POST "/create" request
          (is-admin (create request)))
 
@@ -479,8 +474,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
              :options [{:value "en" :label "English"}
                        {:value "it" :label "Italian"}
                        {:value "es" :label "Spanish"}]}
-            {:name :game :type :hidden}
+
             ]
+
+   :cancel-href "/editor"
    :validations [[:required [:name]]
                  [:min-length 1 :groups "Select one or more groups"]]})
 
@@ -817,30 +814,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     inflections))
 
 (def game-default-values {})
-
-(defn create-game [request]
-  (do
-    (log/debug (str "redirecting to /editor"))
-    {:status 302
-     :headers {"Location" (str "/editor/?message=Game+created.")}}))
-
-(defn create [request]
-  (log/info (str "editor/new with request: " (:form-params request)))
-  (fp/with-fallback #(create-form request :problems %)
-    (let [values (fp/parse-params game-form (:form-params request))
-          debug (log/debug (str "editor/new: values: " values))
-          results 
-          (try
-            (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
-            (catch Exception e
-              (let [message (.getMessage e)]
-                (log/error (str "Failed inserting into games:{:name=>" (:name values) "}"))
-                ;; TODO: maybe there's something we can do to remedy the problem..?
-                (throw e))))
-          new-game-id (:id (first results))]
-      (update-verbs-for-game new-game-id (:form-params request))
-      {:status 302
-       :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
 
 (defn links [request current]
   ;; TODO: _current_ param can be derived from request.
