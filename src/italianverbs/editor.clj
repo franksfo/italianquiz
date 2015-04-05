@@ -57,6 +57,95 @@
     ;; return the row ID of the game that has been inserted.
     (:id (first (k/exec-raw [sql [name source target]] :results)))))
 
+(defn show-games [ & [ {game-to-edit :game-to-edit
+                        name-of-game :name-of-game} ]]
+  (let [results (k/exec-raw [
+                             "SELECT game.name AS game,game.id AS id,
+                                     source,target,
+                                     uniq(array_agg(source_groupings.name)) AS source_groups,
+                                     uniq(array_agg(target_groupings.name)) AS target_groups 
+                                FROM game 
+                           LEFT JOIN grouping AS source_groupings 
+                                  ON source_groupings.id = ANY(source_groupings) 
+                           LEFT JOIN grouping AS target_groupings 
+                                  ON target_groupings.id = ANY(target_groupings) GROUP BY game.id"] :results)]
+    (html
+
+     [:table {:class "striped padded"}
+      [:tr
+       [:th {:style "width:3%"} ""]
+       [:th {:style "width:15%"} "Name"]
+       [:th {:style "width:5%"} "Source"]
+       [:th {:style "width:5%"} "Target"]
+       [:th {:style "width:35%"} "Source must have all of"]
+       [:th {:style "width:35%"} "Target must have all of"]
+       (if (not (nil? game-to-edit))
+         [:th "Delete"])
+       ]
+      
+      (map (fn [result]
+             (let [game-id (:id result)
+                   game-to-edit (if game-to-edit (Integer. game-to-edit))]
+               [:tr 
+                [:td
+                (if (= game-to-edit game-id)
+                  [:button {:onclick (str "submit();")} "Update"]
+                  ;; else
+                  [:button {:onclick (str "document.location='/editor/game/edit/" (:id result) "';")}
+                   "Edit"])]
+                [:td
+                 (if (= game-to-edit game-id)
+                   [:input {:size (+ 5 (.length (:game result))) 
+                            :value (:game result)}]
+                   (:game result))]
+                [:td (unabbrev (:source result))]
+                [:td (unabbrev (:target result))]
+                [:td (str "<div class='group sourcegroup'>"
+                          (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
+                          "</div>")]
+                [:td (str "<div class='group targetgroup'>"
+                          (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
+                          "</div>")]
+
+                [:td 
+                (if (= game-to-edit game-id)
+                  
+                  [:div {:style "display:none" :id "delete_game"}
+                   [:h1 (str "Delete game" )]
+                   [:div#delete_game_name "" ]
+                   [:form
+                    {:id (str "delete_game_" game-id)
+                     :method "post"
+                     :action (str "/editor/game/delete/ " game-id)}
+                    [:input#delete_submit {:type "submit"}]
+                     
+                    [:div {:style "float:left;width:100%"}]
+                     
+                     [:div {:style "float:left"}
+                      [:button 
+                       {:onclick (str "delete_game_confirm( "  game-id "  );")}  "Delete"]
+                      ]
+
+                     [:div {:style "float:right"}
+                      [:button "Cancel"]
+                      ]]
+
+                   [:button {:onclick (str "delete_game_dialog('" 
+                                               (:id result) "','"
+                                               (:game result) "')")}
+                        "Delete"]]
+
+                 ;; else
+                  "")
+                 ]
+                ]))
+                
+           results)
+      ]
+     [:div.new
+      [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
+      ])))
+
 (defn insert-grouping [name selects]
   "Create a grouping. This is a set of specifications, any of which may be
 true for an expression to be part of the grouping. The grouping's
@@ -564,10 +653,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
            [:p "Are you sure you want to delete this group?"]
 
-           [:form {:method "post"
-                   :action (str "/editor/delete/" game-id)}
-            [:button {:onclick (str "javascript:submit();")}
-             "Confirm" ]]
+           [:form#delete_confirm
+            {:method "post"
+             :action (str "/editor/delete/" game-id)}]
 
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
            [:div.user-alert (:message (:params request))]
@@ -592,67 +680,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         game-id (:game (:params request))]
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
-(defn show-games [ & [ {game-to-edit :game-to-edit} ]]
-  (let [results (k/exec-raw [
-                             "SELECT game.name AS game,game.id AS id,
-                                     source,target,
-                                     uniq(array_agg(source_groupings.name)) AS source_groups,
-                                     uniq(array_agg(target_groupings.name)) AS target_groups 
-                                FROM game 
-                           LEFT JOIN grouping AS source_groupings 
-                                  ON source_groupings.id = ANY(source_groupings) 
-                           LEFT JOIN grouping AS target_groupings 
-                                  ON target_groupings.id = ANY(target_groupings) GROUP BY game.id"] :results)]
-    (html
-     [:table {:class "striped padded"}
-      [:tr
-       [:th {:style "width:3%"} ""]
-       [:th {:style "width:15%"} "Name"]
-       [:th {:style "width:5%"} "Source"]
-       [:th {:style "width:5%"} "Target"]
-       [:th {:style "width:35%"} "Source must have all of"]
-       [:th {:style "width:35%"} "Target must have all of"]
-       (if (not (nil? game-to-edit))
-         [:th "Delete"])
-       ]
-      
-      (map (fn [result]
-             (let [game-id (:id result)
-                   game-to-edit (if game-to-edit (Integer. game-to-edit))]
-               [:tr 
-                [:td
-                (if (= game-to-edit game-id)
-                  [:button {:onclick (str "submit();")} "Update"]
-                  ;; else
-                  [:button {:onclick (str "document.location='/editor/game/edit/" (:id result) "';")}
-                   "Edit"])]
-                [:td
-                 (if (= game-to-edit game-id)
-                   [:input {:size (+ 5 (.length (:game result))) 
-                            :value (:game result)}]
-                   (:game result))]
-                [:td (unabbrev (:source result))]
-                [:td (unabbrev (:target result))]
-                [:td (str "<div class='group sourcegroup'>"
-                          (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
-                          "</div>")]
-                [:td (str "<div class='group targetgroup'>"
-                          (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
-                          "</div>")]
-
-
-                (if (= game-to-edit game-id)
-                  [:td [:button {:onclick (str "confirm_delete('/editor/game/delete/" (:id result) "');")}
-                        "Delete"]]
-                  [:td "" ])
-                
-
-                ]))
-           results)
-      ]
-     [:div.new
-      [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
-      ])))
 
 (defn show-cities []
   "Show which cities are set for which games"

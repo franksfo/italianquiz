@@ -11,3 +11,15 @@ function toggle_expand(expand_this) {
 	expand_this.style.overflow = "scroll";
     }
 }
+
+function delete_game_dialog(game_id,game_name) {
+    // modify the delete tag so that the form input named 'game' is set to game_id.
+    $("#delete_game").css("display","block");
+    $("#delete_game_name").html(game_name);
+}
+
+function delete_game_confirm(game_id) {
+    alert("WTF");
+    $("#delete_game_" + game_id).submit();
+}
+

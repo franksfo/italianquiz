@@ -126,3 +126,27 @@ div.group {
     margin-left:1em;
     float:left;
 }
+
+#delete_game {
+    -moz-border-radius:15px;
+    -webkit-border-radius:15px;
+    border-radius:15px;
+    position:absolute;
+    left: 40%;
+    top: 40%;
+    width: 30%;
+    padding:1%;
+    border: 2px solid #e6dcad;
+    background:#e6bfad;
+    z-index:2;
+}
+
+#delete_game button {
+    float:left;
+}
+
+#delete_game_name {
+    float:left;
+    width:100%;
+    font-size:larger;
+}
