@@ -127,26 +127,26 @@ div.group {
     float:left;
 }
 
-#delete_game {
-    -moz-border-radius:15px;
-    -webkit-border-radius:15px;
-    border-radius:15px;
-    position:absolute;
-    left: 40%;
-    top: 40%;
-    width: 30%;
-    padding:1%;
-    border: 2px solid #e6dcad;
-    background:#e6bfad;
+button.confirm_delete {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    border:darkgrey;
+    padding:3px;
+    background:red;
+}
+
+div.editgame {
+    background:#e9ecae;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    border:solid #aee6ec 5px;
+    padding:3px;
+    display:none;
     z-index:2;
-}
-
-#delete_game button {
-    float:left;
-}
-
-#delete_game_name {
-    float:left;
-    width:100%;
-    font-size:larger;
+    position:absolute;
+    left:10%;
+    top:40%;
+    width:80%;
 }

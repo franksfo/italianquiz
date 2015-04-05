@@ -107,7 +107,7 @@
                  (cond (not (or game-to-edit game-to-delete))
                        [:div 
                         [:button 
-                         {:onclick (str "document.location='/editor/game/edit/" game-id "';" )}
+                         {:onclick (str "edit_game_dialog(" game-id ");")}
                          "Edit"]
                         [:button
                          {:onclick (str "document.location='/editor/game/delete/" game-id "';" )}
@@ -138,22 +138,55 @@
 
                 [:td 
                  (cond (= game-to-edit game-id)
-                       [:button {} "Update"]
+                       [:div
+                        [:form#update
+                         {:method "POST"
+                          :action (str "/editor/game/edit/" game-id)}]
+
+                        [:button {:onclick (str "$(\"#update\").submit();")} "Confirm"]]
+
                        (= game-to-delete game-id)
                        [:div
                         [:form#confirm_delete
                          {:method "POST"
                           :action (str "/editor/game/delete/" game-id)}]
 
-                        [:button {:onclick (str "$(\"#confirm_delete\").submit();")} "Confirm"]]
+                        [:button.confirm_delete {:onclick (str "$(\"#confirm_delete\").submit();")} "Confirm"]]
+
                        true
                        "")]]))
                 
            results)]
 
+
      [:div.new
       [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
-      ])))
+      ]
+
+
+     ;; make the hidden game-editing forms.
+     (map (fn [result]
+            (let [game-id (:id result)
+                  game-to-edit game-to-edit
+                  problems nil ;; TODO: should be optional param of this (defn)
+                  game-to-delete game-to-delete]
+              [:div.editgame
+               {:id (str "editgame" game-id)}
+               [:h2 (str "Editing game: " (:game_name result))]
+
+               (f/render-form (assoc game-form
+                                :values {:name (:game_name result)}
+                                :action (str "/editor/game/edit/" game-id)
+                                :method "post"
+                                :problems problems))
+                                         
+
+               ]
+              ))
+          
+          results)
+
+     )))
 
 (defn insert-grouping [name selects]
   "Create a grouping. This is a set of specifications, any of which may be
@@ -248,6 +281,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (declare create-form)
 (declare delete)
 (declare delete-form)
+(declare edit)
 (declare home-page)
 (declare links)
 (declare onload)
@@ -376,6 +410,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                      :status 200
                      :headers headers})))
 
+   (POST "/game/edit/:game-to-edit" request
+         (is-admin (edit (:game-to-edit (:route-params request))
+                         (:params request))))
+
    (GET "/game/new" request
         (do
           (insert-game "untitled" "" "" [] [])
@@ -442,20 +480,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                        {:value "it" :label "Italian"}
                        {:value "es" :label "Spanish"}]}
             {:name :game :type :hidden}
-            {:name :words
-             :label "Predicates for this group"
-             :cols 3
-             :type :checkboxes
-             :datatype :strs
-             :options (predicates-from-db)}
-            {:name :inflections
-             :label "Tenses for this group"
-             :type :checkboxes
-             :datatype :strs
-             :options all-inflections}
             ]
    :validations [[:required [:name]]
-                 [:min-length 1 :verbs "Select one or more verbs"]]})
+                 [:min-length 1 :groups "Select one or more groups"]]})
 
 (defn onload []
   (string/join " " 
@@ -663,9 +690,20 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         (log/debug (str "GAME ROW: " game-row))
         (k/exec-raw [(str "DELETE FROM game WHERE id=?") [game-id]])
         {:status 302
-         :headers {"Location" (str "/editor/" "?message=deleted+game:" (:name game-row))}}))
+         :headers {"Location" (str "/editor/" "?message=Deleted+game:" (:name game-row))}}))
     {:status 302
      :headers {"Location" (str "/editor/" "?message=no+game+to+delete")}}))
+
+(defn edit [game-id params]
+  (log/debug (str "EDITING GAME WITH PARAMS: " params))
+  (let [game-id game-id]
+    (log/debug (str "Editing game with id= " game-id))
+    (k/exec-raw ["UPDATE game SET (name) = (?) WHERE id=?" 
+                 [(:name params)
+                  (Integer. game-id)]])
+
+    {:status 302
+     :headers {"Location" (str "/editor/" "?message=Edited+game:" game-id)}}))
 
 (defn delete-form [request]
  (let [game-id (:game (:params request))

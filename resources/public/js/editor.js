@@ -11,3 +11,8 @@ function toggle_expand(expand_this) {
 	expand_this.style.overflow = "scroll";
     }
 }
+
+function edit_game_dialog(game_id) {
+    $("#editgame"+game_id)[0].style.display = "block";
+}
+

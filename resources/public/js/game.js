@@ -621,3 +621,4 @@ function make_it_rain(svg) {
 
     existing = newdata_array;
 }
+
