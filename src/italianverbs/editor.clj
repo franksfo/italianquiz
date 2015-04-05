@@ -465,10 +465,11 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
          (is-admin (create-game request)))
 
    (GET "/group/new" request
-        (do
-          (insert-grouping "untitled" [{}])
-          (is-admin {:status 302
-                     :headers {"Location" "/editor"}})))
+        (is-admin
+         (do
+           (insert-grouping "untitled" [{}])
+           {:status 302
+            :headers {"Location" "/editor"}})))
 
    (GET "/read" request
         (is-admin
