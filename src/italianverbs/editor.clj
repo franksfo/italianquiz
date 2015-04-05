@@ -22,15 +22,19 @@
 
 (declare show-games)
 (declare show-groups)
+(declare unabbrev)
 
-(defn home-page [ & [ {game-to-edit :game-to-edit
+(defn home-page [ & [ {game-to-delete :game-to-delete
+                       game-to-edit :game-to-edit
                        group-to-edit :group-to-edit
                        message :message} ]]
   (html
    [:div.user-alert message]
    
    [:div.section [:h3 "Games"]
-    (show-games {:game-to-edit game-to-edit})
+    (show-games {:game-to-delete game-to-delete
+                 :game-to-edit game-to-edit
+                 })
     ]
    
    [:div.section [:h3 "Groups"]
@@ -58,9 +62,12 @@
     (:id (first (k/exec-raw [sql [name source target]] :results)))))
 
 (defn show-games [ & [ {game-to-edit :game-to-edit
+                        game-to-delete :game-to-delete
                         name-of-game :name-of-game} ]]
-  (let [results (k/exec-raw [
-                             "SELECT game.name AS game,game.id AS id,
+  (let [game-to-edit (if game-to-edit (Integer. game-to-edit))
+        game-to-delete (if game-to-delete (Integer. game-to-delete))
+        results (k/exec-raw [
+                             "SELECT game.name AS game_name,game.id AS id,
                                      source,target,
                                      uniq(array_agg(source_groupings.name)) AS source_groups,
                                      uniq(array_agg(target_groupings.name)) AS target_groups 
@@ -73,31 +80,53 @@
 
      [:table {:class "striped padded"}
       [:tr
-       [:th {:style "width:3%"} ""]
+       [:th {:style "width:3%"} 
+        (cond
+         (or game-to-edit game-to-delete)
+         "Cancel"
+         :else "")
+        ]
+
        [:th {:style "width:15%"} "Name"]
        [:th {:style "width:5%"} "Source"]
        [:th {:style "width:5%"} "Target"]
        [:th {:style "width:35%"} "Source must have all of"]
        [:th {:style "width:35%"} "Target must have all of"]
-       (if (not (nil? game-to-edit))
-         [:th "Delete"])
+       (cond
+        game-to-edit [:th "Update"]
+        game-to-delete [:th "Delete"]
+        :else "")
        ]
-      
+
       (map (fn [result]
              (let [game-id (:id result)
-                   game-to-edit (if game-to-edit (Integer. game-to-edit))]
+                   game-to-edit game-to-edit
+                   game-to-delete game-to-delete]
                [:tr 
                 [:td
-                (if (= game-to-edit game-id)
-                  [:button {:onclick (str "submit();")} "Update"]
-                  ;; else
-                  [:button {:onclick (str "document.location='/editor/game/edit/" (:id result) "';")}
-                   "Edit"])]
+                 (cond (not (or game-to-edit game-to-delete))
+                       [:div 
+                        [:button 
+                         {:onclick (str "document.location='/editor/game/edit/" game-id "';" )}
+                         "Edit"]
+                        [:button
+                         {:onclick (str "document.location='/editor/game/delete/" game-id "';" )}
+                         "Delete"]
+                        ]
+                       
+                       (or (= game-to-edit game-id)
+                           (= game-to-delete game-id))
+                       [:button 
+                        {:onclick "document.location='/editor';"} "Cancel"]
+
+                       true "")]
+
                 [:td
                  (if (= game-to-edit game-id)
-                   [:input {:size (+ 5 (.length (:game result))) 
-                            :value (:game result)}]
-                   (:game result))]
+                   [:input {:size (+ 5 (.length (:game_name result))) 
+                            :value (:game_name result)}]
+                   (:game_name result)
+                   )]
                 [:td (unabbrev (:source result))]
                 [:td (unabbrev (:target result))]
                 [:td (str "<div class='group sourcegroup'>"
@@ -108,40 +137,20 @@
                           "</div>")]
 
                 [:td 
-                (if (= game-to-edit game-id)
-                  
-                  [:div {:style "display:none" :id "delete_game"}
-                   [:h1 (str "Delete game" )]
-                   [:div#delete_game_name "" ]
-                   [:form
-                    {:id (str "delete_game_" game-id)
-                     :method "post"
-                     :action (str "/editor/game/delete/ " game-id)}
-                    [:input#delete_submit {:type "submit"}]
-                     
-                    [:div {:style "float:left;width:100%"}]
-                     
-                     [:div {:style "float:left"}
-                      [:button 
-                       {:onclick (str "delete_game_confirm( "  game-id "  );")}  "Delete"]
-                      ]
+                 (cond (= game-to-edit game-id)
+                       [:button {} "Update"]
+                       (= game-to-delete game-id)
+                       [:div
+                        [:form#confirm_delete
+                         {:method "POST"
+                          :action (str "/editor/game/delete/" game-id)}]
 
-                     [:div {:style "float:right"}
-                      [:button "Cancel"]
-                      ]]
-
-                   [:button {:onclick (str "delete_game_dialog('" 
-                                               (:id result) "','"
-                                               (:game result) "')")}
-                        "Delete"]]
-
-                 ;; else
-                  "")
-                 ]
-                ]))
+                        [:button {:onclick (str "$(\"#confirm_delete\").submit();")} "Confirm"]]
+                       true
+                       "")]]))
                 
-           results)
-      ]
+           results)]
+
      [:div.new
       [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
       ])))
@@ -251,7 +260,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (declare tenses-per-game)
 (declare verbs-per-game)
 (declare short-language-name-to-long)
-(declare unabbrev)
 
 (defn show-expression [name source target & [source-groupings target-groupings]]
   (let [source-sqls (let [non-empty-groupings (filter #(not (= % {}))
@@ -349,10 +357,22 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
    (POST "/create" request
          (is-admin (create request)))
 
+   (GET "/game/delete/:game-to-delete" request
+        (let [game-to-delete (:game-to-delete (:route-params request))]
+          (is-admin {:body (body (str "Editor: Confirm: delete game: " game-to-delete)
+                                 (home-page {:game-to-delete game-to-delete}) 
+                                 request)
+                     :status 200
+                     :headers headers})))
+
+   (POST "/game/delete/:game-to-delete" request
+         (is-admin (delete (:game-to-delete (:route-params request)))))
+
    (GET "/game/edit/:game-to-edit" request
         (let [game-to-edit (:game-to-edit (:route-params request))]
           (is-admin {:body (body (str "Editor: Editing game: " game-to-edit)
-                                 (home-page {:game-to-edit game-to-edit}) request)
+                                 (home-page {:game-to-edit game-to-edit}) 
+                                 request)
                      :status 200
                      :headers headers})))
 
@@ -634,15 +654,18 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     {:status 302
      :headers {"Location" (str "/editor/?message=updated.")}}))
 
-(defn delete [request]
-  (let [game-id (:game (:params request))
-        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
-    (k/exec-raw [(str "DELETE FROM words_per_game WHERE game=?") [(Integer. game-id)]])
-    (k/exec-raw [(str "DELETE FROM inflections_per_game WHERE game=?") [(Integer. game-id)]])
-    (k/exec-raw [(str "DELETE FROM games_to_use WHERE game=?") [(Integer. game-id)]])
-    (k/exec-raw [(str "DELETE FROM games WHERE id=?") [(Integer. game-id)]])
+(defn delete [game-id]
+  (if game-id
+    (do
+      (log/debug (str "DELETING GAME: " game-id))
+      (let [game-id (Integer. game-id)
+            game-row (first (k/exec-raw [(str "SELECT * FROM game WHERE id=?") [game-id]] :results))]
+        (log/debug (str "GAME ROW: " game-row))
+        (k/exec-raw [(str "DELETE FROM game WHERE id=?") [game-id]])
+        {:status 302
+         :headers {"Location" (str "/editor/" "?message=deleted+game:" (:name game-row))}}))
     {:status 302
-     :headers {"Location" (str "/editor/" "?message=deleted+game:" (:name game-row))}}))
+     :headers {"Location" (str "/editor/" "?message=no+game+to+delete")}}))
 
 (defn delete-form [request]
  (let [game-id (:game (:params request))
