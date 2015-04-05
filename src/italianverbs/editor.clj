@@ -20,6 +20,8 @@
    [korma.core :as k]
 ))
 
+(declare create-game)
+(declare game-form)
 (declare show-games)
 (declare show-groups)
 (declare unabbrev)
@@ -90,8 +92,8 @@
        [:th {:style "width:15%"} "Name"]
        [:th {:style "width:5%"} "Source"]
        [:th {:style "width:5%"} "Target"]
-       [:th {:style "width:35%"} "Source must have all of"]
-       [:th {:style "width:35%"} "Target must have all of"]
+       [:th {:style "width:35%"} "Source Groups"]
+       [:th {:style "width:35%"} "Target Groups"]
        (cond
         game-to-edit [:th "Update"]
         game-to-delete [:th "Delete"]
@@ -116,8 +118,8 @@
                        
                        (or (= game-to-edit game-id)
                            (= game-to-delete game-id))
-                       [:button 
-                        {:onclick "document.location='/editor';"} "Cancel"]
+                       [:a
+                        {:href "/editor"} "Cancel"]
 
                        true "")]
 
@@ -175,7 +177,11 @@
                [:h2 (str "Editing game: " (:game_name result))]
 
                (f/render-form (assoc game-form
-                                :values {:name (:game_name result)}
+                                :values {:name (:game_name result)
+                                         :source (:source result)
+                                         :target (:target result)
+                                         :source_groups (.getArray (:source_groups result))
+                                         :target_groups (.getArray (:target_groups result))}
                                 :action (str "/editor/game/edit/" game-id)
                                 :method "post"
                                 :problems problems))
@@ -429,10 +435,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
          {:body (read-request request)
           :headers headers}))
 
-   (POST "/update/:game" request
-        (is-admin
-         (update request)))
-
    (GET "/delete/:game" request
         (is-admin
          {:headers headers
@@ -475,8 +477,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                        {:value "it" :label "Italian"}
                        {:value "es" :label "Spanish"}]}
 
-            ]
 
+
+            ]
    :cancel-href "/editor"
    :validations [[:required [:name]]
                  [:min-length 1 :groups "Select one or more groups"]]})
@@ -642,25 +645,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     (k/exec-raw [(str "DELETE FROM inflections_per_game WHERE game=?") [(Integer. game-id)]])
     (update-inflection-for-game game-id inflections)))
 
-(defn update [request]
-  (let [game-id (:game (:params request))
-        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)] ] :results))]
-    (log/debug (str "editor/update with request: " (:form-params request)))
-    (fp/with-fallback #(update-form request game-row :problems %)
-      (let [debug (log/debug (str "editor/update..about to fp/parse-params with params: " (:form-params request)))
-            values (fp/parse-params game-form (:form-params request))
-            debug (log/debug (str "values parsed from form params: " values))
-            results (k/exec-raw ["UPDATE games SET (name, source,target) = (?,?,?) WHERE id=? RETURNING id" [(:name values)
-                                                                                                             (:source values)
-                                                                                                             (:target values)
-                                                                                                             (Integer. (:game values))]] 
-                                :results)
-            edited-game-id (:id (first results))]
-        (update-verbs-for-game edited-game-id (:form-params request))
-        (update-inflections-for-game edited-game-id (:form-params request))
-        {:status 302
-         :headers {"Location" (str "/editor/" edited-game-id "?message=updated.")}}))))
-
 (defn set-each-as-default [params]
   (if (not (empty? params))
     (let [param (first params)]
@@ -695,8 +679,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
   (log/debug (str "EDITING GAME WITH PARAMS: " params))
   (let [game-id game-id]
     (log/debug (str "Editing game with id= " game-id))
-    (k/exec-raw ["UPDATE game SET (name) = (?) WHERE id=?" 
+    (k/exec-raw ["UPDATE game SET (name,source,target) = (?,?,?) WHERE id=?" 
                  [(:name params)
+                  (:source params)
+                  (:target params)
                   (Integer. game-id)]])
 
     {:status 302
