@@ -17,6 +17,7 @@
    [italianverbs.korma :as db]
    [italianverbs.unify :refer [get-in strip-refs]]
    [italianverbs.verb :refer [generation-table predicates-from-lexicon]]
+
    [hiccup.core :refer (html)]
    [korma.core :as k]
 ))
@@ -134,12 +135,23 @@
                    )]
                 [:td (unabbrev (:source result))]
                 [:td (unabbrev (:target result))]
-                [:td (str "<div class='group sourcegroup'>"
-                          (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
-                          "</div>")]
-                [:td (str "<div class='group targetgroup'>"
-                          (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
-                          "</div>")]
+                [:td 
+
+                 (if (not (empty? (remove nil? (seq (.getArray (:source_groups result))))))
+                   (str 
+                    "<div class='group sourcegroup'>"
+                    (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
+                    "</div>")
+                   [:i "No source-language groups."])
+
+                 ]
+
+                [:td
+                 (if (not (empty? (remove nil? (seq (.getArray (:target_groups result))))))
+                   (str "<div class='group targetgroup'>"
+                        (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
+                        "</div>")
+                   [:i "No target-language groups."])]
 
                 [:td 
                  (cond (= game-to-edit game-id)
@@ -426,8 +438,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
    ;; alias for '/editor' (above)
    (GET "/home" request
-        {:status 302
-         :headers {"Location" "/editor"}})
+        (is-admin
+         {:status 302
+          :headers {"Location" "/editor"}}))
   
    (POST "/create" request
          (is-admin (create request)))
@@ -457,7 +470,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
    (GET "/game/new" request
         (do
-          (insert-game "untitled" "" "" [] [])
+          ;; Defaults: source language=English, target language=Italian.
+          (insert-game "untitled" "en" "it" [] [])
           (is-admin {:status 302
                      :headers {"Location" "/editor"}})))
 
