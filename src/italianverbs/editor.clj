@@ -51,12 +51,11 @@
   'anyof-sets', each member of which is a possible specification in its
   respective language. See example usage in test/editor.clj."
   (log/debug (str "source-set: " source-set))
-  (log/debug (str "source-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]")))
-  (log/debug (str "target-set with commas: " (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]")))
+  (log/debug (str "source-set with commas: " (str "ARRAY[" (string/join "," (map #(str "" (string/join "," %) "") source-set)) "]")))
+  (log/debug (str "target-set with commas: " (str "ARRAY[" (string/join "," (map #(str "" (string/join "," %) "") target-set)) "]")))
 
-  (let [source-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") source-set)) "]::integer[]")
-
-        target-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," %) "]") target-set)) "]::integer[]")
+  (let [source-grouping-str (str "ARRAY[" (string/join "," (map #(str "" (string/join "," %) "") source-set)) "]::integer[]")
+        target-grouping-str (str "ARRAY[" (string/join "," (map #(str "" (string/join "," %) "") target-set)) "]::integer[]")
         sql (str "INSERT INTO game (name,source_groupings,target_groupings,source,target) 
                        SELECT ?, " source-grouping-str "," target-grouping-str ",?,? RETURNING id")]
     (log/debug (str "inserting new game with sql: " sql))
@@ -710,9 +709,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         debug (log/debug (str "edit: target-groupings(2):" target-grouping-set))
 
 
-        source-grouping-str (str "ARRAY[ARRAY[" (string/join "," source-grouping-set) "]]::integer[]")
+        source-grouping-str (str "ARRAY[" (string/join "," source-grouping-set) "]::integer[]")
 
-        target-grouping-str (str "ARRAY[ARRAY[" (string/join "," target-grouping-set) "]]::integer[]")]
+        target-grouping-str (str "ARRAY[" (string/join "," target-grouping-set) "]::integer[]")]
 
     (log/debug (str "Editing game with id= " game-id))
 
@@ -788,7 +787,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
       ])))
 
 (defn show-groups [ [& request ]]
-  (let [results (k/exec-raw ["SELECT id,name,any_of FROM grouping"] :results)]
+  (let [results (k/exec-raw ["SELECT id,name,any_of FROM grouping ORDER BY name ASC"] :results)]
     (html
      [:table {:class "striped padded"}
       [:tr
