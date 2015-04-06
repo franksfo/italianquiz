@@ -323,15 +323,23 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
             :source-structure (json/read-str (str (:source_structure row))
                                              :key-fn keyword
                                              :value-fn (fn [k v]
-                                                         (cond (string? v)
-                                                               (keyword v)
-                                                               :else v)))
+                                                         (cond 
+                                                          (and (or (= k :english) (= k :espanol) (= k :italiano))
+                                                               (not (map? v)))
+                                                          (str v)
+                                                          (string? v)
+                                                          (keyword v)
+                                                          :else v)))
             :target-structure (json/read-str (str (:target_structure row))
                                              :key-fn keyword
                                              :value-fn (fn [k v]
-                                                         (cond (string? v)
-                                                               (keyword v)
-                                                               :else v)))})
+                                                         (cond 
+                                                          (and (or (= k :english) (= k :espanol) (= k :italiano))
+                                                               (not (map? v)))
+                                                          (str v)
+                                                          (string? v)
+                                                          (keyword v)
+                                                          :else v)))})
 
          (k/exec-raw [sql
                       [game-id game-id game-id game-id]] :results))))
@@ -586,14 +594,20 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                   (json/read-str sem
                                                  :key-fn keyword
                                                  :value-fn (fn [k v]
-                                                             (cond (string? v)
+                                                             (cond (and (or (= k :english) (= k :espanol) (= k :italiano))
+                                                                        (not (map? v)))
+                                                                   (str v)
+                                                                   (string? v)
                                                                    (keyword v)
                                                                    :else v))))
                      target_sem (let [sem (str (:target_sem row))]
                                   (json/read-str sem
                                                  :key-fn keyword
                                                  :value-fn (fn [k v]
-                                                             (cond (string? v)
+                                                             (cond (and (or (= k :english) (= k :espanol) (= k :italiano))
+                                                                        (not (map? v)))
+                                                                   (str v)
+                                                                   (string? v)
                                                                    (keyword v)
                                                                    :else v))))]
                  [:tr 
@@ -786,12 +800,17 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
              [:tr 
               [:td [:div.group (:name result)]]
               [:td (str "<div class='anyof'>" (string/join "</div><div class='anyof'>" (map #(json/read-str %
-                                                                           :key-fn keyword
-                                                                           :value-fn (fn [k v]
-                                                                                       (cond (string? v)
-                                                                                             (keyword v)
-                                                                                             :else v)))
-                                                           (.getArray (:any_of result))))
+                                                                                                            :key-fn keyword
+                                                                                                            :value-fn (fn [k v]
+                                                                                                                        (cond (and
+                                                                                                                               (or (= k :english)
+                                                                                                                                   (= k :espanol) (= k :italiano))
+                                                                                                                               (not (map? v)))
+                                                                                                                              (str v)
+                                                                                                                              (string? v)
+                                                                                                                              (keyword v)
+                                                                                                                              :else v)))
+                                                                                            (.getArray (:any_of result))))
                         "</div>")]
               ])
            results)]
