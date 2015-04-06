@@ -23,7 +23,9 @@
 (declare selects-of-game)
 
 (deftest insert_new_game_en2es
-  (let [future-tense (insert-grouping "Future tense" [{:synsem {:sem {:tense :futuro}}}])
+  (let [init (do (k/exec-raw "TRUNCATE grouping CASCADE")
+                 (k/exec-raw "TRUNCATE game CASCADE"))
+        future-tense (insert-grouping "Future tense" [{:synsem {:sem {:tense :futuro}}}])
         source-group future-tense
         target-group-1 (insert-grouping "Common Spanish verbs"
                                         [{:head {:espanol {:espanol "comer"}}}
