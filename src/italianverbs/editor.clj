@@ -29,18 +29,20 @@
 (defn home-page [ & [ {game-to-delete :game-to-delete
                        game-to-edit :game-to-edit
                        group-to-edit :group-to-edit
+                       group-to-delete :group-to-delete
                        message :message} ]]
   (html
    [:div.user-alert message]
    
    [:div.section [:h3 "Games"]
     (show-games {:game-to-delete game-to-delete
-                 :game-to-edit game-to-edit
-                 })
+                 :game-to-edit game-to-edit})
     ]
    
    [:div.section [:h3 "Groups"]
-    (show-groups {:group-to-edit :group})
+    (show-groups {:group-to-delete group-to-delete
+                  :group-to-edit group-to-edit})
+                  
     ]
    ))
 
@@ -786,17 +788,45 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
            results)
       ])))
 
-(defn show-groups [ [& request ]]
+(defn show-groups [ & [{group-to-edit :group-to-edit
+                        group-to-delete :group-to-delete}]]
   (let [results (k/exec-raw ["SELECT id,name,any_of FROM grouping ORDER BY name ASC"] :results)]
     (html
      [:table {:class "striped padded"}
       [:tr
+       [:th {:style "width:9%"} 
+        (cond
+         (or group-to-edit group-to-delete)
+         (str "Cancel:" group-to-edit "/" group-to-delete)
+         :else "")
+        ]
+
        [:th "Name"]
        [:th "Any Of"]
 
        ]
       (map (fn [result]
-             [:tr 
+             (let [group-id (:id result)]
+               [:tr 
+                [:td
+                 (cond (not (or group-to-edit group-to-delete))
+                       [:div {:style "width:100%"}
+                        [:div.edit
+                         [:button 
+                          {:onclick (str "edit_group_dialog(" (:id result) ");")}
+                          "Edit"]]
+                        [:div.delete
+                         [:button
+                          {:onclick (str "document.location='/editor/group/delete/" (:id result) "';" )}
+                          "Delete"]]]
+                       
+                       (or (= group-to-edit group-id)
+                           (= group-to-delete group-id))
+                       [:a
+                        {:href "/editor"} "Cancel"]
+
+                     true "")]
+
               [:td [:div.group (:name result)]]
               [:td (str "<div class='anyof'>" (string/join "</div><div class='anyof'>" (map #(json/read-str %
                                                                                                             :key-fn keyword
@@ -811,7 +841,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                                                                                                               :else v)))
                                                                                             (.getArray (:any_of result))))
                         "</div>")]
-              ])
+              ]))
            results)]
      [:div.new
       [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
