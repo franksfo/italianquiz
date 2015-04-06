@@ -31,6 +31,12 @@
                                         [{:head {:espanol {:espanol "comer"}}}
                                          {:head {:espanol {:espanol "enseñar"}}}
                                          {:head {:espanol {:espanol "hablar"}}}])
+
+        target-group-italian (insert-grouping "Common Italian verbs"
+                                        [{:head {:italiano {:italiano "parlare"}}}
+                                         {:head {:italiano {:italiano "venire"}}}
+                                         {:head {:italiano {:italiano "andare"}}}])
+
         target-group-2 future-tense
         game-id (insert-game "The Useful Spanish Game" "en" "es" [source-group] [target-group-1 target-group-2])]
     (is (integer? game-id))
