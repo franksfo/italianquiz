@@ -84,7 +84,7 @@
 
      [:table {:class "striped padded"}
       [:tr
-       [:th {:style "width:3%"} 
+       [:th {:style "width:9%"} 
         (cond
          (or game-to-edit game-to-delete)
          "Cancel"
@@ -109,14 +109,15 @@
                [:tr 
                 [:td
                  (cond (not (or game-to-edit game-to-delete))
-                       [:div 
-                        [:button 
-                         {:onclick (str "edit_game_dialog(" game-id ");")}
-                         "Edit"]
-                        [:button
+                       [:div {:style "width:100%"}
+                        [:div.edit
+                         [:button 
+                          {:onclick (str "edit_game_dialog(" game-id ");")}
+                          "Edit"]]
+                        [:div.delete
+                         [:button
                          {:onclick (str "document.location='/editor/game/delete/" game-id "';" )}
-                         "Delete"]
-                        ]
+                          "Delete"]]]
                        
                        (or (= game-to-edit game-id)
                            (= game-to-delete game-id))
@@ -190,8 +191,8 @@
                     problems nil ;; TODO: should be optional param of this (defn)
                     game-to-delete game-to-delete
 
-                    source-groups (vec (remove nil? (.getArray (:source_group_ids result))))
-                    target-groups (vec (remove nil? (.getArray (:target_group_ids result))))
+                    source-groups (vec (map str (remove nil? (.getArray (:source_group_ids result)))))
+                    target-groups (vec (map str (remove nil? (.getArray (:target_group_ids result)))))
                     debug (log/debug (str "SOURCE GROUPS: " source-groups))
                     debug (log/debug (str "TARGET GROUPS: " target-groups))
                     ]
@@ -663,7 +664,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
      :headers {"Location" (str "/editor/" "?message=no+game+to+delete")}}))
 
 (defn edit [game-id params]
-  (log/debug (str "EDITING GAME WITH PARAMS: " params))
+  (log/debug (str "UPDATING GAME WITH PARAMS: " params))
   (let [game-id game-id
 
         source-grouping-set (:source_groupings params)
@@ -695,10 +696,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         debug (log/debug (str "edit: target-groupings(2):" target-grouping-set))
 
 
-        source-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," (str %)) "]")
-                                                                source-grouping-set)) "]::integer[]")
-        target-grouping-str (str "ARRAY[" (string/join "," (map #(str "ARRAY[" (string/join "," (str %)) "]")
-                                                                target-grouping-set)) "]::integer[]")]
+        source-grouping-str (str "ARRAY[ARRAY[" (string/join "," source-grouping-set) "]]::integer[]")
+
+        target-grouping-str (str "ARRAY[ARRAY[" (string/join "," target-grouping-set) "]]::integer[]")]
 
     (log/debug (str "Editing game with id= " game-id))
 

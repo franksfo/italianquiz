@@ -64,7 +64,7 @@
                                                                       :subj {:pred :io}
                                                                       :pred :speak}}}))]
       
-      (let [expressions (expressions-for-game 1)]
+      (let [expressions (expressions-for-game game-id)]
         (is (not (empty? expressions)))))))
 
 ;; scaffolding functions used to develop (expressions-for-game) (above).

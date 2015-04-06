@@ -150,3 +150,13 @@ div.editgame {
     top:40%;
     width:80%;
 }
+
+div.edit {
+    float:left;
+    width:50%;
+}
+
+div.delete {
+    float:right;
+    width:50%;
+}
