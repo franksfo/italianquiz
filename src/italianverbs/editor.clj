@@ -138,7 +138,7 @@
                  (if (not (empty? (remove nil? (seq (.getArray (:source_groups result))))))
                    (str 
                     "<div class='group sourcegroup'>"
-                    (string/join "</div><div class='group sourcegroup'>" (.getArray (:source_groups result)))
+                    (string/join "</div><div class='group sourcegroup'>" (sort (.getArray (:source_groups result))))
                     "</div>")
                    [:i "No source-language groups."])
 
@@ -147,7 +147,7 @@
                 [:td
                  (if (not (empty? (remove nil? (seq (.getArray (:target_groups result))))))
                    (str "<div class='group targetgroup'>"
-                        (string/join "</div><div class='group targetgroup'>" (.getArray (:target_groups result)))
+                        (string/join "</div><div class='group targetgroup'>" (sort (.getArray (:target_groups result))))
                         "</div>")
                    [:i "No target-language groups."])]
 
