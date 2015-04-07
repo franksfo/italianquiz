@@ -104,9 +104,7 @@
        ]
 
       (map (fn [result]
-             (let [game-id (:id result)
-                   game-to-edit game-to-edit
-                   game-to-delete game-to-delete]
+             (let [game-id (:id result)]
                [:tr 
                 [:td
                  (cond (not (or game-to-edit game-to-delete))
@@ -164,11 +162,11 @@
 
                        (= game-to-delete game-id)
                        [:div
-                        [:form#confirm_delete
+                        [:form#confirm_delete_game
                          {:method "POST"
                           :action (str "/editor/game/delete/" game-id)}]
 
-                        [:button.confirm_delete {:onclick (str "$(\"#confirm_delete\").submit();")} "Confirm"]]
+                        [:button.confirm_delete {:onclick (str "$(\"#confirm_delete_game\").submit();")} "Confirm"]]
 
                        true
                        "")]]))
@@ -349,8 +347,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (declare control-panel)
 (declare create)
 (declare delete)
-(declare delete-form)
-(declare edit)
+(declare delete-game)
+(declare delete-group)
+(declare edit-game)
+(declare edit-group)
 (declare home-page)
 (declare links)
 (declare onload)
@@ -459,15 +459,28 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
          (is-admin (create request)))
 
    (GET "/game/delete/:game-to-delete" request
-        (let [game-to-delete (:game-to-delete (:route-params request))]
-          (is-admin {:body (body (str "Editor: Confirm: delete game: " game-to-delete)
-                                 (home-page {:game-to-delete game-to-delete}) 
-                                 request)
-                     :status 200
-                     :headers headers})))
+        (is-admin
+         (let [game-to-delete (:game-to-delete (:route-params request))]
+           {:body (body (str "Editor: Confirm: delete game: " game-to-delete)
+                        (home-page {:game-to-delete game-to-delete}) 
+                        request)
+            :status 200
+            :headers headers})))
+
+   (GET "/group/delete/:group-to-delete" request
+        (is-admin
+         (let [group-to-delete (:group-to-delete (:route-params request))]
+           {:body (body (str "Editor: Confirm: delete group: " group-to-delete)
+                        (home-page {:group-to-delete group-to-delete})
+                        request)
+            :status 200
+            :headers headers})))
 
    (POST "/game/delete/:game-to-delete" request
-         (is-admin (delete (:game-to-delete (:route-params request)))))
+         (is-admin (delete-game (:game-to-delete (:route-params request)))))
+
+   (POST "/group/delete/:group-to-delete" request
+         (is-admin (delete-group (:group-to-delete (:route-params request)))))
 
    (GET "/game/edit/:game-to-edit" request
         (let [game-to-edit (:game-to-edit (:route-params request))]
@@ -478,8 +491,12 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                      :headers headers})))
 
    (POST "/game/edit/:game-to-edit" request
-         (is-admin (edit (:game-to-edit (:route-params request))
-                         (:params request))))
+         (is-admin (edit-game (:game-to-edit (:route-params request))
+                              (:params request))))
+
+   (POST "/group/edit/:group-to-edit" request
+         (is-admin (edit-group (:group-to-edit (:route-params request))
+                               (:params request))))
 
    ;; TODO: should be a POST
    (GET "/game/new" request
@@ -495,25 +512,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
            (insert-grouping "untitled" [{}])
            {:status 302
             :headers {"Location" "/editor"}})))
-
-   (GET "/read" request
-        (is-admin
-         {:body (read-request request)
-          :headers headers}))
-
-   (GET "/delete/:game" request
-        (is-admin
-         {:headers headers
-          :body (delete-form request)}))
-
-   (POST "/delete/:game" request
-        (is-admin (delete request)))
-
-   ;; alias for '/read' (above)
-   (GET "/:game" request
-        (is-admin {:body (read-request request)
-                   :headers headers
-                   :status 200}))
 
    ;; which game(s) will be active (more than one are possible).
    (POST "/use" request
@@ -665,7 +663,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     {:status 302
      :headers {"Location" (str "/editor/?message=updated.")}}))
 
-(defn delete [game-id]
+(defn delete-game [game-id]
   (if game-id
     (do
       (log/debug (str "DELETING GAME: " game-id))
@@ -678,7 +676,20 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     {:status 302
      :headers {"Location" (str "/editor/" "?message=no+game+to+delete")}}))
 
-(defn edit [game-id params]
+(defn delete-group [group-id]
+  (if group-id
+    (do
+      (log/debug (str "DELETING GROUP: " group-id))
+      (let [group-id (Integer. group-id)
+            group-row (first (k/exec-raw [(str "SELECT * FROM grouping WHERE id=?") [group-id]] :results))]
+        (log/debug (str "GROUP ROW: " group-row))
+        (k/exec-raw [(str "DELETE FROM grouping WHERE id=?") [group-id]])
+        {:status 302
+         :headers {"Location" (str "/editor/" "?message=Deleted+group:" (:name group-row))}}))
+    {:status 302
+     :headers {"Location" (str "/editor/" "?message=no+group+to+delete")}}))
+
+(defn edit-game [game-id params]
   (log/debug (str "UPDATING GAME WITH PARAMS: " params))
   (let [game-id game-id
 
@@ -730,24 +741,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
       {:status 302
        :headers {"Location" (str "/editor/" "?message=Edited+game:" game-id)}})))
 
-(defn delete-form [request]
- (let [game-id (:game (:params request))
-       game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
-    (body (str "Deleting game: " (:name game-row))
-          (html
-           [:h3 (str "Confirm - deleting '" (:name game-row) "'")]
-
-           [:p "Are you sure you want to delete this group?"]
-
-           [:form#delete_confirm
-            {:method "post"
-             :action (str "/editor/delete/" game-id)}]
-
-           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
-           [:div.user-alert (:message (:params request))]
-
-           (links request :read))
-          request)))
+(defn edit-group [group-id params]
+  (log/debug (str "UPDATING GROUP WITH PARAMS: " params))
+  {:status 302
+   :headers {"Location" (str "/editor/" "?message=Edited+group:" group-id)}})
 
 (def games-table "games")
 (def words-per-game-table "words_per_game")
@@ -790,14 +787,18 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
 (defn show-groups [ & [{group-to-edit :group-to-edit
                         group-to-delete :group-to-delete}]]
-  (let [results (k/exec-raw ["SELECT id,name,any_of FROM grouping ORDER BY name ASC"] :results)]
+  (let [group-to-edit (if group-to-edit (Integer. group-to-edit))
+        group-to-delete (if group-to-delete (Integer. group-to-delete))
+        results (k/exec-raw ["SELECT id,name,any_of 
+                                FROM grouping 
+                            ORDER BY name ASC"] :results)]
     (html
      [:table {:class "striped padded"}
       [:tr
        [:th {:style "width:9%"} 
         (cond
          (or group-to-edit group-to-delete)
-         (str "Cancel:" group-to-edit "/" group-to-delete)
+         "Cancel"
          :else "")
         ]
 
@@ -828,20 +829,45 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                      true "")]
 
               [:td [:div.group (:name result)]]
-              [:td (str "<div class='anyof'>" (string/join "</div><div class='anyof'>" (map #(json/read-str %
-                                                                                                            :key-fn keyword
-                                                                                                            :value-fn (fn [k v]
-                                                                                                                        (cond (and
-                                                                                                                               (or (= k :english)
-                                                                                                                                   (= k :espanol) (= k :italiano))
-                                                                                                                               (not (map? v)))
-                                                                                                                              (str v)
-                                                                                                                              (string? v)
-                                                                                                                              (keyword v)
-                                                                                                                              :else v)))
-                                                                                            (.getArray (:any_of result))))
-                        "</div>")]
-              ]))
+              [:td 
+               (str "<div class='anyof'>" 
+                    (string/join 
+                     "</div><div class='anyof'>" 
+                     (map #(json/read-str 
+                            % 
+                            :key-fn keyword
+                            :value-fn (fn [k v]
+                                        (cond (and
+                                               (or (= k :english)
+                                                   (= k :espanol) (= k :italiano))
+                                               (not (map? v)))
+                                              (str v)
+                                              (string? v)
+                                              (keyword v)
+                                              :else v)))
+                          (.getArray (:any_of result))))
+                    "</div>")]
+
+                [:td 
+                 (cond (= group-to-edit group-id)
+                       [:div
+                        [:form#update
+                         {:method "POST"
+                          :action (str "/editor/group/edit/" group-id)}]
+                        
+                        [:button {:onclick (str "$(\"#update\").submit();")} "Confirm"]]
+                       
+                       (= group-to-delete group-id)
+                       [:div
+                        [:form#confirm_delete_group
+                         {:method "POST"
+                          :action (str "/editor/group/delete/" group-id)}]
+                        
+                        [:button.confirm_delete {:onclick (str "$(\"#confirm_delete_group\").submit();")} "Confirm"]]
+                       
+                       true
+                       "")]]))
+              
            results)]
      [:div.new
       [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
