@@ -154,11 +154,11 @@
                 [:td 
                  (cond (= game-to-edit game-id)
                        [:div
-                        [:form#update
+                        [:form#update_game
                          {:method "POST"
                           :action (str "/editor/game/edit/" game-id)}]
 
-                        [:button {:onclick (str "$(\"#update\").submit();")} "Confirm"]]
+                        [:button {:onclick (str "$(\"#update_game\").submit();")} "Confirm"]]
 
                        (= game-to-delete game-id)
                        [:div
@@ -349,7 +349,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (declare delete)
 (declare delete-game)
 (declare delete-group)
-(declare edit-game)
+(declare update-game)
 (declare edit-group)
 (declare home-page)
 (declare links)
@@ -491,7 +491,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                      :headers headers})))
 
    (POST "/game/edit/:game-to-edit" request
-         (is-admin (edit-game (:game-to-edit (:route-params request))
+         (is-admin (update-game (:game-to-edit (:route-params request))
                               (:params request))))
 
    (POST "/group/edit/:group-to-edit" request
@@ -689,7 +689,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     {:status 302
      :headers {"Location" (str "/editor/" "?message=no+group+to+delete")}}))
 
-(defn edit-game [game-id params]
+(defn update-game [game-id params]
   (log/debug (str "UPDATING GAME WITH PARAMS: " params))
   (let [game-id game-id
 
@@ -851,11 +851,11 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                 [:td 
                  (cond (= group-to-edit group-id)
                        [:div
-                        [:form#update
+                        [:form#update_group
                          {:method "POST"
                           :action (str "/editor/group/edit/" group-id)}]
                         
-                        [:button {:onclick (str "$(\"#update\").submit();")} "Confirm"]]
+                        [:button {:onclick (str "$(\"#update_group\").submit();")} "Confirm"]]
                        
                        (= group-to-delete group-id)
                        [:div

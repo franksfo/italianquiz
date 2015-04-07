@@ -16,3 +16,7 @@ function edit_game_dialog(game_id) {
     $("#editgame"+game_id)[0].style.display = "block";
 }
 
+function edit_group_dialog(game_id) {
+    $("#editgroup"+game_id)[0].style.display = "block";
+}
+
