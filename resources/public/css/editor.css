@@ -166,6 +166,10 @@ div.editgroup {
     width:80%;
 }
 
+div.editgroup textarea {
+    font-family:monospace;
+}
+
 div.edit {
     font-size:smaller;
     float:left;

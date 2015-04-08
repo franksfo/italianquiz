@@ -892,19 +892,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                     problems nil ;; TODO: should be optional param of this (defn)
                     group-to-delete group-to-delete
 
-
-                    source-groups-ids (:source_group_ids result)
-                    target-groups-ids (:target_group_ids result)
-
-                    source-groups (if source-groups-ids
-                                    (vec (map str (remove nil? (.getArray (:source_group_ids result)))))
-                                    [])
-                    target-groups (if target-groups-ids
-                                    (vec (map str (remove nil? (.getArray (:target_group_ids result)))))
-                                    [])
-
-                    debug (log/debug (str "SOURCE GROUPS: " source-groups))
-                    debug (log/debug (str "TARGET GROUPS: " target-groups))
                     ]
                 [:div.editgroup
                  {:id (str "editgroup" group-id)}
@@ -913,24 +900,47 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                  (f/render-form 
                   {:action (str "/editor/group/edit/" group-id)
                    :method :post
-                   :fields [{:name :name :size 50 :label "Name"}
+                   :fields (concat
 
-                            {:name :any_of
-                             :type :textbox
-                             :value "anyof goes here.."}
-                            ]
-                   
+                            [{:name :name :size 50 :label "Name"}
+                             {:name :note :type :html
+                              :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
+
+                            (map (fn [each-spec-index]
+                                   {:name (keyword (str "any_of" each-spec-index))
+                                    :label " "
+                                    :type :textarea
+                                    :rows 3
+                                    :cols 80})
+                                 (if (and (:any_of result)
+                                          (.getArray (:any_of result)))
+                                   (range 0 (.size (seq (.getArray (:any_of result)))))
+                                   []))
+
+                            [{:name "new_spec"
+                              :label "New Spec:"
+                              :type :textarea
+                              :rows 3
+                              :cols 80}]
+                            )
+
                    :cancel-href "/editor"
-                   :values {:name (:group_name result)
-                            :anyof (:anyof result)}
+                   :values (reduce merge 
+                                   (cons {:name (:group_name result)
+                                          :new_spec ""}
+                                         (map (fn [each-spec-index]
+                                                {(keyword (str "any_of" each-spec-index))
+                                                 (nth (seq (.getArray (:any_of result))) each-spec-index)})
+                                              (if (and (:any_of result)
+                                                       (.getArray (:any_of result)))
+                                                (range 0 (.size (seq (.getArray (:any_of result)))))
+                                                []))))
+                   
                    :validations [[:required [:name]   
                                   :action "/editor"
                                   :method "post"
-                                  :problems problems]]})]
-                ))
-            results))
-
-)))
+                                  :problems problems]]})]))
+            results)))))
 
 (defn tenses-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))
