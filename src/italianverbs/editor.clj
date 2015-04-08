@@ -707,7 +707,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         debug (log/debug (str "edit: source-groupings(1):" source-grouping-set))
         debug (log/debug (str "edit: target-groupings(1):" target-grouping-set))
 
-
         ;; cleanup
         source-grouping-set (vec (map #(Integer/parseInt %)
                                       (remove #(= "" %)
@@ -769,7 +768,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
   (let [table-name words-per-game-table
         game-id (:game (:params request))]
     (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
-
 
 (defn show-cities []
   "Show which cities are set for which games"
@@ -909,8 +907,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                               :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
 
                             (map (fn [each-spec-index]
-                                   {:name (keyword (str "any_of" each-spec-index))
-                                    :label " "
+                                   {:name (keyword (str "spec" each-spec-index))
+                                    :label " " ;; cannot be "" (TODO: file bug on formative)
                                     :type :textarea
                                     :rows 3
                                     :cols 80})
@@ -931,8 +929,16 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                    (cons {:name (:group_name result)
                                           :new_spec ""}
                                          (map (fn [each-spec-index]
-                                                {(keyword (str "any_of" each-spec-index))
-                                                 (nth (seq (.getArray (:any_of result))) each-spec-index)})
+                                                {(keyword (str "spec" each-spec-index))
+                                                 (let [val-json
+                                                       (nth (seq (.getArray (:any_of result))) each-spec-index)
+                                                       debug (log/debug (str "val-json: " val-json))
+                                                       debug (log/debug (str "val-json read: " 
+                                                                             (json/read-str 
+                                                                              val-json
+                                                                              :key-fn keyword)))
+                                                      the-val (str val-json)]
+                                                   val-json)})
                                               (if (and (:any_of result)
                                                        (.getArray (:any_of result)))
                                                 (range 0 (.size (seq (.getArray (:any_of result)))))
