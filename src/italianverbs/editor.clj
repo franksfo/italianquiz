@@ -355,7 +355,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (declare delete-game)
 (declare delete-group)
 (declare update-game)
-(declare edit-group)
+(declare update-group)
 (declare home-page)
 (declare links)
 (declare onload)
@@ -500,8 +500,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                               (:params request))))
 
    (POST "/group/edit/:group-to-edit" request
-         (is-admin (edit-group (:group-to-edit (:route-params request))
-                               (:params request))))
+         (is-admin (update-group (:group-to-edit (:route-params request))
+                                 (:params request))))
 
    ;; TODO: should be a POST
    (GET "/game/new" request
@@ -745,12 +745,39 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
       {:status 302
        :headers {"Location" (str "/editor/" "?message=Edited+game:" game-id)}})))
 
-(defn edit-group [group-id params]
+(defn update-group [group-id params]
   (log/debug (str "UPDATING GROUP WITH PARAMS: " params))
-  {:headers {"Content-type" "application/json;charset=utf-8"}
-   :body (json/write-str params)})
-;  {:status 302
-;   :headers {"Location" (str "/editor/" "?message=Edited+group:" group-id)}})
+  (log/debug (str "Editing group with id= " group-id))
+
+  (let [debug (log/debug (str "specs map:" (:specs params)))
+        specs (vals (:specs params))
+        debug (log/debug (str "specs vals:" specs))
+        filtered-specs (filter #(not (= (string/trim %) ""))
+                               (cons (:new-spec params) specs))
+        debug (log/debug (str "filtered-specs: " filtered-specs))
+        spec-array (if (empty? filtered-specs)
+                     (str "ARRAY[]::jsonb[]")
+                     (str "ARRAY['" 
+                          (string/join "'::jsonb,'"
+                                       filtered-specs)
+                          "'::jsonb]"))
+        sql (str "UPDATE grouping SET (name,any_of) = (?," spec-array ") WHERE id=?")]
+    
+    (log/debug (str "UPDATE sql: " sql))
+
+
+    (if true
+      (do
+        (k/exec-raw [sql
+                     [(:name params)
+                      (Integer. group-id)]])
+
+        (if true
+          {:status 302
+           :headers {"Location" (str "/editor/" "?message=Edited+group:" group-id)}}
+
+          {:headers {"Content-type" "application/json;charset=utf-8"}
+           :body (json/write-str params)})))))
 
 (def games-table "games")
 (def words-per-game-table "words_per_game")
@@ -889,6 +916,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
               (let [group-id (:id result)
                     debug (log/debug (str "ALL GROUP INFO: " result))
                     group-to-edit group-to-edit
+                    specs (seq (.getArray (:any_of result)))
                     problems nil ;; TODO: should be optional param of this (defn)
                     group-to-delete group-to-delete
 
@@ -907,17 +935,16 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                               :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
 
                             (map (fn [each-spec-index]
-                                   {:name (keyword (str "spec" each-spec-index))
+                                   {:name (keyword (str "specs[" each-spec-index "]"))
                                     :label " " ;; cannot be "" (TODO: file bug on formative)
                                     :type :textarea
                                     :rows 3
                                     :cols 80})
-                                 (if (and (:any_of result)
-                                          (.getArray (:any_of result)))
-                                   (range 0 (.size (seq (.getArray (:any_of result)))))
+                                 (if (not (empty? specs))
+                                   (range 0 (.size specs))
                                    []))
 
-                            [{:name "new_spec"
+                            [{:name "new-spec"
                               :label "New Spec:"
                               :type :textarea
                               :rows 3
@@ -929,7 +956,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                    (cons {:name (:group_name result)
                                           :new_spec ""}
                                          (map (fn [each-spec-index]
-                                                {(keyword (str "spec" each-spec-index))
+                                                {(keyword (str "specs[" each-spec-index "]"))
                                                  (let [val-json
                                                        (nth (seq (.getArray (:any_of result))) each-spec-index)
                                                        debug (log/debug (str "val-json: " val-json))
@@ -939,9 +966,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                                                               :key-fn keyword)))
                                                       the-val (str val-json)]
                                                    val-json)})
-                                              (if (and (:any_of result)
-                                                       (.getArray (:any_of result)))
-                                                (range 0 (.size (seq (.getArray (:any_of result)))))
+                                              (if (not (empty? specs))
+                                                (range 0 (.size specs))
                                                 []))))
                    
                    :validations [[:required [:name]   
