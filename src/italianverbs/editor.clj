@@ -748,8 +748,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
 (defn edit-group [group-id params]
   (log/debug (str "UPDATING GROUP WITH PARAMS: " params))
-  {:status 302
-   :headers {"Location" (str "/editor/" "?message=Edited+group:" group-id)}})
+  {:headers {"Content-type" "application/json;charset=utf-8"}
+   :body (json/write-str params)})
+;  {:status 302
+;   :headers {"Location" (str "/editor/" "?message=Edited+group:" group-id)}})
 
 (def games-table "games")
 (def words-per-game-table "words_per_game")
