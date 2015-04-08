@@ -177,10 +177,9 @@
      [:div.new
       [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
       ]
-
      
-     (let [all-groups
-           (k/exec-raw ["SELECT id,name FROM grouping"] :results)]
+     (let [results
+           (k/exec-raw ["SELECT id,name FROM game"] :results)]
 
        ;; make the hidden game-editing forms.
        (map (fn [result]
@@ -190,8 +189,14 @@
                     problems nil ;; TODO: should be optional param of this (defn)
                     game-to-delete game-to-delete
 
-                    source-groups (vec (map str (remove nil? (.getArray (:source_group_ids result)))))
-                    target-groups (vec (map str (remove nil? (.getArray (:target_group_ids result)))))
+                    source-group-ids (:source_group_ids result)
+                    source-groups (if source-group-ids
+                                    (vec (map str (remove nil? (.getArray (:source_group_ids result)))))
+                                    [])
+                    target-group-ids (:target_group_ids result)
+                    target-groups (if target-group-ids
+                                    (vec (map str (remove nil? (.getArray (:target_group_ids result)))))
+                                    [])
                     debug (log/debug (str "SOURCE GROUPS: " source-groups))
                     debug (log/debug (str "TARGET GROUPS: " target-groups))
                     ]
@@ -221,7 +226,7 @@
                              :options (map (fn [grouping]
                                              {:value (:id grouping)
                                               :label (:name grouping)})
-                                           all-groups)}
+                                           source-groups)}
 
                             {:name :target_groupings
                              :type :checkboxes
@@ -229,19 +234,19 @@
                              :options (map (fn [grouping]
                                              {:value (:id grouping)
                                               :label (:name grouping)})
-                                           all-groups)}
+                                           target-groups)}
 
                             ]
                    
                    :cancel-href "/editor"
-                   :values {:name (:game_name result)
+                   :values {:name (:name result)
                             :target (:target result)
                             :source (:source result)
                             :source_groupings source-groups
                             :target_groupings target-groups}
 
                    :validations [[:required [:name]   
-                                  :action "/editor/create"
+                                  :action "/editor"
                                   :method "post"
                                   :problems problems]]})]
                 ))
@@ -814,11 +819,11 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                        [:div {:style "width:100%"}
                         [:div.edit
                          [:button 
-                          {:onclick (str "edit_group_dialog(" (:id result) ");")}
+                          {:onclick (str "edit_group_dialog(" group-id ");")}
                           "Edit"]]
                         [:div.delete
                          [:button
-                          {:onclick (str "document.location='/editor/group/delete/" (:id result) "';" )}
+                          {:onclick (str "document.location='/editor/group/delete/" group-id "';" )}
                           "Delete"]]]
                        
                        (or (= group-to-edit group-id)
@@ -838,8 +843,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                             :key-fn keyword
                             :value-fn (fn [k v]
                                         (cond (and
+                                               ;; TODO: improve
                                                (or (= k :english)
-                                                   (= k :espanol) (= k :italiano))
+                                                   (= k :espanol)
+                                                   (= k :italiano))
                                                (not (map? v)))
                                               (str v)
                                               (string? v)
@@ -872,6 +879,57 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
      [:div.new
       [:button {:onclick (str "document.location='/editor/group/new';")} "New Group"]
       ]
+
+     (let [results
+           ;; add more stuff to SELECT; this is just to get things working.
+           (k/exec-raw ["SELECT id,name AS group_name,any_of FROM grouping"] :results)]
+
+       ;; make the hidden group-editing forms.
+       (map (fn [result]
+              (let [group-id (:id result)
+                    debug (log/debug (str "ALL GROUP INFO: " result))
+                    group-to-edit group-to-edit
+                    problems nil ;; TODO: should be optional param of this (defn)
+                    group-to-delete group-to-delete
+
+
+                    source-groups-ids (:source_group_ids result)
+                    target-groups-ids (:target_group_ids result)
+
+                    source-groups (if source-groups-ids
+                                    (vec (map str (remove nil? (.getArray (:source_group_ids result)))))
+                                    [])
+                    target-groups (if target-groups-ids
+                                    (vec (map str (remove nil? (.getArray (:target_group_ids result)))))
+                                    [])
+
+                    debug (log/debug (str "SOURCE GROUPS: " source-groups))
+                    debug (log/debug (str "TARGET GROUPS: " target-groups))
+                    ]
+                [:div.editgroup
+                 {:id (str "editgroup" group-id)}
+                 [:h2 (str "Editing group: " (:group_name result))]
+
+                 (f/render-form 
+                  {:action (str "/editor/group/edit/" group-id)
+                   :method :post
+                   :fields [{:name :name :size 50 :label "Name"}
+
+                            {:name :any_of
+                             :type :textbox
+                             :value "anyof goes here.."}
+                            ]
+                   
+                   :cancel-href "/editor"
+                   :values {:name (:group_name result)
+                            :anyof (:anyof result)}
+                   :validations [[:required [:name]   
+                                  :action "/editor"
+                                  :method "post"
+                                  :problems problems]]})]
+                ))
+            results))
+
 )))
 
 (defn tenses-per-game [game-id]
