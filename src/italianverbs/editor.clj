@@ -178,8 +178,8 @@
       [:button {:onclick (str "document.location='/editor/game/new';")} "New Game"]
       ]
      
-     (let [results
-           (k/exec-raw ["SELECT id,name FROM game"] :results)]
+     (let [all-groups
+           (k/exec-raw ["SELECT id,name FROM grouping"] :results)]
 
        ;; make the hidden game-editing forms.
        (map (fn [result]
@@ -226,7 +226,7 @@
                              :options (map (fn [grouping]
                                              {:value (:id grouping)
                                               :label (:name grouping)})
-                                           source-groups)}
+                                           all-groups)}
 
                             {:name :target_groupings
                              :type :checkboxes
@@ -234,12 +234,12 @@
                              :options (map (fn [grouping]
                                              {:value (:id grouping)
                                               :label (:name grouping)})
-                                           target-groups)}
+                                           all-groups)}
 
                             ]
                    
                    :cancel-href "/editor"
-                   :values {:name (:name result)
+                   :values {:name (:game_name result)
                             :target (:target result)
                             :source (:source result)
                             :source_groupings source-groups
