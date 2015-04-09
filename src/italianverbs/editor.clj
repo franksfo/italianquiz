@@ -697,9 +697,17 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 (defn update-game [game-id params]
   (log/debug (str "UPDATING GAME WITH PARAMS: " params))
   (let [game-id game-id
+        source-grouping-set (if (string? (:source_groupings params))
+                              (do (log/warn (str "source_groupings is a string:"
+                                                 (:source_groupings params) "; splitting."))
+                                  (string/split (:source_groupings params) #"[ ]"))
+                              (:source_groupings params))
 
-        source-grouping-set (:source_groupings params)
-        target-grouping-set (:target_groupings params)
+        target-grouping-set (if (string? (:target_groupings params))
+                              (do (log/warn (str "target_groupings is a string:"
+                                                 (:target_groupings params) "; splitting."))
+                                  (string/split (:target_groupings params) #"[ ]"))
+                              (:target_groupings params))
 
         debug (log/debug (str "edit: source-groupings type(1):" (type source-grouping-set)))
         debug (log/debug (str "edit: target-groupings type(1):" (type target-grouping-set)))
