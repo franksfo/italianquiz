@@ -708,7 +708,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         debug (log/debug (str "edit: target-groupings(1):" target-grouping-set))
 
         ;; cleanup
-        source-grouping-set (vec (map #(Integer/parseInt %)
+        source-grouping-set (vec (map #(do (log/debug (str "update-game: trying to parse:" %))
+                                           (Integer/parseInt %))
                                       (remove #(= "" %)
                                               source-grouping-set)))
         
