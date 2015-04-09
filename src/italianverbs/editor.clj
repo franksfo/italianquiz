@@ -39,7 +39,7 @@
                  :game-to-edit game-to-edit})
     ]
    
-   [:div.section [:h3 "Groups"]
+   [:div.section [:h3 "Lists"]
     (show-groups {:group-to-delete group-to-delete
                   :group-to-edit group-to-edit})
                   
