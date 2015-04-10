@@ -826,6 +826,12 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
            results)
       ])))
 
+;; shortnames: 'en','es','it',..
+(declare shortname-from-match)
+
+;; sqlnames: 'english','espanol' <- note: no accent on 'n' ,'italiano', ..
+(declare sqlname-from-match)
+
 (defn show-groups [ & [{group-to-edit :group-to-edit
                         group-to-delete :group-to-delete}]]
   (let [group-to-edit (if group-to-edit (Integer. group-to-edit))
@@ -844,7 +850,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         ]
 
        [:th "Name"]
-       [:th "Any Of"]
+       [:th "Members"]
 
        ]
       (map (fn [result]
@@ -921,13 +927,15 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
            (k/exec-raw ["SELECT id,name AS group_name,any_of FROM grouping"] :results)]
 
        ;; make the hidden group-editing forms.
-       (map (fn [result]
-              (let [group-id (:id result)
+       (map (fn [row]
+              (let [result row
+                    group-id (:id result)
                     debug (log/debug (str "ALL GROUP INFO: " result))
-                    group-to-edit group-to-edit
                     specs (seq (.getArray (:any_of result)))
                     problems nil ;; TODO: should be optional param of this (defn)
-                    group-to-delete group-to-delete
+
+                    language-short-name (shortname-from-match (:group_name row))
+                    language-long-name (sqlname-from-match (:group_name row))
 
                     ]
                 [:div.editgroup
@@ -939,20 +947,83 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                    :method :post
                    :fields (concat
 
-                            [{:name :name :size 50 :label "Name"}
-                             {:name :note :type :html
+                            ;; fixed fields:
+                            [{:name :name :size 50 :label "Name"}]
+                            
+                            (if (= language-short-name "(none detected)")
+                              ;; standard fields, part 1: tenses
+                              [{:name :tenses
+                                :type :checkboxes
+                                :cols 8
+                                :options [{:value "present"
+                                           :label "Present"}
+                                          {:value "future"
+                                           :label "Future"}
+                                          {:value "past"
+                                           :label "Past"}
+                                          {:value "imperfect"
+                                           :label "Imperfect"}
+                                          {:value "infinitive"
+                                           :label "Infinitive"}]}]
+                              [])
+
+                            ;; standard fields, part 2: lexemes
+                            (if (= language-short-name "(none detected)")
+
+                              ;; if no language detected, we can't show lexemes since we don't know 
+                              ;; what language's lexemes to show, so this is empty.
+                              []
+                              
+                              ;; else, a language was detected, so show lexemes for it.
+                              [{:name :lexemes
+                                :type :checkboxes
+                                :cols 8
+                                :options (map (fn [each-word-in-language]
+                                                ;; remove quotes
+                                                (let [lexeme (if (not (nil? (:lexeme each-word-in-language)))
+                                                               (:lexeme each-word-in-language)
+                                                               "(empty)")
+                                                      
+                                                      each-word (string/replace 
+                                                                 lexeme
+                                                                 #"[\"]" "")]
+                                                  {:value each-word
+                                                   :label each-word}))
+                                              
+                                              (k/exec-raw [(str "SELECT DISTINCT structure->'head'->?->?
+                                                                           AS lexeme 
+                                                                         FROM expression
+                                                                        WHERE language=?
+                                                                     ORDER BY lexeme") [language-long-name
+                                                                                        language-long-name
+                                                                                        language-short-name]]
+                                                          :results))}])
+
+                            ;; TODO: only show this if there *are* arbitrary specs.
+                            [{:name :note :type :html
                               :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
 
+                            ;; Existing, arbitrary (non-standard) specifications that aren't checkbox-able in either of
+                            ;; the above. TODO: filter out standard specs from this view.
                             (map (fn [each-spec-index]
                                    {:name (keyword (str "specs[" each-spec-index "]"))
-                                    :label " " ;; cannot be "" (TODO: file bug on formative)
+                                    :label " " ;; cannot be "" (TODO: file bug on https://github.com/jkk/formative)
                                     :type :textarea
                                     :rows 3
                                     :cols 80})
+
+                                 ;; this lets us iterate over indexes: (0,1,2,..)
+                                 ;; so that we can give our form element names like
+                                 ;; specs[0],specs[1], etc. in the HTML.
                                  (if (not (empty? specs))
                                    (range 0 (.size specs))
                                    []))
 
+
+
+
+                            ;; finally, a text area called new-spec that
+                            ;; allows arbitrary (non-standard) specs to be added.
                             [{:name "new-spec"
                               :label "New Spec:"
                               :type :textarea
@@ -979,11 +1050,46 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                                 (range 0 (.size specs))
                                                 []))))
                    
+                   ;; TODO: catch exceptions that this generates.
                    :validations [[:required [:name]   
                                   :action "/editor"
                                   :method "post"
                                   :problems problems]]})]))
             results)))))
+
+;; shortnames: 'en','es','it', ..
+(defn shortname-from-match [match-string]
+  (cond (re-find #"espanol" (string/lower-case match-string))
+        "es"
+        (re-find #"español" (string/lower-case match-string))
+        "es"
+        (re-find #"english" (string/lower-case match-string))
+        "en"
+        (re-find #"italiano" (string/lower-case match-string))
+        "it"
+        (re-find #"italian" (string/lower-case match-string))
+        "it"
+        (re-find #"spanish" (string/lower-case match-string))
+        "es"
+        :else
+        "(none detected)"))
+
+;; sqlnames: 'english','espanol' <- note: no accent on 'n' ,'italiano', ..
+(defn sqlname-from-match [match-string]
+  (cond (re-find #"espanol" (string/lower-case match-string))
+        "espanol"
+        (re-find #"español" (string/lower-case match-string))
+        "espanol"
+        (re-find #"english" (string/lower-case match-string))
+        "english"
+        (re-find #"italiano" (string/lower-case match-string))
+        "italiano"
+        (re-find #"italian" (string/lower-case match-string))
+        "italiano"
+        (re-find #"spanish" (string/lower-case match-string))
+        "espanol"
+        :else
+        "(none detected)"))
 
 (defn tenses-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))
