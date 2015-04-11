@@ -26,6 +26,20 @@
 (declare show-groups)
 (declare unabbrev)
 
+(defn json-read-str [json]
+  (json/read-str json
+                 :key-fn keyword
+                 :value-fn (fn [k v]
+                             (cond 
+                              (and (or (= k :english) 
+                                       (= k :espanol)
+                                       (= k :italiano))
+                                   (not (map? v)))
+                              (str v)
+                              (string? v)
+                              (keyword v)
+                              :else v))))
+
 (defn home-page [ & [ {game-to-delete :game-to-delete
                        game-to-edit :game-to-edit
                        group-to-edit :group-to-edit
@@ -221,6 +235,7 @@
                                        {:value "es" :label "Spanish"}]}
                           
                             {:name :source_groupings
+                             :label "Source Lists"
                              :type :checkboxes
                              :cols 3
                              :options (map (fn [grouping]
@@ -229,6 +244,7 @@
                                            all-groups)}
 
                             {:name :target_groupings
+                             :label "Target Lists"
                              :type :checkboxes
                              :cols 3
                              :options (map (fn [grouping]
@@ -254,6 +270,8 @@
      )))
 
 
+;; TODO: consider using https://github.com/jkk/honeysql:
+;; "SQL as Clojure data structures. Build queries programmatically -- even at runtime -- without having to bash strings together."
 (defn insert-grouping [name selects]
   "Create a grouping. This is a set of specifications, any of which may be
 true for an expression to be part of the grouping. The grouping's
@@ -324,21 +342,25 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     (map (fn [row]
            {:source (:source row)
             :target (:target row)
-            :source-structure (json/read-str (str (:source_structure row))
+            :source-structure (json-read-str (str (:source_structure row))
                                              :key-fn keyword
                                              :value-fn (fn [k v]
                                                          (cond 
-                                                          (and (or (= k :english) (= k :espanol) (= k :italiano))
+                                                          (and (or (= k :english) 
+                                                                   (= k :espanol)
+                                                                   (= k :italiano))
                                                                (not (map? v)))
                                                           (str v)
                                                           (string? v)
                                                           (keyword v)
                                                           :else v)))
-            :target-structure (json/read-str (str (:target_structure row))
+            :target-structure (json-read-str (str (:target_structure row))
                                              :key-fn keyword
                                              :value-fn (fn [k v]
                                                          (cond 
-                                                          (and (or (= k :english) (= k :espanol) (= k :italiano))
+                                                          (and (or (= k :english)
+                                                                   (= k :espanol) 
+                                                                   (= k :italiano))
                                                                (not (map? v)))
                                                           (str v)
                                                           (string? v)
@@ -442,7 +464,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                (show-expression (:name result)
                                 (:source result)
                                 (:target result)
-                                (list (json/read-str (:source_grouping result))) (list (json/read-str (:target_grouping result)))))
+                                (list (json-read-str (:source_grouping result))) (list (json-read-str (:target_grouping result)))))
              results)]))))
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
@@ -559,6 +581,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     :jss ["/js/editor.js" "/js/gen.js"]
     :onload (onload)}))
 
+;; TODO: consider using https://github.com/jkk/honeysql:
+;; "SQL as Clojure data structures. Build queries programmatically -- even at runtime -- without having to bash strings together."
 (defn examples-per-game [game-id]
   (let [results (k/exec-raw [(str "SELECT source.surface AS source, 
                                           target.surface AS target,
@@ -595,7 +619,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                      source (:source row)
                      target (:target row)
                      source_sem (let [sem (str (:source_sem row))]
-                                  (json/read-str sem
+                                  (json-read-str sem
                                                  :key-fn keyword
                                                  :value-fn (fn [k v]
                                                              (cond (and (or (= k :english) (= k :espanol) (= k :italiano))
@@ -605,7 +629,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                                                    (keyword v)
                                                                    :else v))))
                      target_sem (let [sem (str (:target_sem row))]
-                                  (json/read-str sem
+                                  (json-read-str sem
                                                  :key-fn keyword
                                                  :value-fn (fn [k v]
                                                              (cond (and (or (= k :english) (= k :espanol) (= k :italiano))
@@ -754,6 +778,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
       {:status 302
        :headers {"Location" (str "/editor/" "?message=Edited+game:" game-id)}})))
 
+;; TODO: consider using https://github.com/jkk/honeysql:
+;; "SQL as Clojure data structures. Build queries programmatically -- even at runtime -- without having to bash strings together."
 (defn update-group [group-id params]
   (log/debug (str "UPDATING GROUP WITH PARAMS: " params))
   (log/debug (str "Editing group with id= " group-id))
@@ -774,8 +800,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
         lexical-specs 
         (map (fn [each-lexeme]
-               (json/write-str
-                {:head {language-name {language-name each-lexeme}}}))
+               {:head {language-name {language-name each-lexeme}}})
              (filter #(not (= (string/trim %) ""))
                      (:lexemes params)))
 
@@ -784,7 +809,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         debug (log/debug (str "filtered-specs: " filtered-specs))
 
         ;; TODO: remove duplicates.
-        all-specs (concat lexical-specs filtered-specs)
+        all-specs (map #(json/write-str (read-string %)) (concat lexical-specs filtered-specs))
 
         spec-array (if (and (empty? filtered-specs)
                             (empty? lexical-specs))
@@ -902,7 +927,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                (str "<div class='anyof'>" 
                     (string/join 
                      "</div><div class='anyof'>" 
-                     (map #(json/read-str 
+                     (map #(json-read-str 
                             % 
                             :key-fn keyword
                             :value-fn (fn [k v]
@@ -952,13 +977,14 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
        (map (fn [row]
               (let [result row
                     group-id (:id result)
-                    debug (log/debug (str "ALL GROUP INFO: " result))
-                    specs (seq (.getArray (:any_of result)))
+                    debug (log/debug (str "show-groups: (json) " result))
+                    specs (map json-read-str (seq (.getArray (:any_of result))))
                     problems nil ;; TODO: should be optional param of this (defn)
-
                     language-short-name (shortname-from-match (:group_name row))
                     language-long-name (sqlname-from-match (:group_name row))
 
+                    ;; TODO: filter out non-ad-hoc specs: specs that either specify a head-lexeme (e.g. {:head {:italiano {:italiano "andare"}}})
+                    ad-hoc-specs specs
                     ]
                 [:div.editgroup
                  {:id (str "editgroup" group-id)}
@@ -1016,7 +1042,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                                                  #"[\"]" "")]
                                                   {:value each-word
                                                    :label each-word}))
-                                              
+
+                                              ;; TODO: be more selective: show only infinitives, and avoid irregular forms.
                                               (k/exec-raw [(str "SELECT DISTINCT structure->'head'->?->?
                                                                            AS lexeme 
                                                                          FROM expression
@@ -1030,7 +1057,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                             [{:name :note :type :html
                               :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
 
-                            ;; Existing, arbitrary (non-standard) specifications that aren't checkbox-able in either of
+                            ;; Ad-hoc (non-standard) specifications that aren't checkbox-able in either of
                             ;; the above. TODO: filter out standard specs from this view.
                             (map (fn [each-spec-index]
                                    {:name (keyword (str "specs[" each-spec-index "]"))
@@ -1046,11 +1073,9 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                    (range 0 (.size specs))
                                    []))
 
-
-
-
                             ;; finally, a text area called new-spec that
-                            ;; allows arbitrary (non-standard) specs to be added.
+                            ;; allows user to insert a new spec to be added (usually this would be a ad-hoc spec that the
+                            ;; user could not already add via checkboxes above.
                             [{:name "new-spec"
                               :label "New Spec:"
                               :type :textarea
@@ -1059,20 +1084,24 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                             )
 
                    :cancel-href "/editor"
-                   :values (reduce merge 
+                   :values (reduce merge  ;; take a list of maps, each of which is a form input and its value, and combine into one big map of inputs => values.
+
                                    (cons {:name (:group_name result)
                                           :new_spec ""
-                                          :language language-short-name}
+                                          :language language-short-name
+                                          ;; convert all specs that denote head lexemes (i.e. that are the form of [:head <language> <language>])
+                                          ;; into checkbox tics.
+                                          :lexemes (vec (remove nil?
+                                                                (map #(let [path [:head (keyword language-long-name) (keyword language-long-name)]]
+                                                                        (get-in % path nil))
+                                                                     specs)))
+                                          }
+
                                          (map (fn [each-spec-index]
                                                 {(keyword (str "specs[" each-spec-index "]"))
                                                  (let [val-json
                                                        (nth (seq (.getArray (:any_of result))) each-spec-index)
-                                                       debug (log/debug (str "val-json: " val-json))
-                                                       debug (log/debug (str "val-json read: " 
-                                                                             (json/read-str 
-                                                                              val-json
-                                                                              :key-fn keyword)))
-                                                      the-val (str val-json)]
+                                                       the-val (json-read-str (str val-json))]
                                                    val-json)})
                                               (if (not (empty? specs))
                                                 (range 0 (.size specs))
