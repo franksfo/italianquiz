@@ -91,7 +91,7 @@ table.padded th,td {
 }
 
 div.anyof {
-    font-family:monospace;
+/*    font-family:monospace;*/
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
     border-radius:5px;

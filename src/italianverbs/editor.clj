@@ -81,7 +81,8 @@
 (defn show-games [ & [ {game-to-edit :game-to-edit
                         game-to-delete :game-to-delete
                         name-of-game :name-of-game} ]]
-  (let [game-to-edit (if game-to-edit (Integer. game-to-edit))
+  (let [show-source-lists false
+        game-to-edit (if game-to-edit (Integer. game-to-edit))
         game-to-delete (if game-to-delete (Integer. game-to-delete))
         results (k/exec-raw [
                              "SELECT game.name AS game_name,game.id AS id,
@@ -109,7 +110,7 @@
        [:th {:style "width:15%"} "Name"]
        [:th {:style "width:5%"} "Source"]
        [:th {:style "width:5%"} "Target"]
-       [:th {:style "width:15%"} "Source Lists"]
+       (if show-source-lists [:th {:style "width:15%"} "Source Lists"])
        [:th {:style "width:auto"} "Target Lists"]
        (cond
         game-to-edit [:th "Update"]
@@ -147,16 +148,19 @@
                    )]
                 [:td (unabbrev (:source result))]
                 [:td (unabbrev (:target result))]
-                [:td 
 
-                 (if (not (empty? (remove nil? (seq (.getArray (:source_groups result))))))
-                   (str 
-                    "<div class='group sourcegroup'>"
-                    (string/join "</div><div class='group sourcegroup'>" (sort (.getArray (:source_groups result))))
-                    "</div>")
-                   [:i "No source-language groups."])
+                (if show-source-lists
+                  [:td 
 
-                 ]
+                   (if (not (empty? (remove nil? (seq (.getArray (:source_groups result))))))
+                     (str 
+                      "<div class='group sourcegroup'>"
+                      (string/join "</div><div class='group sourcegroup'>" (sort (.getArray (:source_groups result))))
+                      "</div>")
+                     [:i "No source-language groups."])
+                   
+                   ]
+                  )
 
                 [:td
                  (if (not (empty? (remove nil? (seq (.getArray (:target_groups result))))))
@@ -913,14 +917,17 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                  ;; TODO: do not enumerate languages explicitly here:
                                  ;; use something like (get-head-lexeme-if-any edn-form)
                                  (cond (not (nil? (get-in edn-form [:head :italiano :italiano] nil)))
-                                       (get-in edn-form [:head :italiano :italiano])
+                                       (str "<i>" (get-in edn-form [:head :italiano :italiano]) "</i>")
 
                                        (not (nil? (get-in edn-form [:head :english :english] nil)))
-                                       (get-in edn-form [:head :english :english])
+                                       (str "<i>" (get-in edn-form [:head :english :english]) "</i>")
 
                                        (not (nil? (get-in edn-form [:head :espanol :espanol] nil)))
-                                       (get-in edn-form [:head :espanol :espanol])
+                                       (str "<i>" (get-in edn-form [:head :espanol :espanol]) "</i>")
 
+                                       (not (nil? (get-in edn-form [:synsem :sem :tense] nil)))
+                                       (str "<b>" (string/replace (get-in edn-form [:synsem :sem :tense]) ":" "") "</b>" )
+                                       
                                        ;; else, just show edn form
                                        :else
                                        edn-form))
