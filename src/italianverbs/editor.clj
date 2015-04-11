@@ -220,6 +220,7 @@
 
                  (f/render-form 
                   {:action (str "/editor/game/edit/" game-id)
+                   :enctype "multipart/form-data"
                    :method :post
                    :fields [{:name :name :size 50 :label "Name"}
                             {:name :source :type :select 
@@ -997,6 +998,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
                  (f/render-form 
                   {:action (str "/editor/group/edit/" group-id)
+                   :enctype "multipart/form-data"
                    :method :post
                    :fields (concat
 
