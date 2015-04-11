@@ -758,35 +758,51 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
   (log/debug (str "UPDATING GROUP WITH PARAMS: " params))
   (log/debug (str "Editing group with id= " group-id))
 
-  (let [debug (log/debug (str "specs map:" (:specs params)))
+  (let [do-sql true ;; normally true
+        do-dump false ;; normally false
+        debug (log/debug (str "specs map:" (:specs params)))
         specs (vals (:specs params))
         debug (log/debug (str "specs vals:" specs))
+
+        debug (log/debug (str "lexical-specs as form params: " (:lexemes params)))
+
+        lexical-specs 
+        (map (fn [each-lexeme]
+               (json/write-str
+                {:head {:italiano {:italiano each-lexeme}}}))
+             (filter #(not (= (string/trim %) ""))
+                     (:lexemes params)))
+
         filtered-specs (filter #(not (= (string/trim %) ""))
                                (cons (:new-spec params) specs))
         debug (log/debug (str "filtered-specs: " filtered-specs))
-        spec-array (if (empty? filtered-specs)
+
+        ;; TODO: remove duplicates.
+        all-specs (concat lexical-specs filtered-specs)
+
+        spec-array (if (and (empty? filtered-specs)
+                            (empty? lexical-specs))
                      (str "ARRAY[]::jsonb[]")
                      (str "ARRAY['" 
                           (string/join "'::jsonb,'"
-                                       filtered-specs)
+                                       all-specs)
                           "'::jsonb]"))
         sql (str "UPDATE grouping SET (name,any_of) = (?," spec-array ") WHERE id=?")]
     
     (log/debug (str "UPDATE sql: " sql))
 
 
-    (if true
-      (do
-        (k/exec-raw [sql
-                     [(:name params)
-                      (Integer. group-id)]])
+    (if do-sql
+      (k/exec-raw [sql
+                   [(:name params)
+                    (Integer. group-id)]]))
+    
+    (if (not (= true do-dump))
+      {:status 302
+       :headers {"Location" (str "/editor/" "?message=Edited+group:" group-id)}}
 
-        (if true
-          {:status 302
-           :headers {"Location" (str "/editor/" "?message=Edited+group:" group-id)}}
-
-          {:headers {"Content-type" "application/json;charset=utf-8"}
-           :body (json/write-str params)})))))
+      {:headers {"Content-type" "application/json;charset=utf-8"}
+       :body (json/write-str params)})))
 
 (def games-table "games")
 (def words-per-game-table "words_per_game")
@@ -975,7 +991,12 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                               []
                               
                               ;; else, a language was detected, so show lexemes for it.
-                              [{:name :lexemes
+                              ;; Also need language to tell the POST handler
+                              ;; how to convert the lexemes as strings into
+                              ;; map structures like {:head {:italiano {:italiano <lexeme>}}}.
+                              [{:type :hidden
+                                :name :language}
+                               {:name :lexemes
                                 :type :checkboxes
                                 :cols 8
                                 :options (map (fn [each-word-in-language]
@@ -1034,7 +1055,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                    :cancel-href "/editor"
                    :values (reduce merge 
                                    (cons {:name (:group_name result)
-                                          :new_spec ""}
+                                          :new_spec ""
+                                          :language language-short-name}
                                          (map (fn [each-spec-index]
                                                 {(keyword (str "specs[" each-spec-index "]"))
                                                  (let [val-json
@@ -1130,10 +1152,6 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
       [:span [:a {:href (str "/editor/" (string/replace-first (str :home) ":" ""))} "Show all lists"]]
 
       ])))
-
-;                   :fields [{:name :source_groups
-;                                              :type :checkboxes
-;                                              :options ["Chocolate" "Vanilla"]}]
 
 (defn short-language-name-to-long [lang]
   (cond (= lang "it") "Italian"
