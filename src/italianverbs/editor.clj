@@ -744,6 +744,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
 ;; TODO: consider using https://github.com/jkk/honeysql:
 ;; "SQL as Clojure data structures. Build queries programmatically -- even at runtime -- without having to bash strings together."
+(declare sqlname-from-match)
 (defn update-group [group-id params]
   (log/debug (str "UPDATING GROUP WITH PARAMS: " params))
   (log/debug (str "Editing group with id= " group-id))
