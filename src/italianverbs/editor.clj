@@ -109,8 +109,8 @@
        [:th {:style "width:15%"} "Name"]
        [:th {:style "width:5%"} "Source"]
        [:th {:style "width:5%"} "Target"]
-       [:th {:style "width:35%"} "Source Groups"]
-       [:th {:style "width:35%"} "Target Groups"]
+       [:th {:style "width:15%"} "Source Lists"]
+       [:th {:style "width:auto"} "Target Lists"]
        (cond
         game-to-edit [:th "Update"]
         game-to-delete [:th "Delete"]
@@ -342,30 +342,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
     (map (fn [row]
            {:source (:source row)
             :target (:target row)
-            :source-structure (json-read-str (str (:source_structure row))
-                                             :key-fn keyword
-                                             :value-fn (fn [k v]
-                                                         (cond 
-                                                          (and (or (= k :english) 
-                                                                   (= k :espanol)
-                                                                   (= k :italiano))
-                                                               (not (map? v)))
-                                                          (str v)
-                                                          (string? v)
-                                                          (keyword v)
-                                                          :else v)))
-            :target-structure (json-read-str (str (:target_structure row))
-                                             :key-fn keyword
-                                             :value-fn (fn [k v]
-                                                         (cond 
-                                                          (and (or (= k :english)
-                                                                   (= k :espanol) 
-                                                                   (= k :italiano))
-                                                               (not (map? v)))
-                                                          (str v)
-                                                          (string? v)
-                                                          (keyword v)
-                                                          :else v)))})
+            :source-structure (json-read-str (str (:source_structure row)))
+            :target-structure (json-read-str (str (:target_structure row)))})
 
          (k/exec-raw [sql
                       [game-id game-id game-id game-id]] :results))))
@@ -464,7 +442,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                (show-expression (:name result)
                                 (:source result)
                                 (:target result)
-                                (list (json-read-str (:source_grouping result))) (list (json-read-str (:target_grouping result)))))
+                                (list (json-read-str (:source_grouping result)))
+                                (list (json-read-str (:target_grouping result)))))
              results)]))))
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
@@ -619,25 +598,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                      source (:source row)
                      target (:target row)
                      source_sem (let [sem (str (:source_sem row))]
-                                  (json-read-str sem
-                                                 :key-fn keyword
-                                                 :value-fn (fn [k v]
-                                                             (cond (and (or (= k :english) (= k :espanol) (= k :italiano))
-                                                                        (not (map? v)))
-                                                                   (str v)
-                                                                   (string? v)
-                                                                   (keyword v)
-                                                                   :else v))))
+                                  (json-read-str sem))
+
                      target_sem (let [sem (str (:target_sem row))]
-                                  (json-read-str sem
-                                                 :key-fn keyword
-                                                 :value-fn (fn [k v]
-                                                             (cond (and (or (= k :english) (= k :espanol) (= k :italiano))
-                                                                        (not (map? v)))
-                                                                   (str v)
-                                                                   (string? v)
-                                                                   (keyword v)
-                                                                   :else v))))]
+                                  (json-read-str sem))]
                  [:tr 
                   [:td source]
                   [:td target]
@@ -804,19 +768,26 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
              (filter #(not (= (string/trim %) ""))
                      (:lexemes params)))
 
-        filtered-specs (filter #(not (= (string/trim %) ""))
-                               (cons (:new-spec params) specs))
+        specs-plus-new-spec (filter #(not (= (string/trim %) ""))
+                                    (cons (:new-spec params)
+                                          specs))
+
+        debug (log/debug (str "specs-plus-new-specs (nonempty): " (string/join ";" specs-plus-new-spec)))
+
+        filtered-specs (map read-string specs-plus-new-spec)
+
         debug (log/debug (str "filtered-specs: " filtered-specs))
 
         ;; TODO: remove duplicates.
-        all-specs (map #(json/write-str (read-string %)) (concat lexical-specs filtered-specs))
+        specs-as-json (map json/write-str
+                       (concat lexical-specs filtered-specs))
 
         spec-array (if (and (empty? filtered-specs)
                             (empty? lexical-specs))
                      (str "ARRAY[]::jsonb[]")
                      (str "ARRAY['" 
                           (string/join "'::jsonb,'"
-                                       all-specs)
+                                       specs-as-json)
                           "'::jsonb]"))
         sql (str "UPDATE grouping SET (name,any_of) = (?," spec-array ") WHERE id=?")]
     
@@ -924,25 +895,29 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
               [:td [:div.group (:name result)]]
               [:td 
-               (str "<div class='anyof'>" 
-                    (string/join 
-                     "</div><div class='anyof'>" 
-                     (map #(json-read-str 
-                            % 
-                            :key-fn keyword
-                            :value-fn (fn [k v]
-                                        (cond (and
-                                               ;; TODO: improve
-                                               (or (= k :english)
-                                                   (= k :espanol)
-                                                   (= k :italiano))
-                                               (not (map? v)))
-                                              (str v)
-                                              (string? v)
-                                              (keyword v)
-                                              :else v)))
-                          (.getArray (:any_of result))))
-                    "</div>")]
+               (let [get-array (.getArray (:any_of result))]
+                 (if (not (empty? get-array))
+                   (str "<div class='anyof'>" 
+                        (string/join 
+                         "</div><div class='anyof'>" 
+                         (map #(let [edn-form (json-read-str  ;; Extensible Data Notation, i.e., a Clojure map.
+                                               %)]
+                                 ;; TODO: do not enumerate languages explicitly here:
+                                 ;; use something like (get-head-lexeme-if-any edn-form)
+                                 (cond (not (nil? (get-in edn-form [:head :italiano :italiano] nil)))
+                                       (get-in edn-form [:head :italiano :italiano])
+
+                                       (not (nil? (get-in edn-form [:head :english :english] nil)))
+                                       (get-in edn-form [:head :english :english])
+
+                                       (not (nil? (get-in edn-form [:head :espanol :espanol] nil)))
+                                       (get-in edn-form [:head :espanol :espanol])
+
+                                       ;; else, just show edn form
+                                       :else
+                                       edn-form))
+                              (.getArray (:any_of result))))
+                        "</div>")))]
 
                 [:td 
                  (cond (= group-to-edit group-id)
@@ -982,9 +957,32 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                     problems nil ;; TODO: should be optional param of this (defn)
                     language-short-name (shortname-from-match (:group_name row))
                     language-long-name (sqlname-from-match (:group_name row))
+                    language-keyword (keyword language-long-name)
 
-                    ;; TODO: filter out non-ad-hoc specs: specs that either specify a head-lexeme (e.g. {:head {:italiano {:italiano "andare"}}})
-                    ad-hoc-specs specs
+                    ;; filter out non-ad-hoc specs: specs that either specify a head-lexeme 
+                    ;; (e.g. {:head {:italiano {:italiano "andare"}}})
+                    ;; or a tense (TODO).
+                    ad-hoc-specs 
+                    (filter
+                     #(let [the-keys (seq (keys %))
+                            debug (log/debug (str "CHECKING FOR BEING AD-HOC: " %))
+                            debug (log/debug (str "CHECKING FOR BEING AD-HOC: " (empty? (seq (keys %)))))]
+                        (and (not (empty? (seq (keys %))))
+                             (map? %)
+                             (or (and (nil? (get-in % [:head language-keyword language-keyword] nil))
+                                      (nil? (get-in % [:synsem :sem :tense] nil)))
+                                 (and (not (nil? (get-in % [:head] nil)))
+                                      (> (.size (seq (keys (get-in % [:head] nil)))) 1))
+                                 (and (not (nil? (get-in % [:head language-keyword] nil)))
+                                      (> (.size (seq (keys (get-in % [:head language-keyword] nil)))) 1))
+                                 (and (not (nil? (get-in % [:head language-keyword language-keyword] nil)))
+                                      (not (string? (get-in % [:head language-keyword language-keyword] nil)))))))
+                     specs)
+
+                    debug (log/debug (str "type of ad-hoc-specs: " (type ad-hoc-specs)))
+                    debug (log/debug (str "size of ad-hoc-specs: " (.size ad-hoc-specs)))
+                    debug (log/debug (str "ad-hoc-specs: " (string/join ";" ad-hoc-specs)))
+
                     ]
                 [:div.editgroup
                  {:id (str "editgroup" group-id)}
@@ -1058,7 +1056,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                               :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
 
                             ;; Ad-hoc (non-standard) specifications that aren't checkbox-able in either of
-                            ;; the above. TODO: filter out standard specs from this view.
+                            ;; the above.
                             (map (fn [each-spec-index]
                                    {:name (keyword (str "specs[" each-spec-index "]"))
                                     :label " " ;; cannot be "" (TODO: file bug on https://github.com/jkk/formative)
@@ -1069,8 +1067,8 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                  ;; this lets us iterate over indexes: (0,1,2,..)
                                  ;; so that we can give our form element names like
                                  ;; specs[0],specs[1], etc. in the HTML.
-                                 (if (not (empty? specs))
-                                   (range 0 (.size specs))
+                                 (if (not (empty? ad-hoc-specs))
+                                   (range 0 (.size ad-hoc-specs))
                                    []))
 
                             ;; finally, a text area called new-spec that
@@ -1099,12 +1097,14 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
 
                                          (map (fn [each-spec-index]
                                                 {(keyword (str "specs[" each-spec-index "]"))
-                                                 (let [val-json
-                                                       (nth (seq (.getArray (:any_of result))) each-spec-index)
-                                                       the-val (json-read-str (str val-json))]
-                                                   val-json)})
-                                              (if (not (empty? specs))
-                                                (range 0 (.size specs))
+                                                 (let [val-edn (nth ad-hoc-specs each-spec-index)
+                                                       debug (log/debug (str "val-edn : " val-edn))
+                                                       debug (log/debug (str "val-edn type: " (type val-edn)))
+                                                       ]
+                                                   val-edn
+                                                   )})
+                                              (if (not (empty? ad-hoc-specs))
+                                                (range 0 (.size ad-hoc-specs))
                                                 []))))
                    
                    ;; TODO: catch exceptions that this generates.
