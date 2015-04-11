@@ -686,13 +686,13 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
   (log/debug (str "UPDATING GAME WITH PARAMS: " params))
   (let [game-id game-id
         source-grouping-set (if (string? (:source_groupings params))
-                              (do (log/warn (str "source_groupings is a string:"
+                              (do (log/warn (str "source_groupings is unexpectedly a string:"
                                                  (:source_groupings params) "; splitting."))
                                   (string/split (:source_groupings params) #"[ ]"))
                               (:source_groupings params))
 
         target-grouping-set (if (string? (:target_groupings params))
-                              (do (log/warn (str "target_groupings is a string:"
+                              (do (log/warn (str "target_groupings is unexpectedly a string:"
                                                  (:target_groupings params) "; splitting."))
                                   (string/split (:target_groupings params) #"[ ]"))
                               (:target_groupings params))
@@ -761,13 +761,19 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         specs (vals (:specs params))
         debug (log/debug (str "specs vals:" specs))
 
-        debug (log/debug (str "lexical-specs as form params: " (:lexemes params)))
+        lexemes (if (string? (:lexemes params))
+                  (do (log/warn (str "lexemes is unexpectedly a string:"
+                                     (:lexemes params) "; splitting."))
+                      (string/split (:lexemes params) #"[ ]"))
+                  (:lexemes params))
+
+        debug (log/debug (str "lexical-specs as form params: " lexemes))
 
         lexical-specs 
         (map (fn [each-lexeme]
                {:head {language-name {language-name each-lexeme}}})
              (filter #(not (= (string/trim %) ""))
-                     (:lexemes params)))
+                     lexemes))
 
         specs-plus-new-spec (filter #(not (= (string/trim %) ""))
                                     (cons (:new-spec params)
@@ -1053,8 +1059,10 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
                                                           :results))}])
 
                             ;; TODO: only show this if there *are* arbitrary specs.
-                            [{:name :note :type :html
-                              :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
+                            (if (not (empty? ad-hoc-specs))
+                              [{:name :note :type :html
+                                :html [:div.alert.alert-info "Leave a specification blank below to remove it."]}]
+                              [])
 
                             ;; Ad-hoc (non-standard) specifications that aren't checkbox-able in either of
                             ;; the above.
