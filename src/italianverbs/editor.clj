@@ -758,9 +758,15 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
   (log/debug (str "UPDATING GROUP WITH PARAMS: " params))
   (log/debug (str "Editing group with id= " group-id))
 
-  (let [do-sql true ;; normally true
+  (let [name (:name params)
+
+        ;; TODO: needs checks
+        language-name (keyword (sqlname-from-match name))
+
+        do-sql true ;; normally true
         do-dump false ;; normally false
         debug (log/debug (str "specs map:" (:specs params)))
+        debug (log/debug (str "language name:" language-name))
         specs (vals (:specs params))
         debug (log/debug (str "specs vals:" specs))
 
@@ -769,7 +775,7 @@ INNER JOIN (SELECT surface AS surface,structure AS structure
         lexical-specs 
         (map (fn [each-lexeme]
                (json/write-str
-                {:head {:italiano {:italiano each-lexeme}}}))
+                {:head {language-name {language-name each-lexeme}}}))
              (filter #(not (= (string/trim %) ""))
                      (:lexemes params)))
 
