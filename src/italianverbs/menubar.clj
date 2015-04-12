@@ -25,10 +25,10 @@
   (let [roles (:roles haz-authentication)
         haz-admin? (not (nil? (:italianverbs.core/admin roles)))]
 
-    (log/info (str "Drawing menubar with current-url=" current-url))
-    (log/info (str "Menubar with suffixes: " suffixes))
+    (log/debug (str "Drawing menubar with current-url=" current-url))
+    (log/debug (str "Menubar with suffixes: " suffixes))
     (html
-     [:div {:class "menubar major"}
+     [:div#menubar
 
       (menuitem {:selected?
                  (or (and (not (nil? current-url))
@@ -44,12 +44,58 @@
                  :requires-authentication false})
 
       (menuitem {:selected?
+                 (or (and (not (nil? current-url))
+                          (re-find #"/cloud" current-url))
+                     (= current-url "/cloud")
+                     (and (not (nil? current-url))
+                          (re-find #"/cloud" current-url)))
+                 :show? false
+                 :current-url current-url 
+                 :text "Cloud Game" 
+                 :url-for-this-item "/cloud"
+                 :requires-admin false
+                 :requires-authentication false})
+
+      (menuitem {:selected?
+                 (or (and (not (nil? current-url))
+                          (re-find #"/editor" current-url))
+                     (= current-url "/editor")
+                     (and (not (nil? current-url))
+                          (re-find #"/editor" current-url)))
+                 :show? haz-admin?
+                 :current-url current-url 
+                 :text "Lists and tenses" 
+                 :url-for-this-item "/editor"})
+
+      (menuitem {:selected?
+                 (or (and (not (nil? current-url))
+                          (re-find #"/tour" current-url))
+                     (= current-url "/tour")
+                     (and (not (nil? current-url))
+                          (re-find #"/tour" current-url)))
+                 :show? false
+                 :current-url current-url 
+                 :text "Map Tour" 
+                 :url-for-this-item "/tour"
+                 :requires-admin false
+                 :requires-authentication false})
+
+      (menuitem {:selected?
                  (and (not (nil? current-url))
                       (re-find #"/class" current-url))
                  :current-url current-url
-                 :text "Classes" :url-for-this-item (str "/class" (if (get suffixes :class)
-                                                                    (get suffixes :class)))
-                 :show? haz-admin?})
+                 :text "Classes"
+                 :url-for-this-item (str "/class" (if (get suffixes :class)
+                                                    (get suffixes :class)))
+                 :show? (and false haz-admin?)})
+
+      (menuitem {:selected?
+                 (and (not (nil? current-url))
+                      (re-find #"/test" current-url))
+                 :current-url current-url
+                 :text "Tests"
+                 :url-for-this-item "/test"
+                 :show? (and false haz-admin?)})
 
       (menuitem {:selected?
                  (and (not (nil? current-url))
@@ -58,45 +104,7 @@
                  :text "My Classes"
                  :url-for-this-item (str "/class/my" (if (get suffixes :class)
                                                        (get suffixes :class)))
-                 :show? (and haz-authentication (not haz-admin?))})
-
-      (menuitem {:show? haz-admin?
-                 :selected? (and (not (nil? current-url))
-                                 (re-find #"/student" current-url))
-                 :current-url current-url
-                 :text "Students"
-                 :url-for-this-item (str "/student" (if (get suffixes :student)
-                                                      (get suffixes :student)))})
-
-      (menuitem {:show? true
-                 :selected? (and (not (nil? current-url))
-                                 (re-find #"/verb" current-url))
-                 :current-url current-url
-                 :text "Verbs" :url-for-this-item "/verb/"})
-
-      (menuitem {:show? haz-authentication
-                 :selected? (and (not (nil? current-url))
-                                 (re-find #"/lession" current-url))
-                 :current-url current-url
-                 :text "Groups" :url-for-this-item "/lesson"})
-
-      (menuitem {:show? haz-admin?
-                 :selected? (and (not (nil? current-url))
-                                 (re-find #"/test" current-url))
-                 :current-url current-url
-                 :text "Test" :url-for-this-item "/test"})
-
-      (menuitem {:show? haz-authentication
-                 :selected? (and (not (nil? current-url))
-                                 (re-find #"/workbook" current-url))
-                 :current-url current-url
-                 :text "Workbook" :url-for-this-item "/workbook"})
-
-      (menuitem {:show? haz-authentication
-                 :selected? (and (not (nil? current-url))
-                                 (re-find #"/quiz" current-url))
-                 :current-url current-url
-                 :text "Quiz" :url-for-this-item "/quiz"})
+                 :show? (and false haz-authentication (not haz-admin?))})])))
 
 
-    ])))
+

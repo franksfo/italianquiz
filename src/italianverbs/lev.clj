@@ -4,6 +4,22 @@
    [clojure.tools.logging :as log]
    [italianverbs.html :as html]))
 
+(declare matrix)
+
+(defn get-green2 [word1 word2]
+  "convenient function for external usage."
+  (let [word1 (if (nil? word1) "nullword1" word1)
+        word2 (if (nil? word2) "nullword2" word2)]
+    (log/info (str "get-green2:word1: " word1))
+    (log/info (str "get-green2:word2: " word2))
+    ;; need to have more logging of normalization of word1 and word2 here, with respect to normalization of
+    ;; the two - how to decide whether a guess is correct or not (or perhaps *how* correct rather than a
+    ;; binary value.
+    (log/debug (str "equal? " (= word1 word2)))
+    (let [matrix
+          (matrix word1 word2)]
+      (get matrix :path))))
+
 (defn create-matrix [matrix j y horiz-char-list vert-char-list]
   "adds one row at a time to matrix for all rows up to y.
    assumes that matrix already has one row created with
@@ -304,21 +320,7 @@
                  wordlist2 0 path)
                 "</table>")}))
 
-(defn get-green2 [word1 word2]
-  "convenient function for external usage."
-  (let [word1 (if (nil? word1) "nullword1" word1)
-        word2 (if (nil? word2) "nullword2" word2)]
-    (log/info (str "get-green2:word1: " word1))
-    (log/info (str "get-green2:word2: " word2))
-    ;; need to have more logging of normalization of word1 and word2 here, with respect to normalization of
-    ;; the two - how to decide whether a guess is correct or not (or perhaps *how* correct rather than a
-    ;; binary value.
-    (log/debug (str "equal? " (= word1 word2)))
-    (let [matrix
-          (matrix word1 word2)]
-      (get matrix :path))))
-
-;; TODO: make this a list of tests.
+;; TODO: move rest of this below from /src to /test/.
 ;(defn lev-test []
 ;  (matrix "un'uomo va in Roma"
 ;          "gli uomini vanno a Roma"))

@@ -8,12 +8,11 @@
    [clojure.tools.logging :as log]
    [italianverbs.cache :as cache]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
-   [italianverbs.generate :refer :all]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.english :as en]
+   [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
+   [italianverbs.parse :refer (parse)]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (fail? get-in lazy-shuffle unifyc)]))
@@ -26,7 +25,7 @@
 ;; italianverbs.benchmark> (standard-benchmark 5)
 ;;
 
-;; italianverbs.benchmark> (run-benchmark #(fo (sentence)) 1)
+;; italianverbs.benchmark> (run-benchmark #(fo (it/sentence)) 1)
 ;; prints:
 ;;   ' (Il tuo ragazzo contento sarà Giorgio (This guy will be Giorgio).) ' took:  12041  msec.
 ;;   stats for '(unnamed)' {:trials 1, :mean 12041.0, :median 12041, :stddev 0.0, :min 12041, :max 12041, :95% 12041, :99% 12041}
@@ -97,35 +96,29 @@
 
 (defn past-perfect [trials]
   (run-benchmark
-   #(fo-ps (sentence {:synsem {:sem {:aspect :perfect 
-                                     :tense :past 
-                                     :pred :perdere
-                                     :subj {:pred :io}
-                                     :obj {:pred :roma}}}}))
+   #(fo-ps (it/sentence {:synsem {:sem {:aspect :perfect 
+                                        :tense :past 
+                                        :pred :perdere
+                                        :subj {:pred :io}
+                                        :obj {:pred :roma}}}}))
    trials
    "past-perfect-tense generation is needful of optimization."))
 
 (defn sentence-subject-verb [trials]
   (run-benchmark
-   #(fo (generate {:comp {:phrasal false}
-                   :head {:phrasal false}}
-                  (list it/s-present)
-                  lexicon
-                  it/cache))
+   #(fo (it/generate {:comp {:phrasal false}
+                      :head {:phrasal false}}))
    trials
    "sentence which is simply a subject plus a verb"))
 
 (defn saux [trials]
   (run-benchmark 
-   #(fo (generate
-         {:synsem {:subcat '()}}
-         (list it/s-aux it/vp-aux) it/cache)
-        trials
-        "saux")))
+   #(fo (it/generate
+         {:synsem {:subcat '()}}))))
 
 (defn run-sentence [trials]
   (run-benchmark
-   #(fo (sentence {:synsem {:sem {:pred :impazzire}}}))
+   #(fo (it/sentence {:synsem {:sem {:pred :impazzire}}}))
    trials
    "sentence with 'impazzire'"))
 
@@ -194,13 +187,12 @@
 ;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
 (defn catlove []
-  (generate
+  (it/generate
    {:synsem {:cat :verb
                      :aux false
              :infl :imperfetto
              :sem {:pred :amare
-                   :obj {:pred :gatto}}}}
-   it/grammar lexicon it/cache))
+                   :obj {:pred :gatto}}}}))
 
 (defn run-gatto [trials]
   (run-benchmark
@@ -219,7 +211,7 @@
                       :aux false
                       :sem {:subj {:animate true}}
                       :subcat '()}})]
-    (run-benchmark #(fo (generate spec grammar lexicon cache))
+    (run-benchmark #(fo (it/generate spec))
                    trials
                    name)))
 
@@ -234,16 +226,19 @@
                                                   :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
                           spec (if spec spec :top)
                           unified-spec (unifyc sentence-spec spec)]
-                      (fo (generate-from unified-spec)))
+                      (fo (en/generate unified-spec)))
                    trials
-                   "itialian2english")))
+                   "italian2english")))
 
 (declare standard-benchmark-en)
 (declare standard-benchmark-it)
 
 (defn standard-benchmark [ & [ trials ]]
   (let [trials
-        (if (nil? trials) 1 trials)]
+        (cond (string? trials)
+              (Integer/parseInt trials)
+              (nil? trials) 1
+              true trials)]
     (do (standard-benchmark-it trials)
         (standard-benchmark-en trials)
         (standard-benchmark-it2en trials))))
@@ -251,22 +246,22 @@
 (defn standard-benchmark-it [ & [ trials ]]
   (let [trials
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials it/grammar it/cache "bolt-benchmark-it")))
+    (bolt-benchmark trials it/grammar it/index "bolt-benchmark-it")))
 
 (defn standard-benchmark-it-with [ trials spec ]
   (let [trials
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials it/grammar it/cache "bolt-benchmark-it" spec)))
+    (bolt-benchmark trials it/grammar it/index "bolt-benchmark-it" spec)))
 
 (defn standard-benchmark-en-with [ trials spec ]
   (let [trials
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials en/grammar en/cache "bolt-benchmark-en" spec)))
+    (bolt-benchmark trials en/grammar en/index "bolt-benchmark-en" spec)))
 
 (defn standard-benchmark-en [ & [ trials ]]
   (let [trialsa
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials en/grammar en/cache "bolt-benchmark-en")))
+    (bolt-benchmark trials en/grammar en/index "bolt-benchmark-en")))
 
 (defn standard-benchmark-with [ trials spec ]
   (let [trials
@@ -276,26 +271,26 @@
 
 (defn word-speaker [trials]
   (run-benchmark
-   #(fo (sentence {:synsem {:subcat '() :cat :verb
+   #(fo (it/sentence {:synsem {:subcat '() :cat :verb
                             :sem {:pred :parlare
                                   :subj {:pred :lei}
-                                  :obj {:pred :parola}}}}
-                  lexicon it/grammar))
+                                  :obj {:pred :parola}}}}))
    trials))
 
 (defn word-spoken [trials]
   (run-benchmark
-   #(fo-ps (take 1 (generate {:synsem {:subcat '() :cat :noun
-                                       :sem {:pred :parola}}}
-                             it/grammar lexicon it/cache)))
+   #(fo-ps (take 1 (it/generate)))
    trials))
 
 (defn word-spoken2 [trials]
-  (let [lexicon (seq (union (it "parola") (it "bianco") (it "la")))]
+  ;; TODO: allow it/generate to accept a lexicon as a parameter to (generate)
+  (let [lexicon (seq (union (set (it/lookup "parola")) (set (it/lookup "bianco")) (set (it/lookup "la"))))]
     (run-benchmark
-     #(fo-ps (take 1 (generate {:synsem {:subcat '() :cat :noun
-                                         :sem {:pred :parola}}}
-                               (list it/noun-phrase1 it/nbar)
-                               lexicon it/cache)))
+     #(fo-ps (take 1 (it/generate)))
      trials)))
+
+(defn parsing [trials]
+  (run-benchmark
+   #(time (fo-ps (take 1 (parse "il gatto nero dorme"))))
+   trials))
 

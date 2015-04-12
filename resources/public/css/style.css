@@ -58,14 +58,22 @@ div.http a {
     padding:0.25em;
 }
 
-div.menubar {
-    margin:1em;
+div#menubar {
+    border:1px solid #18ab29;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    background:ivory;
+    float:left;
+    white-space:nowrap;
     padding:0em;
+    position:relative;
 }
 
-div.menubar div {
+div#menubar div {
+    float:left;
     padding:3px;
-    margin-right:0em;
+    margin-right:2em;
 }
 
 div.poweredbox table {
@@ -268,6 +276,7 @@ span.delete {
                            letter is missing from the user's guess. */
     border-bottom: 8px solid red;
 }
+
 span.subst {
     border-bottom: 8px solid red;
     text-decoration:line-through;
@@ -460,4 +469,73 @@ th.num {
 }
 td.num {
     text-align:right;
+}
+
+/* Create/Read/Update/Delete standard elements (TODO: move to crud.css) */
+.links {
+    white-space:nowrap;
+    border:1px solid lightgreen;
+    margin:0.25em;
+    width:auto;
+    margin-top:1.5em;
+    float:left;
+    border-top:
+}
+
+.links span {
+    padding-right:1em;
+}
+
+.delete {
+    float:right;
+}
+
+.user-alert {
+    float:right;
+    text-align:right;
+    color:#aaa;
+    font-style:italic;
+}
+
+table.striped tr:nth-of-type(odd) {
+  background-color:ghostwhite;
+}
+
+#flags {
+    float:left;
+    margin-left:20%;
+    width:60%;
+}
+
+.flag {
+    margin:1em;
+    border:0px solid black;
+    width:auto;
+    height:auto;
+    float:left;
+}
+
+.flag img {
+    width:100px;
+    height:66px;
+}
+
+.language {
+    text-align:center;
+    font-size:larger;
+    width:100%;
+}
+
+.intro {
+    float:left;
+    text-align:center;
+    margin-top:1em;
+    padding:0.25em;
+    background:#caecae;
+    margin-left:10%;
+    width:80%;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:4px solid #caecae;
 }

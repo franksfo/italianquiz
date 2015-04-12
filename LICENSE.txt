@@ -1,3 +1,27 @@
+This directory's code includes code from many open source/free
+software projects as listed below. Each projects is used according to
+the terms of its license, as given below. 
+
+The remainder is licensed by the GNU General Public License, version
+3.0, which is shown in full below.
+
+resources/public/js/d3.vs.min.js :
+####
+"
+Copyright (c) 2010-2014, Michael Bostock
+All rights reserved.
+"
+
+resources/public/css/font-awesome.min.css :
+####
+"
+Font Awesome by Dave Gandy - http://fontawesome.io
+License: SIL OFL 1.1
+URL: http://scripts.sil.org/OFL
+"
+
+####
+"
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -672,3 +696,6 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <http://www.gnu.org/philosophy/why-not-lgpl.html>.
+"
+
+#### TODO: other javascript|css in resources/public/[css|js].

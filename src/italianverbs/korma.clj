@@ -1,11 +1,13 @@
 (ns italianverbs.korma
   (:refer-clojure :exclude [test])
-  (:use [korma db core])
   (:require [clj-time.coerce :as c]
-            [clj-time.core :as t]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [italianverbs.unify :refer (unify fail?)]))
+            [italianverbs.unify :refer (unify fail?)]
+            [korma.core :refer :all]
+            [korma.db :refer :all]))
+
+(require '[environ.core :refer [env]])
 
 (declare korma-db)
 
@@ -18,7 +20,9 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare classes
+;; ^^ WTF, this comment does not make sense..nothing to do with verbs in here.
+
+(declare authentication-codes classes
          question question-submit 
          students-in-class
          student-test tsubmit user verb vgroup)
@@ -26,8 +30,13 @@
 ;; TODO: this 'defentity' stuff is perfunctory
 ;; boilerplate: remove or at least move to bottom of file
 ;; where it doesn't hog valuable real estate.
-;; (Have to learn what defentity is - for now I just use sql (../sql/create.sql)
-;;  to define tables).
+;; (Have to learn how/if defentity creates tables.
+;; For now I just use sql (../sql/create.sql)
+;;  to create tables).
+(defentity authentication-codes
+  (table :authentication_codes)
+  (pk :id))
+
 (defentity classes
   (pk :id)
   (has-many students-in-class {:fk :class}))
@@ -83,7 +92,8 @@
 
 ;; TODO: replace with a (map (fn [..]) (list :classes :filter ..)
 (def key-to-table
-  {:class classes
+  {:authentication-codes authentication-codes
+   :class classes
    :classes classes
    :filter quiz-generation-filter
    :guess guess
@@ -240,33 +250,46 @@ on a table."
     
 ;; http://sqlkorma.com/docs#db
 (def workstation (postgres {:db "verbcoach"
-                    :user "verbcoach"
-                    :password (System/getenv "POSTGRES_SECRET")
-                    :host "localhost"
-                    :port "5432"}))
+                            :user "verbcoach"
+                            :password (env :postgres-secret)
+                            :host "localhost"
+                            :port "5432"}))
 
-(def heroku (postgres {:db "ddb134r1j9l37p"
-                       :user "vozlyexfiyoqnl"
-                       :password (System/getenv "POSTGRES_SECRET")
-                       :host "ec2-184-73-251-115.compute-1.amazonaws.com"
+(def travis-ci (postgres {:db "verbcoach"
+                          :user "postgres"
+                          :host "localhost"
+                          :port "5432"}))
+
+(def heroku (postgres {:db "da462qp5944o6t"
+                       :user "pbsobjbfsvvwna"
+                       :password (env :postgres-secret)
+                       :host "ec2-54-243-187-196.compute-1.amazonaws.com"
                        :port "5432"
                        :delimiters ""}))
 
-(def heroku-dev (postgres {:db "ddb134r1j9l37p"
-                       :user "vozlyexfiyoqnl"
-                       :password (System/getenv "POSTGRES_SECRET")
-                       :host "ec2-184-73-251-115.compute-1.amazonaws.com"
-                       :port "5432"
-                       :delimiters ""}))
+(def heroku-dev (postgres {:db "d550243447rkgs"
+                           :user "eaurcxpcnszuqs"
+                           :password (env :postgres-secret)
+                           :host "ec2-54-243-187-196.compute-1.amazonaws.com"
+                           :port "5432"
+                           :delimiters ""}))
 
-(def postgres_env (System/getenv "POSTGRES_ENV"))
+(def postgres_env (env :postgres-env))
 (defdb korma-db 
   (cond (= postgres_env "heroku")
         heroku
         (= postgres_env "heroku-dev")
-        heroku-dev
+        (do
+          (log/info (str "using heroku-dev postgres connection."))
+          heroku-dev)
+        (= postgres_env "travis-ci")
+        (do
+          (log/info (str "using travis-ci postgres connection"))
+          travis-ci)
         (= postgres_env "workstation")
-        workstation
+        (do
+          (log/info (str "using workstation-environment postgres connection"))
+          workstation)
         true
         (do
           (log/warn (str "POSTGRES_ENV not set in your environment: defaulting to 'workstation'."))

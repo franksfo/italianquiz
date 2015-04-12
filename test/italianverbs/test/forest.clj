@@ -10,18 +10,20 @@
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
                                                    get-parent-phrases-for-spec
-                                                   overc overh overh-with-cache overc-with-cache)]
+                                                   overc overh)]
    [italianverbs.forest :refer :all]
-   [italianverbs.grammar.italiano :as it]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
+;; TODO: this test brings in extra stuff (namely italiano) that is built upon forest, not forest itself.
+;; make more illustrative tests of core forest functionality (e.g. lighting-bolt)
 (deftest generate-test
-  (let [generated (first (take 1 (generate
-                                  {:synsem {:cat :verb :subcat '() :aux false :sem {:subj {:animate true}}}}
-                                  it/grammar lexicon it/cache)))]
+  (let [generated (first (take 1 (it/generate
+                                  {:synsem {:aux false 
+                                            :cat :verb :subcat '() 
+                                            :sem {:subj {:animate true}}}})))]
     (is (not (fail? generated)))
     (is (not (nil? generated)))))

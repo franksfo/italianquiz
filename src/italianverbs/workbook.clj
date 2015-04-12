@@ -3,31 +3,36 @@
   (:require
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
-   [clojure.set :refer :all]
+   [clojure.set :as set]
    [clojure.string :as string]
+   [clojure.tools.logging :as log]
 
    [clojail.core :refer [sandbox]]
    [clojail.testers :refer :all]
-   [clojure.tools.logging :as log]
-   [hiccup.core :refer :all]
 
-   [italianverbs.benchmark :refer :all]
-   [italianverbs.forest :as forest]
-   [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc deref future generate rand-int]]
-   [italianverbs.generate :refer :all :exclude [lightning-bolt]]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
+
+   [hiccup.core :refer [html]]
+
+   [italianverbs.engine :refer :all :exclude [routes]]
+   [italianverbs.english :as en]
+   [italianverbs.english :refer [en]]
+   [italianverbs.espanol :as es]
+   [italianverbs.italiano :as it]
+   [italianverbs.italiano :refer [it]]
+   [italianverbs.morphology :refer [fo fo-ps]]
+   [italianverbs.over :refer [over]]
    [italianverbs.html :as html]
-   [italianverbs.lexicon :refer :all]
-   [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer [finalize fo fo-ps fo-ps-en fo-ps-it get-english get-italian]]
-   [italianverbs.over :refer :all]
-   [italianverbs.pos :refer :all]
-   ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
-;;   [italianverbs.test.forest :refer :all]
-   [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer :all :exclude [unify]]))
+   [italianverbs.parse :refer [parse]]
+   [italianverbs.pos :as pos]
+   [italianverbs.translate :refer [translate translate-all]]
+   [italianverbs.unify :refer [get-in remove-false strip-refs]]
+))
 
+;; this does some sample runtime behavior (generates sentences)
+;; which allow certain things to get initialized so that remote (i.e. HTTP
+;; requests to the same things will not fail with cryptic 'undefined'
+;; stack traces.
 ;(def avoid-init-errors (nounphrase))
 (def avoid-init-errors true)
 
@@ -92,7 +97,7 @@
                               (set? loaded)
                               (html/tablize loaded)
 
-                              (or (set? loaded) (seq? loaded))
+                              (or (set? loaded) (seq? loaded)(vector? loaded))
                               (str "<ol class='workbook'>"
                                    (string/join " "
                                                 (map (fn [elem]
@@ -143,7 +148,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (take 1 (repeatedly #(sentence))))")
+          "(fo (take 1 (repeatedly #(it/sentence))))")
         ]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
@@ -171,9 +176,9 @@
           
           [:tr
            [:td
-            (fo-ps-it (:italiano to-show))]
+            (it/get-string (:italiano to-show))]
            [:td
-            (fo-ps-en (:english to-show))]]
+            (en/get-string (:english to-show))]]
 
           [:tr
            [:td (html/tablize (remove-false (get-in to-show [:italiano :synsem :sem])))]
@@ -184,5 +189,30 @@
         true
         (fo to-show)))
 
+;; TODO: remove when I feel safe that I don't need it anymore..
+;(def get-stuff-initialized1 (it/parse "io leggo il libro"))
+;(def get-stuff-initialized1 (translate "il gatto"))
+;(def get-stuff-initialized2 (translate "io leggo il libro"))
 
+;(log/info (str "done initializing workbook(1): " (fo get-stuff-initialized1)))
+;(log/info (str "done initializing workbook(2): " get-stuff-initialized2))
 
+(def routes
+  (compojure/routes
+
+   (GET "" request
+        {:status 302
+         :body (html/page "Workbook" (workbook-ui request) request)
+         :headers {"Location" "/workbook/"}})
+
+   (GET "/" request
+        {:status 200
+         :body (html/page "Workbook" (workbook-ui request) request)
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+   (GET "/q/" request
+        {:status 200
+         :body (workbookq (get (get request :query-params) "search")
+                          (get (get request :query-params) "attrs"))
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
+  ))

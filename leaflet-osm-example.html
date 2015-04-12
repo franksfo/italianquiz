@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Leaflet OSM</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+</style>
+</head>
+<body>
+
+<!-- jQuery is required for this example. -->
+<script src='https://code.jquery.com/jquery-1.11.0.min.js'></script>
+<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-osm/v0.1.0/leaflet-osm.js'></script>
+
+<div id='map'></div>
+<script>
+L.mapbox.accessToken = 'pk.eyJ1IjoiZWtvb250eiIsImEiOiJpSkF1VU84In0.fYYjf551Wds8jyrYV5MFwg';
+var map = L.mapbox.map('map', 'examples.map-i875kd35');
+
+var tour_path = [
+    [40.8526231,14.2722163],  // Napoli Centrali train station
+    [40.85318758861975,14.271989576518536],
+    [40.853398582562534,14.27162479609251], // TODO bear north
+    [40.854177631299656,14.271528236567972],
+    [40.854128941021976,14.270348064601421],
+    [40.85401533023488,14.269661419093609], // TODO bear south
+    [40.85345538850926,14.269779436290264], // TODO bear south
+    [40.85266010082301,14.269639961421488],
+    [40.85255460275972,14.268921129405499],
+    [40.85258706372015,14.268234483897686],
+    [40.85262763989835,14.267622940242289],
+    [40.85294413323541,14.266914837062359],
+    [40.85305774585944,14.266678802669047],
+    [40.85330120082628,14.266238920390606],
+    [40.85278182914886,14.266238920390606],
+    [40.8527737139341,14.265681020915508],
+    [40.85270879218017,14.264747612178324],
+    [40.85243287401638,14.263782016932964],
+    [40.85296036362221,14.26338504999876],
+    [40.852676331279376,14.262430183589458],
+    [40.85244098927289,14.261732809245586],
+    [40.852205646430455,14.260971061885357],
+    [40.85191349553206,14.260091297328472],
+    [40.851694381512836,14.259351007640362],
+    [40.851377882205846,14.258503429591656],
+    [40.851012688819125,14.257452003657818],
+    [40.85086661090081,14.256958477199078],
+    [40.85066372436894,14.256336204707623],
+    [40.850412144206636,14.255660288035868],
+    [40.850266064964366,14.255231134593487],
+    [40.850144332016434,14.254834167659283],
+    [40.85001448329216,14.2544050142169],
+    [40.85066372436894,14.254018776118754], // TODO bear north
+    [40.85128861289717,14.253675453364849], // TODO bear north
+    [40.851596997271706,14.253439418971539],
+    [40.85132107447789,14.252570383250713],
+    [40.851183112650055,14.251754991710184],
+    [40.852027109923384,14.251636974513529],
+    [40.8527980595754,14.251583330333233],
+    [40.85322816443017,14.251540414988995] // Museo Archeologico Nazionale
+
+];
+
+
+var current_lat = tour_path[0][0];
+var current_long = tour_path[0][1];
+var current_zoom = 17;
+
+$.ajax({
+    url: "https://www.openstreetmap.org/api/0.6/way/260501602/full",
+    dataType: "xml",
+    success: function (xml) {
+        var layer = new L.OSM.DataLayer(xml).addTo(map);
+
+        map.setView([current_lat,current_long], current_zoom);
+
+//        map.fitBounds(layer.getBounds());
+    }
+});
+</script>
+
+</body>
+</html>
+

@@ -1,45 +1,44 @@
 (ns italianverbs.grammar.italiano
   (:refer-clojure :exclude [get-in merge resolve])
   (:require 
-   [clojure.set :only (union intersection)]
    [clojure.tools.logging :as log]
-   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
-   [italianverbs.forest :as forest :exclude [generate]]
-   [italianverbs.lexicon :refer :all]
-   [italianverbs.morphology :refer :all]
+   [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
+   [italianverbs.morphology :refer (fo fo-ps)]
+   [italianverbs.parse :as parse]
    [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer :all]))
+   [italianverbs.unify :refer (fail? get-in merge unifyc)]))
 
 (def hc-agreement
   (let [agr (ref :top)]
     {:synsem {:agr agr}
      :head {:synsem {:agr agr}}
-     :comp {:italian {:agr agr}
+     :comp {:italiano {:agr agr}
             :synsem {:agr agr}}}))
 
 (def head-first
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
     (unifyc
-     {:comp {:italian {:initial false}}
-      :head {:italian {:initial true}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a head-italian
+     {:comp {:italiano {:initial false}}
+      :head {:italiano {:initial true}}}
+     {:head {:italiano head-italian}
+      :comp {:italiano comp-italian}
+      :italiano {:a head-italian
                 :b comp-italian}})))
 
 (def head-last
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
     (unifyc
-     {:comp {:italian {:initial true}}
-      :head {:italian {:initial false}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a comp-italian
+     {:comp {:italiano {:initial true}}
+      :head {:italiano {:initial false}}}
+     {:head {:italiano head-italian}
+      :comp {:italiano comp-italian}
+      :italiano {:a comp-italian
                 :b head-italian}})))
 
 ;; -- BEGIN SCHEMA DEFINITIONS
+;; <TODO: move to ug>
 (def schema-10
   (unifyc
    subcat-1-principle
@@ -113,8 +112,17 @@
    head-principle
    head-first
    {:comment "h21"
-    :schema-symbol 'h21 ;; used by over-each-parent to know where to put children.
+    :schema-symbol 'h21
     :first :head}))
+
+;; h21a is a specialization of h21. it's used for vp-aux to prevent over-generation.
+(def h21a
+  (merge
+   (unifyc
+    h21
+    {:head {:synsem {:subcat {:2 {:subcat {:2 '()}}}}}})
+   {:comment "h21a"
+    :schema-symbol 'h21a}))
 
 (def h22
   (unifyc
@@ -134,6 +142,7 @@
     :schema-symbol 'h32 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
+;; </TODO: move to ug>
 ;; -- END SCHEMA DEFINITIONS
 
 (def grammar (list (unifyc h21
@@ -185,7 +194,8 @@
                             :synsem {:cat :prep}})
 
                    (unifyc c10
-                           {:head {:synsem {:aux true}}
+                           {:head {:phrasal true ;; only a vp-aux may be the head child, not simply a lexical auxiliary verb.
+                                   :synsem {:aux true}}
                             :rule "s-aux"
                             :synsem {:infl :present
                                      :cat :verb
@@ -199,6 +209,12 @@
                                     :cat :verb
                                     :sem {:tense :futuro}}})
 
+                   (unifyc c10
+                          {:rule "s-conditional"
+                           :synsem {:aux false
+                                    :infl :conditional
+                                    :cat :verb
+                                    :sem {:tense :conditional}}})
 
                    (unifyc c10
                            {:rule "s-imperfetto"
@@ -222,7 +238,7 @@
                                      :infl :infinitive
                                      :cat :verb}})
 
-                   (unifyc h21
+                   (unifyc h21a
                            {:rule "vp-aux"
                             :head {:phrasal false}
                             :synsem {:aux true
@@ -242,7 +258,7 @@
                                        :infl :present
                                        :sem {:tense :past}
                                        :subcat {:2 {:agr obj-agr}}}
-                              :italian {:b {:obj-agr obj-agr}}}))
+                              :italiano {:b {:obj-agr obj-agr}}}))
 
                    (unifyc h21
                            {:rule "vp-future"
@@ -301,12 +317,13 @@
                    :head {:synsem {:modal ref}}}))
         true phrase))
 
-
+;; TODO: warn about failures.
 (def grammar
   (map (fn [phrase]
          (modal-is-head-feature
           (aux-is-head-feature phrase)))
-       grammar))
+       (filter #(not (fail? %))
+               grammar)))
 
 ;; TODO: calling (.size) because (map) is lazy, and I want to realize
 ;; the sequence - must be a better way to loop over the grammar and realize the result.
@@ -315,28 +332,3 @@
      grammar))
 
 (log/info "Italian grammar defined.")
-
-(def begin (System/currentTimeMillis))
-(log/debug "building grammatical and lexical cache..")
-(def cache nil)
-;; TODO: trying to print cache takes forever and blows up emacs buffer:
-;; figure out how to change printable version to (keys cache).
-(def cache (conj (build-lex-sch-cache grammar
-                                      (map (fn [lexeme]
-                                             (unifyc lexeme
-                                                     {:phrasal false}))
-                                           lexicon)
-                                      grammar)
-                 {:phrase-constraints head-principle ;; for now, only one constraint: ug/head-principle.
-                  :phrases-for-spec
-                  (spec-to-phrases
-                   ;; TODO: make this list derivable from the grammar and /or lexicon.
-                   (list {:synsem {}, :head {:synsem {}}, :phrasal true}
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:subcat {:2 {}, :1 {}}, :infl :present, :cat :verb, :sem {:tense :present}}, :phrasal false}, :phrasal true}
-                         {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl {:not :past}, :subcat {:2 {:cat :noun, :subcat (), :pronoun true}, :1 {}}}, :phrasal false}, :phrasal true}
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :infinitive, :subcat {:2 {}, :1 {}}}, :phrasal false}, :phrasal true}
-                         )
-                   grammar)}))
-
-(def end (System/currentTimeMillis))
-(log/info "Built grammatical and lexical cache in " (- end begin) " msec.")

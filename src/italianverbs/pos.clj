@@ -2,6 +2,8 @@
   (:require
    [italianverbs.unify :refer (unifyc)]))
 
+;; TODO: this file has a lot of language-specific stuff that should be factored into pos/$language.
+;; for example, english does not have gender agreement between articles, nouns and adjectives.
 (def noun
   (let [gender (ref :top)
         ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
@@ -15,20 +17,19 @@
         (let [number (ref :top)
               gender (ref :top)
               person (ref :top)
+              pronoun (ref :top)
               agr (ref {:number number
+                        :pronoun pronoun
                         :gender gender
                         :person person})
               cat (ref :top)]
           {:synsem {:cat cat
+                    :pronoun pronoun
                     :case :top
                     :subcat {:1 {:number number
                                  :person person
                                  :gender gender}}
-                    :agr agr}
-           :italian {:cat cat
-                     :agr agr}
-           :english {:cat cat
-                     :agr agr}})
+                    :agr agr}})
         common
         {:synsem {:cat :noun
                   :agr {:person :3rd}
@@ -67,8 +68,6 @@
 (def common-noun (:common noun))
 (def countable-noun (:countable noun))
 (def drinkable-noun (:drinkable noun))
-(def feminine-noun (:feminine noun))
-(def masculine-noun (:masculine noun))
 
 (def determiner
   (let [def (ref :top)]
@@ -82,21 +81,12 @@
             :agr {:person :3rd}
             :subcat '()}})
 
-(def adjective
-  (let [adjective (ref :adjective)
-        gender (ref :top)
-        number (ref :top)]
-    {:synsem {:cat adjective
-              :agr {:gender gender
-                    :number number}}
-     :italian {:cat adjective
-               :agr {:number number
-                     :gender gender}}
-     :english {:cat adjective}}))
 
 ;; useful abbreviations (aliases for some commonly-used maps):
 (def human {:human true})
 (def animal {:animate true :human false})
+(def adjective
+  {:synsem {:cat :adjective}})
 
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
@@ -106,11 +96,7 @@
         infl (ref :top)
         agr (ref :top)
         essere-type (ref :top)]
-    {:italian {:agr agr
-               :case subject-agreement :infl infl :essere essere-type}
-     :english {:agr agr
-               :case subject-agreement :infl infl}
-     :synsem {:essere essere-type
+    {:synsem {:essere essere-type
               :infl infl
               :cat :verb
               :sem {:subj subj-sem}
@@ -124,14 +110,17 @@
   (unifyc verb-subjective
           {:synsem {:subcat {:2 '()}}}))
 
+;; intransitive: has subject and no syntactic object, but only a semantic and underspecified (:unspec) object.
+(def intransitive-unspecified-obj
+  (unifyc intransitive
+          {:synsem {:sem {:obj :unspec}}}))
+
 ;; transitive: has both subject and object.
 (def transitive
   (unifyc verb-subjective
           (let [obj-sem (ref :top)
                 infl (ref :top)]
-            {:english {:infl infl}
-             :italian {:infl infl}
-             :synsem {:sem {:obj obj-sem}
+            {:synsem {:sem {:obj obj-sem}
                       :infl infl
                       :subcat {:2 {:sem obj-sem
                                    :subcat '()
@@ -142,14 +131,10 @@
   (unifyc verb-subjective
           (let [obj-sem (ref :top)
                 infl (ref :top)]
-            {:english {:infl infl}
-             :italian {:infl infl}
-             :synsem {:sem {:obj obj-sem}
+            {:synsem {:sem {:obj obj-sem}
                       :infl infl
                       :subcat {:2 {:sem obj-sem
-;                                   :subcat '()
                                    :case :acc}}}})))
-
 
 (def verb {:transitive transitive})
 
@@ -167,17 +152,14 @@
                             :cat :verb
                             :infl :infinitive
                             :subcat {:1 subj-subcat
-                                     :2 '()}}}}
-      :english {:modal true}}))
+                                     :2 '()}}}}}))
 
 ;; TODO: not using this: either use or lose.
 (def transitive-but-with-prepositional-phrase-instead-of-noun
   (unifyc verb-subjective
           (let [obj-sem (ref :top)
                 infl (ref :top)]
-            {:english {:infl infl}
-            :italian {:infl infl}
-             :synsem {:sem {:obj obj-sem}
+            {:synsem {:sem {:obj obj-sem}
                       :infl infl
                       :subcat {:2 {:sem obj-sem
                                    :subcat '()
@@ -186,7 +168,7 @@
 
 ;; whether a verb has essere or avere as its
 ;; auxiliary to form its passato-prossimo form:
-;; Must be encoded in both the :italian (for morphological agreement)
+;; Must be encoded in both the :italiano (for morphological agreement)
 ;; and the :synsem (for subcategorization by the appropriate aux verb).
 (def verb-aux
   (let [essere-binary-categorization (ref :top)
@@ -195,23 +177,47 @@
         sem (ref {:tense :past
                   :pred pred})
         subject (ref :top)]
-    {:italian {:aux aux
-               :essere essere-binary-categorization}
-     :synsem {:aux aux
+    {:synsem {:aux aux
               :sem sem
               :essere essere-binary-categorization
               :subcat {:1 subject
                        :2 {:cat :verb
                            :aux false
                            :essere essere-binary-categorization
-                           :subcat {:1 subject
-                                    :2 '()}
+                           :subcat {:1 subject}
                            :sem sem
                            :infl :past}}}}))
 
+;; "Y is Xer than Z".
+(def comparative
+  {:synsem {:sem {:comparative true}
+            :cat :adjective
+            :subcat {:1 {:cat :noun}
+                     :2 {:cat :prep
+                         :subcat '()}}}})
 
+(def pronoun-acc (ref :acc))
 
+(def subcat1 {:synsem {:subcat {:1 {:cat :top}
+                                :2 '()}}})
 
+;; "Y is X."
+;; TODO: put semantics here.
+(def non-comparative-adjective
+  subcat1)
 
+(def comp-sem (ref {:activity false
+                    :discrete false}))
 
+(def disjunctive-case-of-pronoun (ref :disj))
+(def cat-of-pronoun (ref :noun))
+
+(def subcat0 {:synsem {:subcat '()}})
+
+(def sentential-adverb
+  (let [sentential-sem (ref :top)]
+    {:synsem {:cat :sent-modifier
+              :sem {:subj sentential-sem}
+              :subcat {:1 {:sem sentential-sem
+                           :subcat '()}}}}))
 

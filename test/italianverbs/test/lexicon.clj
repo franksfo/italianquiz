@@ -1,8 +1,8 @@
 (ns italianverbs.test.lexicon
   (:use [clojure.set]
-        [clojure.test]
-        [italianverbs.lexicon])
+        [clojure.test])
   (:require
+   [italianverbs.italiano :as it]
    [italianverbs.unify :as fs]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.pos :refer :all]
@@ -18,7 +18,7 @@
                              (list {:english "bed"}
                                    {:italian "letto"}))))
 
-(def mangiare-search (lookup "mangiare"))
+(def mangiare-search (it/lookup "mangiare"))
 
 ;; looking for transitive verbs (:obj|:cat = noun)
 ;; which happen in a place (:adjunct|:obj|:place = true).
@@ -41,10 +41,10 @@
   {:cat :verb})
 
 (deftest avere-test
-  (let [to-have (lookup "avere")]
+  (let [to-have (it/lookup "avere")]
     ;; sanity checks: not related to reentrances.
     ;; Ideally these subtests would work for the keyword,
-    ;; since lexicon.clj uses keywords for symbols.
+    ;; since lexicons uses keywords for symbols.
     ;; But for now, we have to test for "det" because of
     ;; database serialization.
 

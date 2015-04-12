@@ -1,7 +1,6 @@
 (ns italianverbs.cache
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [get get-in merge resolve find parents])
   (:require
-   [clojure.core :exclude [get-in]]
 
    ;; TODO: comment is misleading in that we never call core/get-in from this file.
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
@@ -11,9 +10,10 @@
 
    [clojure.tools.logging :as log]
 
-   [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer [finalize fo fo-ps]]
+   [italianverbs.morphology :refer :all]
+   [italianverbs.morphology.english :as english]
+   [italianverbs.morphology.italiano :as italiano]
    [italianverbs.over :exclude [overc overh]]
    [italianverbs.over :as over]
    [italianverbs.unify :refer :all :exclude [unify]]))
@@ -49,6 +49,8 @@
 
    End result is a set of phrase => {:comp subset-of-lexicon 
                                      :head subset-of-lexicon}."
+  (log/debug (str "build-lex-sch-cache: lexicon size: " (.size lexicon)))
+  (log/debug (str "build-lex-sch-cache: grammar size: " (.size all-phrases)))
   (if (not (empty? phrases))
     (conj
      {(:rule (first phrases))
@@ -72,6 +74,7 @@
 
        :head
        (filter (fn [lex]
+                 (log/debug (str "trying lexeme: " lex))
                  (not (fail? (unifyc (first phrases)
                                      {:head lex}))))
                lexicon)}}
@@ -93,9 +96,11 @@
        (spec-to-phrases (rest specs) all-phrases)))
     {}))
 
+;; TODO: remove: callers should use over/over instead
 (defn over [parents child1 & [child2]]
   (over/over parents child1 child2))
 
+;; TODO: remove: callers should use over/overh instead
 (defn overh [parent head]
   (if (seq? parent)
     (mapcat (fn [each-parent]
@@ -118,6 +123,7 @@
             (log/trace (str "survivors are empty."))))
         result))))
 
+;; TODO: remove: callers should use over/overc instead
 (defn overc [parent comp]
   (if (not (seq? comp))
     (do (log/trace (str "comp is not a seq; returning over/overc directly."))
@@ -151,9 +157,9 @@
                            (do
                              (log/trace (str "get-lex hit: head for schema: " (:rule schema)))
                              (:head (get cache (:rule schema))))
-                           (do
-                             (log/warn (str "CACHE MISS 1"))
-                             lexicon))
+
+                           (do (log/warn (str "CACHE MISS 1 for rule: " (:rule schema) " h/c: " head-or-comp " :: cache:" (type cache)))
+                               #{}))
 
                          (= :comp head-or-comp)
                          (if (and (= :comp head-or-comp)
@@ -166,7 +172,7 @@
                              nil))
                        
                          true
-                         (do (log/warn (str "CACHE MISS 3"))
+                         (do (log/warn (str "CACHE MISS 3: head-or-comp:" head-or-comp))
                              nil))]
         (let [filtering false ;; no quantitative evidence that this helps, so turning off.
               result
@@ -219,29 +225,28 @@
       :notfound
       (get ls-part (show-spec use-spec) :notfound))))
 
-(defn overc-with-cache [parents cache]
-  (if (not (empty? parents))
-    (let [parent (first parents)
-          use-spec {:synsem (get-in parent [:comp :synsem])}
-          lexicon (let [cached (get-subset-from-cache cache (show-spec use-spec))]
-                    (lazy-shuffle (if (= cached :notfound)
-                                    (get-lex parent :comp cache nil)
-                                    cached)))]
-      (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
-                                                     (not (fail? (unifyc lexeme
-                                                                         use-spec))))
-                                                   lexicon))
-                (overc-with-cache (rest parents) cache lexicon)))))
-
-(defn overh-with-cache [parent cache lexicon]
-  (let [lexicon (lazy-shuffle (get-lex parent :head cache lexicon))
-        use-spec {:synsem (get-in parent [:head :synsem])}]
-    (overh parent
-            (filter (fn [lexeme]
-                      (not (fail? (unifyc lexeme
-                                          use-spec))))
-                    lexicon))))
-
-
+;; TODO: document how this works and especially what 'phrase-constraint' means.
+(defn create-index [grammar lexicon phrase-constraint]
+  (let [lexicon (if (map? lexicon)
+                  (keys lexicon)
+                  lexicon)]
+    (log/debug (str "create index with lexicon: " (.size lexicon)))
+    (conj (build-lex-sch-cache grammar
+                               (map (fn [lexeme]
+                                      (log/debug (str "trying(ci) lexeme: " lexeme))
+                                      (unifyc lexeme
+                                              {:phrasal false}))
+                                    lexicon)
+                               grammar)
+          {:phrase-constraints phrase-constraint
+           :phrases-for-spec
+           (spec-to-phrases
+            ;; TODO: make this list derivable from the grammar and /or lexicon.
+            (list {:synsem {}, :head {:synsem {}}, :phrasal true}
+                  {:synsem {:cat :verb, :aux false}, :head {:synsem {:subcat {:2 {}, :1 {}}, :infl :present, :cat :verb, :sem {:tense :present}}, :phrasal false}, :phrasal true}
+                  {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl {:not :past}, :subcat {:2 {:cat :noun, :subcat (), :pronoun true}, :1 {}}}, :phrasal false}, :phrasal true}
+                  {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :infinitive, :subcat {:2 {}, :1 {}}}, :phrasal false}, :phrasal true}
+                  )
+            grammar)})))
 
 

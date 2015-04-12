@@ -13,8 +13,12 @@
    [hiccup.element :as e]
    [hiccup.page :as h]
    [italianverbs.menubar :as menubar]
+   [italianverbs.morphology :refer [fo]]
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
+
+(def login-enabled true)
+(def menubar-enabled true)
 
 (defn verb-row [italian]
   (html
@@ -61,8 +65,9 @@
 
      (include-css "resources/public/css/style.css")
 
-     ]
+     (include-css "http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css")
 
+     ]
 
     [:body
      body]]))
@@ -100,7 +105,7 @@
    (map? arg)
    
    (not (= :subcat (last path)))
-   (not (= :italian (last path)))
+   (not (= :italiano (last path)))
    (not (= :english (last path)))
    
    (not (= :none (:head arg :none)))
@@ -110,15 +115,15 @@
    
    (or
     (and
-     (not (= :none (fs/get-in arg '(:head :italian) :none)))
-     (not (= :none (fs/get-in arg '(:comp :italian) :none))))
+     (not (= :none (fs/get-in arg '(:head :italiano) :none)))
+     (not (= :none (fs/get-in arg '(:comp :italiano) :none))))
     (and
      (not (= :none (fs/get-in arg '(:head :english) :none)))
      (not (= :none (fs/get-in arg '(:comp :english) :none)))))
    
    (or
-    (and (fs/ref= arg '(:head :italian) '(:italian :a))
-         (fs/ref= arg '(:comp :italian) '(:italian :b)))
+    (and (fs/ref= arg '(:head :italiano) '(:italiano :a))
+         (fs/ref= arg '(:comp :italiano) '(:italiano :b)))
     (and (fs/ref= arg '(:head :english) '(:english :a))
          (fs/ref= arg '(:comp :english) '(:english :b)))))]
     retval))
@@ -129,7 +134,7 @@
    (map? arg)
    
    (not (= :subcat (last path)))
-   (not (= :italian (last path)))
+   (not (= :italiano (last path)))
    (not (= :english (last path)))
    
    (not (= :none (:head arg :none)))
@@ -139,18 +144,21 @@
    
    (or
     (and
-     (not (= :none (fs/get-in arg '(:head :italian) :none)))
-     (not (= :none (fs/get-in arg '(:comp :italian) :none))))
+     (not (= :none (fs/get-in arg '(:head :italiano) :none)))
+     (not (= :none (fs/get-in arg '(:comp :italiano) :none))))
     (and
      (not (= :none (fs/get-in arg '(:head :english) :none)))
      (not (= :none (fs/get-in arg '(:comp :english) :none)))))
    
    (or
-    (and (fs/ref= arg '(:head :italian) '(:italian :b))
-         (fs/ref= arg '(:comp :italian) '(:italian :a)))
+    (and (fs/ref= arg '(:head :italiano) '(:italiano :b))
+         (fs/ref= arg '(:comp :italiano) '(:italiano :a)))
     (and (fs/ref= arg '(:head :english) '(:english :b))
          (fs/ref= arg '(:comp :english) '(:english :a)))))]
     retval))
+
+(def show-top true)
+(def show-true true)
 
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
@@ -183,14 +191,18 @@
                                        (seq arg)))
                      (list "</div><div class='delimiter'>}</div></div>")))
 
+     (vector? arg)
+     (string/join ""
+                  (map (fn [each]
+                         (tablize each path (fs/serialize each) opts))
+                       arg))
+
      (or (list? arg)
          (= (type arg) clojure.lang.Cons))
-     (str
-      (clojure.string/join ""
-                           (map (fn [each]
-                                  (tablize each path (fs/serialize each) opts))
-                                arg)))
-
+     (string/join ""
+                  (map (fn [each]
+                         (tablize each path (fs/serialize each) opts))
+                       arg))
 
      ;; displaying a phrase structure tree (2 children)
      ;; Head-initial (H C)
@@ -288,7 +300,8 @@
       (map? arg)
 
       (not (= :subcat (last path)))
-      (not (= :italian (last path)))
+      (not (= :english (last path)))
+      (not (= :italiano (last path)))
 
       ;; display :extends properly (i.e. not a tree).
       ;; :extends will have features :a,:b,:c,..
@@ -300,7 +313,6 @@
       (not (= :f (last path)))
       (not (= :g (last path)))
 
-      (not (= :english (last path)))
       (not (= :none (:1 arg :none)))
       (not (= :none (:2 arg :none))))
 
@@ -347,9 +359,7 @@
      (and
       (or true (not (nil? opts)))
       (or true (= true (:as-tree opts)))
-      (or (= (type arg) clojure.lang.PersistentArrayMap)
-          (= (type arg) clojure.lang.PersistentHashMap)
-          (= (type arg) clojure.lang.PersistentTreeMap))
+      (map? arg)
       (not (= :subcat (last path)))
 
       (not (= :a (last path)))
@@ -383,15 +393,24 @@
       "  </table>"
       "</div>")
 
+
+     (and (map? arg)
+          (= (last path) :english))
+     (tablize {:exterior (str "<i>" (fo {:english arg}) "</i>")
+               :interior arg})
+
+     (and (map? arg)
+          (= (last path) :italiano))
+     (tablize {:exterior (str "<i>" (fo {:italiano arg}) "</i>")
+               :interior arg})
+
      ;; displaying a feature structure.
-     (or (= (type arg) clojure.lang.PersistentArrayMap)
-         (= (type arg) clojure.lang.PersistentHashMap)
-         (= (type arg) clojure.lang.PersistentTreeMap))
+     (map? arg)
      (str
       "<div class='map'>"
       (if (:header arg) (str "<h2>" (:header arg) "</h2>"))
       "  <table class='map'>"
-      (clojure.string/join
+      (string/join
        ""
        (map
         (fn [tr]
@@ -417,10 +436,6 @@
            (if (= (type (second tr)) clojure.lang.Ref)
              (str
               "<td class='ref'>"
-              ;; show ref id for debugging if desired:
-              (if false (str
-                         "(" (second tr) ")"
-                         "[ " (type @(second tr)) " ]"))
               "  <div class='ref'>"
               (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
               "  </div>"
@@ -433,20 +448,40 @@
                     ;; Path' = Path . current_feature
                     (concat path (list (first tr)))
                     serialized
-                    {:as-tree false}
-                    )
+                    {:as-tree false})
            "   </td>"
            "</tr>"))
-        ;; sorts the argument list in _arg__ by key name. remove :comment-plaintext and :extend.
-        (remove #(= (first %) :comment-plaintext)
-                (remove #(or (= (first %) :comment-plaintext)
-                             (= (first %) :extend)
-                             (= (first %) :serialized))
-                        (into (sorted-map) arg)))
+        ;; sorts the argument list in _arg__ by key name and remove uninteresting key-value pairs.
+        (remove #(or (= (first %) :aliases)
+                     (= (first %) :comment)
+                     (= (first %) :comment-plaintext)
+                     (= (first %) :extend)
+                     (= (first %) :first)
+                     (= (first %) :head-filled)
+                     (= (first %) :phrasal)
+                     (= (first %) :schema-symbol)
+                     (= (first %) :serialized)
+                     (and (not show-true)
+                          (fs/ref? (second %))
+                          (= @(second %) false))
+                     (and (not show-top)
+                          (fs/ref? (second %))
+                          (= @(second %) :top))
+                     (and (not show-true) (= (second %) false))
+                     (and (not show-top) (= (second %) :top))
+
+                     (and (not show-true) (fs/ref? (second %))
+                          (= @(second %) true))
+                     (and (not show-true) (fs/ref? (second %))
+                          (= @(second %) :top))
+                     (and (not show-true) (= (second %) true))
+                     (and (not show-top) (= (second %) :top)))
+
+                (into (sorted-map) arg))
         ))
       "  </table>"
       "</div>")
-     (= (type arg) clojure.lang.PersistentHashSet)
+     (set? arg)
      (str
       "{"
       (clojure.string/join ","
@@ -506,6 +541,11 @@
      (fn? arg)
      "&lambda;"
 
+
+     ;; TODO: should support objects of any otherwise-unsupported class: simply print out the classname in fixed-width font.
+     (= (type arg) org.eclipse.jetty.server.HttpInput)
+     "<tt>org.eclipse.jetty.server.HttpInput</tt>"
+
      true
      (str "<div class='unknown'>" "<b>don't know how to tablize this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
 
@@ -518,10 +558,9 @@
         "<tr><td>"
         (string/join
          "</td><td class='each'>"
-                                        ;"</td></tr><tr><td class='each'>"
-                     (map (fn [each-val]
-                            (tablize each-val))
-                          val))
+         (map (fn [each-val]
+                (tablize each-val))
+              val))
         "</td></tr>"
         "</table>"
         "</td>")
@@ -617,11 +656,6 @@
 
          [:tr
           [:td {:colspan "3"}
-           (powered-by "generate" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/generate.clj")
-           ]
-          ]
-         [:tr
-          [:td {:colspan "3"}
            (powered-by "forest" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/forest.clj")
            ]
           ]
@@ -662,23 +696,21 @@
        (powered-by "postgres" "http://www.postgresql.org/")
        ]]]]))
 
-(defn about []
-   [:div {:class "major"} [:h2 "Welcome to Verbcoach."]
 
-    [:div
-     [:p
-     
-      "This site helps to learn Latin-based languages by \"coaching\" to conjugate verbs."
+(defn includes-js [includes]
+  (if (not (empty? includes))
+    (do
+      (include-js (first includes))
+      (includes-js (rest includes)))))
 
-      ]]
-    ])
-
-
-(defn pretty-head [title]
+(defn pretty-head [title & [js jss css_set]]
+  (log/debug (str "pretty-head js: " js))
+  (if jss (log/debug (str "pretty-head jss: " jss)));; TODO: jss => js_set.
   [:head 
    [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
    (include-css "/css/style.css")
+   (include-css "/css/editor.css")
    (include-css "/css/layout.css")
    (include-css "/css/fs.css")
    (include-css "/css/tag.css")
@@ -689,22 +721,61 @@
    (h/include-css "/css/bootstrap.min.css")
    (h/include-css "/css/prettify.css")
    
+   ;; (TODO: make remote-or-local configurable)
+   (if false
+     (include-css "http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
+     (include-css "/css/font-awesome.min.css"))
+   (include-css "/css/game.css")
+   (include-css "/css/lab.css")
+   (include-css "/css/leaflet.css")
+   (include-css "/css/settings.css")
 
    [:style {:type "text/css"} "ul { padding-left: 2em }"]
+
+   ;; end of CSS includes
+   ;; begin Javascript includes
    
-   [:script {:src "/webjars/js/foundation.min.js" :type "text/javascript"}]
    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
+   [:script {:type "text/javascript" :src "/webjars/js/foundation.min.js" }]
    [:script {:type "text/javascript" :src "/js/autogrow.js"}]
 
    ;; TODO: move this [:script ] to quiz.clj somehow: should keep quiz.js stuff with quiz.clj, search.js stuff with search.clj,etc.
+   ;; TODO: use include-js for consistency for these rather than [:script ... ] for consistency.
    [:script {:type "text/javascript" :src "/js/quiz.js"}]
-
    [:script {:type "text/javascript" :src "/js/workbook.js"}]
    [:script {:type "text/javascript" :src "/js/search.js"}]
    
    (include-js "/js/prettify.js")
    (include-js "/js/lang-clj.js")
-   (include-js "/js/main.js")
+   (include-js "/js/d3.v2.min.js")
+   (include-js "/js/log4.js")
+
+   (if js
+     (include-js js))
+   
+   ;; TODO: this is obviously broken; I don't know how to do this correctly:
+   (if (and jss (> (.size jss) 0))
+     (include-js (nth jss 0)))
+   (if (and jss (> (.size jss) 1))
+     (include-js (nth jss 1)))
+   (if (and jss (> (.size jss) 2))
+     (include-js (nth jss 2)))
+   (if (and jss (> (.size jss) 3))
+     (include-js (nth jss 3)))
+   (if (and jss (> (.size jss) 4))
+     (include-js (nth jss 4)))
+   ;; and so on..?
+
+   (if (string? css_set)
+     (include-css css_set))
+   (if (and css_set (or (vector? css_set) (seq? css_set)) (> (.size css_set) 0))
+     (include-css (nth css_set 0)))
+   (if (and css_set (or (vector? css_set) (seq? css_set)) (> (.size css_set) 1))
+     (include-css (nth css_set 1)))
+   (if (and css_set (or (vector? css_set) (seq? css_set)) (> (.size css_set) 2))
+     (include-css (nth css_set 2)))
+   ;; and so on..?
+
 
     ; enable this 'reset.css' at some point.
     ;  (include-css "/italian/css/reset.css")
@@ -714,9 +785,10 @@
                   ": " "")
                 "Verbcoach")]])
 
-(defn pretty-body
-  [& content]
+(defn pretty-body [ options & content ]
   [:body
+;;   {:onload "start_game();"}
+   {:onload (if (:onload options) (:onload options) "")}
    (into [:div {:class "columns small-12"}] content)])
 
 (defn logged-in-content [req identity]
@@ -747,23 +819,27 @@
   (-> identity friend/current-authentication :roles))
 
 (def login-form
+  [:div 
+
   [:div {:class "login major"}
    [:form {:method "POST" :action "/login"}
     [:table
      [:tr
       [:th "User"][:td [:input {:type "text" :name "username" :size "10"}]]
       [:th "Password"][:td [:input {:type "password" :name "password" :size "10"}]]
-      [:td [:input {:type "submit" :class "button" :value "Login"}]]]]]])
+      [:td [:input {:type "submit" :class "button" :value "Login"}]]]]]]])
 
-(defn page-body [content req & [ title ]]
+(defn page-body [content req & [ title options]]
   (let [title (if title title "default page title")]
+    (log/debug (str "page-body with options: " options))
     (h/html5
-     (pretty-head title)
+     (pretty-head title (:js options) (:jss options) (:css options))
      (pretty-body
-
-      (if-let [identity (friend/identity req)]
-        (logged-in-content req identity)
-        login-form)
+      options
+      (if login-enabled
+        (if-let [identity (friend/identity req)]
+          (logged-in-content req identity)
+          login-form))
 
        content))))
       
@@ -775,16 +851,10 @@
 ;                        "Requires any authentication, no specific role requirement")]]]))))
 
 
-(defn page [title & [content request onload]]
+(defn page [title & [content request options]]
   (let [haz-admin (not (nil? (:italianverbs.core/admin (:roles (friend/current-authentication)))))]
     (page-body 
      (html
-      [:div#top
-       (menubar/menubar (session/request-to-session request)
-                        (if request (get request :uri))
-                        (friend/current-authentication)
-                        (request-to-suffixes request))]
-
 
 ;      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
 ;       (str "can-haz admin:" haz-admin)]
@@ -793,8 +863,21 @@
         [:div {:class "fadeout"}
          (get (:query-params request) "result")])
 
-      [:div#content content])
-   request title)))
+      (if menubar-enabled
+
+        (menubar/menubar (session/request-to-session request)
+                         (if request (get request :uri))
+                         (friend/current-authentication)
+                         (request-to-suffixes request)))
+      
+
+
+      [:div#content content]
+
+
+      )
+
+     request title options)))
 
 (declare tr)
 (def short-format

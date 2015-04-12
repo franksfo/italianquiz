@@ -1,0 +1,247 @@
+;; TODO: This is going away: using language-specific lexicons in the future.
+(ns italianverbs.lex.notizie_potere
+  (:require
+   [italianverbs.lexiconfn :refer (unify)]
+   [italianverbs.pos.italiano :refer (feminine-noun masculine-noun)]
+   [italianverbs.pos :refer :all]))
+
+(def notizie-potere
+  (list
+
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem {:pred :notizie
+                             :buyable false
+                             :legible true}}
+              ;; "notizia" would probably also work, since it
+              ;; would be pluralized by morphology to "notizie".
+              :italiano {:italiano "notizie"}
+              :english {:english "new"}} ;; "news" (will be pluralized by morphology to "news").
+             {:synsem {:subcat {:1 {:cat :det
+                                    :number :plur
+                                    :def :def}}}})
+
+      (unify adjective
+             {:italiano {:italiano "nuovo"
+                        :initial true}
+              :english {:english "new"}
+              :synsem {:cat :adjective
+                       :sem {:pred :nuovo
+                             :artifact true}}})
+
+      {:synsem {:cat :noun
+                :pronoun true
+                :case :nom
+                :agr {:person :3rd
+                      :number :sing}
+                :sem (unify human {:pred :ognuno})
+                :subcat '()}
+       :english "everyone"
+       :italiano "ognuno"}
+
+      (unify proper-noun
+             {:synsem {:sem {:pred :paola
+                             :human true}
+                       :agr {:number :sing
+                             :person :3rd
+                             :gender :fem}}
+              :italiano "Paola"
+              :english "Paola"})
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem {:legible true
+                             :buyable false
+                             :speakable true
+                             :pred :parola}}}
+             {:italiano {:italiano "parola"}
+              :english {:english "word"}})
+
+      ;; inherently singular.
+      (unify agreement-noun
+             common-noun
+             masculine-noun
+             {:synsem {:sem {:pred :pane
+                             :edible true
+                             :artifact true}}
+              :italiano {:italiano "pane"}
+              :english {:english "bread"}}
+             {:synsem {:subcat {:1 {:cat :det
+                                    :number :sing
+                                    :def :def}}}})
+
+      (let [parlare
+            (unify
+             transitive
+             {:italiano {:infinitive "parlare"}
+              :english {:infinitive "to speak"
+                        :irregular {:past "spoke"}}
+              :synsem {:essere false
+                       :sem {:pred :parlare
+                             :subj {:human true}
+                             :obj {:speakable true}}}})]
+        parlare)
+
+      ;; inherently singular.
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem {:pred :pasta
+                             :edible true
+                             :artifact true}}
+              :italiano {:italiano "pasta"}
+              :english {:english "pasta"}}
+             {:synsem {:subcat {:1 {:cat :det
+                                    :number :sing
+                                    :def :def}}}}
+           )
+
+      (unify
+       {:italiano {:infinitive "pensare"}
+        :english {:infinitive "to think"
+                  :irregular {:past "thought"}}
+        :synsem {:cat :verb
+                 :essere false
+                 :sem {:pred :pensare
+                       :discrete false
+                       :subj {:human true}}}})
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :professoressa
+                             :child false}}
+              :italiano {:italiano "professoressa"}
+              :english {:english "professor"
+                        :note " (&#x2640;)"}}) ;; unicode female symbol
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             masculine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :professore
+                             :child false}}}
+             {:italiano {:italiano "professore"}
+              :english {:english "professor"
+                        :note " (&#x2642;)"}}) ;; unicode male symbol
+
+      (let [complement-semantics (ref {:pred :per})]
+        (unify
+         {:synsem {:cat :prep
+                   :sem complement-semantics
+                   :subcat {:1 {:cat :verb
+                                :sem complement-semantics
+                                :infl :infinitive
+                                :subcat {:1 :top
+                                         :2 '()}}
+                            :2 '()}}
+          :italiano "per"
+          :english ""}))
+
+      ;; perdere
+      (unify
+       (:transitive verb)
+       {:italiano {:infinitive "perdere"
+                  :irregular {:passato "perso"}}
+        :english {:infinitive "to lose"
+                  :irregular {:past "lost"
+                              :past-participle "lost"}}
+        :synsem {:essere false
+                 :sem {:pred :perdere
+                       :activity false
+                       :deliberate false ;; you don't lose things on purpose.
+                       :discrete true
+                       :subj {:human true}
+                       :obj {:animate false}}}}) ;; mostly you don't lose humans or animals, or you do, and it's too sad to put in here.
+
+      ;; non-comparative
+      ;; TODO: add comparative
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :piccolo
+                             :comparative false
+                             :physical-object true
+                             :mass false}}
+              :italiano {:italiano "piccolo"
+                        :cat :adjective}
+              :english {:english "small"
+                        :cat :adjective}})
+
+      ;; "pizza" can be either mass or countable.
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem {:pred :pizza
+                             :edible true
+                             :artifact true}}
+              :italiano {:italiano "pizza"}
+              :english {:english "pizza"}})
+
+      (let [human (ref :top)
+            animate (ref :top)
+            subj-semantics (ref {:human human
+                                 :animate animate})
+            obj-semantics (ref {:comparative true
+                                :human human
+                                :animate animate})
+            adj-semantics (ref :top)]
+        {:synsem {:cat :intensifier
+                  :sem {:pred :più
+                        :modifies adj-semantics
+                        :arg1 subj-semantics
+                        :arg2 obj-semantics}
+                  :subcat {:1 {:cat :noun
+                               :sem subj-semantics}
+                           :2 {:cat :adjective
+                               :sem {:arg1 subj-semantics
+                                     :pred adj-semantics
+                                     :arg2 obj-semantics}}}}
+         :italiano "più"
+         :english "more" ;; TODO: better translation would use suffix "-er" (e.g. "taller") rather than "more" (e.g. "more tall")
+         })
+
+      (let [pred-of-complement (ref :top)]
+        (unify
+         verb-subjective
+         modal
+         {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
+         {:italiano {:infinitive "potere"
+                    :drop-e true
+                    :irregular {:present {:1sing "posso"
+                                          :2sing "puoi"
+                                          :3sing "può"
+                                          :1plur "possiamo"
+                                          :2plur "potete"
+                                          :3plur "possono"}
+				:future {:1sing "potrò"
+                                          :2sing "potrai"
+                                          :3sing "potrà"
+                                          :1plur "potremo"
+                                          :2plur "potrete"
+                                          :3plur "potranno"}}}
+          :english {:infinitive "to be able to"
+                    :irregular {:past "could have"
+                                ;; TODO: enhance morphology.clj to handle one irregular for all agreements: {:present "can"}.
+                                :present {:1sing "can"
+                                          :2sing "can"
+                                          :3sing "can"
+                                          :1plur "can"
+                                          :2plur "can"
+                                          :3plur "can"}}}
+          :synsem {:essere false
+                   :modal true
+                   :sem {:pred {:pred pred-of-complement
+                                :mod :potere}
+                         :activity false
+                         :discrete false
+                         :subj {:animate true}}
+                   :subcat {:2 {:sem {:pred pred-of-complement}}}}}))))
+
+
+

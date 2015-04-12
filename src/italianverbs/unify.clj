@@ -1,14 +1,23 @@
+;; TODO: define a dissoc that works with special values 
+;; which are not maps but keywords, like :fail; 
+;; e.g.:
+;; (dissoc :fail :anykey) => :fail
+;; (dissoc :top :anykey) => :top
+;; Another approach would be to not modify dissoc to handle non-maps, and instead
+;; use special values that *are* maps.
+;; e.g. {:fail :fail} rather than simply :fail,
+;; and {:top :top} rather than simply :top.
 (ns italianverbs.unify
-  (:refer-clojure :exclude [get-in merge resolve])
+  (:refer-clojure :exclude [get get-in merge resolve])
   (:require
-   [italianverbs.unify :refer :all]
+   [clojure.core :as core]
    [clojure.set :refer :all]
    [clojure.string :as string]
    [clojure.tools.logging :as log]))
 
 (defn get-head [sign]
-  (if (get sign :head)
-    (get-head (get sign :head))
+  (if (core/get sign :head)
+    (get-head (core/get sign :head))
     sign))
 
 (defn resolve [arg]
@@ -31,7 +40,7 @@
         true
         (let [result
               (if (first path)
-                (let [result (get in-map (first path) not-found)]
+                (let [result (core/get in-map (first path) not-found)]
                   (if (= result not-found) not-found
                       (get-in (resolve result) (rest path) not-found)))
                 in-map)]
@@ -39,23 +48,9 @@
             @result
             result))))
 
-;; following is deprecated in favor of just (get-in) (above).
-(defn get-in-r [map keys]
-  (get-in map keys))
-
-(defn get-r [map key]
-  "same as clojure.core (get), but it resolves references if need be."
-  (let [result (get map key)]
-    (if (= (type result) clojure.lang.Ref)
-      @result
-      result)))
-
-(defn get-root-head [sign]
-  (cond
-   (get sign :head)
-   (get-root-head (get sign :head))
-   true
-   sign))
+(defn exists? [the-map path]
+  (not (= :does-not-exist
+          (get-in the-map path :does-not-exist))))
 
 (defn ref? [val]
   (= (type val) clojure.lang.Ref))
@@ -69,7 +64,11 @@
   (cond (= :fail fs) true
         (seq? fs) false ;; a sequence is never fail.
         (= fs :fail) true ;; :fail is always fail.
-        (fn? fs) false ;; a function is never fail.
+ 
+        (and (map? fs) (fail? (get-in fs [:fail] :top))) true
+        (and (map? fs) (= true (get-in fs [:fail] :top))) true ;; note: :top != true, and (fail? {:fail :top}) => false.
+
+       (fn? fs) false ;; a function is never fail.
 
         ;; TODO: make cycle-checking work with other features (not just :subj).
         (and
@@ -93,7 +92,7 @@
           (do
             (defn failr? [fs keys]
               (and (not (empty? keys))
-                   (or (fail? (get fs (first keys)))
+                   (or (fail? (core/get fs (first keys)))
                        (failr? fs (rest keys)))))
             (cond
              (= fs :fail) true
@@ -150,6 +149,9 @@
    :else
    nil))
 
+;; TODO: remove this variable (strict) in favor of string-unifier-keys.
+(def strict true) ;; strict means: don't try to get smart with "foo" {:italiano "foo"} => {:italiano "foo"}; instead just :fail.
+
 ;; TODO: many code paths below only look at val1 and val2, and ignore rest of args beyond that.
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
 ;; see also lexiconfn/unify (probably will change signature, but make lexiconfn/unify handle
@@ -159,278 +161,323 @@
 ;;
 ;; TODO: use commute to allow faster concurrent access: Rathore, p. 133.
 
-(def strict true) ;; strict means: don't try to get smart with "foo" {:italian "foo"} => {:italian "foo"}; instead just :fail.
+(def string-unifier-keys #{:english :italiano})
+
+(declare merge)
+(declare merge-with-keys)
+
 (defn unify [& args]
-  (if (empty? (rest args)) (first args))
-  (let [val1 (first args)
-        val2 (second args)]
-    (log/debug (str "unify val1: " val1))
-    (log/debug (str "      val2: " val2))
-    (log/debug (str "set? val1:" (set? val1)))
-    (log/debug (str "set? val2:" (set? val2)))
-    (log/debug (str "has-set? val1:" (has-set? val1)))
-    (log/debug (str "has-set? val2:" (has-set? val2)))
-    (log/debug (str "= val1 '()? " (= val1 '())))
-    (log/debug (str "= val2 :top? " (= val2 :top)))
-    (log/debug (str "= val2 '()? " (= val2 '())))
-    (cond
-     (set? val1)
-     (set (filter (fn [each]
-                    (not (fail? each)))
-                  (reduce union
-                          (map (fn [each]
-                                 (let [result (unifyc each val2)]
-                                   (cond (set? result)
-                                         result
-                                         (seq? result)
-                                         (set result)
-                                         true
-                                         (set (list result)))))
-                               val1))))
+  (cond (empty? (rest args))
+        (first args)
+        (and (seq? args)
+             (empty? (rest args)))
+        (first args)
+        (and (seq? args)
+             (not (empty? (rest (rest args)))))
+        (unify (first args) (apply unify (rest args)))
+        true
+        (let [val1 (first args)
+              val2 (second args)]
+          (cond
+           (set? val1)
+           (set (filter (fn [each]
+                          (not (fail? each)))
+                        (reduce union
+                                (map (fn [each]
+                                       (let [result (unifyc each val2)]
+                                         (cond (set? result)
+                                               result
+                                               (seq? result)
+                                               (set result)
+                                               true
+                                               (set (list result)))))
+                                     val1))))
 
-     (set? val2)
-     (set (filter (fn [each]
-                    (not (fail? each)))
-                  (reduce union
-                          (map (fn [each]
-                                 (let [result (unifyc each val1)]
-                                   (cond (set? result)
-                                         result
-                                         (seq? result)
-                                         (set result)
-                                         true
-                                         (set (list result)))))
-                               val2))))
-
-     (has-set? val1)
-     (unify (expand-disj val1) val2)
-
-     (has-set? val2)
-     (unify val1 (expand-disj val2))
-
-     (and (= val1 '())
-          (= val2 :top))
-     val1
-
-     (and (= val1 '())
-          (= val2 '()))
-     val1
-
-     (and (= val1 '()))
-     :fail
-
-     (and (= val1 nil)
-          (= val2 :top))
-     val1
-
-     (= val1 nil)
-     :fail
-
-     (and (set? val1)
-          (set? val2))
-     (intersection val1 val2)
-
-     (nil? args) nil
-
-     (= (.count args) 1)
-     (first args)
-
-     (= :fail (first args))
-     :fail
-
-     (= :fail (second args))
-     :fail
-
-     (seq? val1)
-     (map (fn [each]
-            (unify each val2))
-          val1)
-
-
-     ;; This is the canonical unification case: unifying two DAGs
-     ;; (maps with possible references within them).
-     ;;
-     ;; merge-with: http://clojuredocs.org/clojure_core/clojure.core/merge-with
-     ;;
-     ;; "Returns a map that consists of the rest of the maps conj-ed onto
-     ;; the first. If a key occurs in more than one map, the mapping(s)
-     ;; from the latter (left-to-right) will be combined with the mapping in
-     ;; the result by calling (f val-in-result val-in-latter)."
-     (and (map? val1)
-          (map? val2))
-     (let [debug (log/debug "map? val1 true; map? val2 true")
-           tmp-result
-           (reduce #(merge-with unify %1 %2) args)]
-       (log/debug (str "tmp-result: " tmp-result))
-       (if (not (nil? (some #{:fail} (vals tmp-result))))
-         :fail
-         tmp-result))
-
-     ;; val1 is a ref, val2 is a map that contains val1: return fail.
-     (and (ref? val1)
-          (map? val2)
-          (some #(= val1 %) (get-refs-in val2)))
-     (do
-       (log/debug (str "unification would create a cycle: returning fail."))
-     :fail)
-
-     (and (ref? val2)
-          (map? val1)
-          (some #(= val2 %) (get-refs-in val1)))
-     (do
-       (log/debug (str "unification would create a cycle: returning fail."))
-     :fail)
-
-
-     ;; val1 is a ref, val2 is not a ref.
-     (and
-      (= (type val1) clojure.lang.Ref)
-      (not (= (type val2) clojure.lang.Ref)))
-     (do
-       (log/debug (str "val1 is a ref, but not val2."))
-       (dosync
-          (alter val1
-                 (fn [x] (unify @val1 val2))))
-         ;; alternative to the above (not tested yet):  (fn [x] (unify (copy @val1) val2))))
-         ;; TODO: why is this false-disabled? (document and test) or remove
-         (if (and false (fail? @val1)) :fail
-         val1))
-
-     ;; val2 is a ref, val1 is not a ref.
-     (and
-      (= (type val2) clojure.lang.Ref)
-      (not (= (type val1) clojure.lang.Ref)))
-     (do
-       (log/debug (str "val2 is a ref, but not val1."))
-       (dosync
-          (alter val2
-                 (fn [x] (unify val1 @val2))))
-         ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
-         ;; TODO: why is this false-disabled? (document and test) or remove.
-         (if (and false (fail? @val2)) :fail
-         val2))
-
-     (and
-      (= (type val1) clojure.lang.Ref)
-      (= (type val2) clojure.lang.Ref))
-     (let [refs-in-val1 (get-refs-in @val1)
-           refs-in-val2 (get-refs-in @val2)]
-
-       (log/debug (str "val1 and val2 are both refs."))
-       (log/debug (str "=? val1 val2 : " (= val1 val2)))
-       (log/debug (str "=? val1 @val2 : " (= val1 @val2)))
-
-       (log/debug (str " refs of @val1: " refs-in-val1))
-       (log/debug (str " refs of @val2: " refs-in-val2))
-
-       (cond
-        (or (= val1 val2) ;; same reference.
-            (= val1 @val2)) ;; val1 <- val2
-        val1
-
-        (= @val1 val2) ;; val1 -> val2
-        val2
-
-        (some #(= val2 %) refs-in-val1)
-        :fail
-
-        (some #(= val1 %) refs-in-val2)
-        :fail
-
-        :else
-        (do
-          (log/debug (str "unifying two refs: " val1 " and " val2))
-          (log/debug (str " whose values are: " @val1 " and " @val2))
-          (log/debug (str " refs of @val1: " (get-refs-in @val1)))
-          (log/debug (str " refs of @val2: " (get-refs-in @val2)))
-          (dosync
-           (alter val1
-                  (fn [x] (unify @val1 @val2))))
-          (dosync
-           (alter val2
-                  (fn [x] val1))) ;; note that now val2 is a ref to a ref.
-          (log/debug (str "returning ref: " val1))
-          ;; TODO: remove, since it's disabled, or add a global setting to en/dis-able.
-          (if (and false (fail? @val1)) :fail
-              val1))))
-
-     ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
-     (not (= :notfound (:not val1 :notfound)))
-     (if (= val2 :top)
-;       :top ;; special case: (unify :top {:not X}) => :top
-       val1
-       ;; else
-       (let [debug1 (log/debug (str "VAL1: " val1))
-             debug2 (log/debug (str "VAL2: " val2))
-             result (unify (:not val1) val2)]
-         (if (= result :fail)
-           val2
-           :fail)))
-
-     ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
-     (not (= :notfound (:not val2 :notfound)))
-     (if (= val1 :top)
-;       val1 ;; special case mentioned above in comments preceding this function.
-       val2
-       (let [debug1 (log/debug (str "VAL1: " val1))
-             debug2 (log/debug (str "VAL2: " val2))
-             result (unify val1 (:not val2))]
-         (if (= result :fail)
+           (set? val2)
+           (set (filter (fn [each]
+                          (not (fail? each)))
+                        (reduce union
+                                (map (fn [each]
+                                       (let [result (unifyc each val1)]
+                                         (cond (set? result)
+                                               result
+                                               (seq? result)
+                                               (set result)
+                                               true
+                                               (set (list result)))))
+                                     val2))))
+           
+           (has-set? val1)
+           (unify (expand-disj val1) val2)
+           
+           (has-set? val2)
+           (unify val1 (expand-disj val2))
+           
+           (and (= val1 '())
+                (= val2 :top))
            val1
-           :fail)))
 
-     (or (= val1 :fail)
-         (= val2 :fail))
-     :fail
+           (and (= val1 '())
+                (= val2 '()))
+           val1
 
-     (= val1 :top) val2
-     (= val2 :top) val1
+           (and (= val1 '()))
+           :fail
 
-     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
-     ;; these two rules are unfortunately necessary because of congomongo's storage of keywords as strings.
-     (= val1 "top") val2
-     (= val2 "top") val1
+           (and (= val1 nil)
+                (= val2 :top))
+           val1
 
-     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
-     ;; :foo,"foo" => :foo
-     (and (= (type val1) clojure.lang.Keyword)
-          (= (type val2) java.lang.String)
-          (= (string/replace-first (str val1) ":" "") val2))
-     val1
+           (= val1 nil)
+           :fail
 
-     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
-     ;; "foo",:foo => :foo
-     (and (= (type val2) clojure.lang.Keyword)
-          (= (type val1) java.lang.String)
-          (= (string/replace-first (str val2) ":" "") val1))
-     val2
+           (and (set? val1)
+                (set? val2))
+           (intersection val1 val2)
+           
+           (nil? args) nil
+           
+           (= (.count args) 1)
+           (first args)
+           
+           (= :fail (first args))
+           :fail
+           
+           (= :fail (second args))
+           :fail
+           
+           (seq? val1)
+           (map (fn [each]
+                  (unify each val2))
+                val1)
 
-     (= val1 val2) val1
+           ;; This is the canonical unification case: unifying two DAGs
+           ;; (maps with possible references within them).
+           ;;
+           (and (map? val1)
+                (map? val2))
+           (let [debug (log/debug "map? val1 true; map? val2 true")
+                 result (merge-with-keys val1 val2)
+                 use-merge-with-fail false
+                 ]
+             (log/debug (str "result: " result))
+             (if (fail? result)
+               (if use-merge-with-fail
+                 ;; this doesn't work yet: use-merge-with-fail will be enabled when it works.
+                 (merge {:fail true}
+                        result)
+                 :fail)
 
-     ;; The follow two 2 rules allow values of :english and :italian that
-     ;; are strings to over-ride values that are maps (in which
-     ;; case they are specs of how to compute a string: agreement
-     ;; information such as gender and number.
-     (and
-      (not strict)
-      (map? val1)
-      (string? val2))
-     (do
-       (log/debug "unifying a map and a string: ignoring the former and returning the latter: 'val2'")
-       val2)
+               (if (empty? (rest (rest args)))
+                 result
+                 (unify result
+                        (apply unify (rest (rest args)))))))
 
-     (and
-      (not strict)
-      (string? val1)
-      (map? val2))
-     (do
-       (log/debug (str "unifying a string and a map: ignoring the latter and returning the former: '" val1 "'"))
-       val1)
+           ;; val1 is a ref, val2 is a map that contains val1: return fail.
+           (and (ref? val1)
+                (map? val2)
+                (some #(= val1 %) (get-refs-in val2)))
+           (do
+             (log/debug (str "unification would create a cycle: returning fail."))
+             :fail)
 
-     :else ;; fail.
-     (do
-       (log/debug (str "(" val1 ", " val2 ") => :fail"))
-       :fail))))
+           (and (ref? val2)
+                (map? val1)
+                (some #(= val2 %) (get-refs-in val1)))
+           (do
+             (log/debug (str "unification would create a cycle: returning fail."))
+             :fail)
+           
+           ;; val1 is a ref, val2 is not a ref.
+           (and
+            (= (type val1) clojure.lang.Ref)
+            (not (= (type val2) clojure.lang.Ref)))
+           (do
+             (log/debug (str "val1 is a ref, but not val2."))
+             (dosync
+              (alter val1
+                     (fn [x] (unify @val1 val2))))
+             ;; alternative to the above (not tested yet):  (fn [x] (unify (copy @val1) val2))))
+             ;; TODO: why is this false-disabled? (document and test) or remove
+             (if (and false (fail? @val1)) :fail
+                 val1))
+           
+           ;; val2 is a ref, val1 is not a ref.
+           (and
+            (= (type val2) clojure.lang.Ref)
+            (not (= (type val1) clojure.lang.Ref)))
+           (do
+             (log/debug (str "val2 is a ref, but not val1."))
+             (dosync
+              (alter val2
+                     (fn [x] (unify val1 @val2))))
+             ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
+             ;; TODO: why is this false-disabled? (document and test) or remove.
+             (if (and false (fail? @val2)) :fail
+                 val2))
+
+           (and
+            (= (type val1) clojure.lang.Ref)
+            (= (type val2) clojure.lang.Ref))
+           (let [refs-in-val1 (get-refs-in @val1)
+                 refs-in-val2 (get-refs-in @val2)]
+             
+             (log/debug (str "val1 and val2 are both refs."))
+             (log/debug (str "=? val1 val2 : " (= val1 val2)))
+             (log/debug (str "=? val1 @val2 : " (= val1 @val2)))
+             
+             (log/debug (str " refs of @val1: " refs-in-val1))
+             (log/debug (str " refs of @val2: " refs-in-val2))
+             
+             (cond
+              (or (= val1 val2) ;; same reference.
+                  (= val1 @val2)) ;; val1 <- val2
+              val1
+
+              (= @val1 val2) ;; val1 -> val2
+              val2
+              
+              (some #(= val2 %) refs-in-val1)
+              :fail
+
+              (some #(= val1 %) refs-in-val2)
+              :fail
+
+              :else
+              (do
+                (log/debug (str "unifying two refs: " val1 " and " val2))
+                (log/debug (str " whose values are: " @val1 " and " @val2))
+                (log/debug (str " refs of @val1: " (get-refs-in @val1)))
+                (log/debug (str " refs of @val2: " (get-refs-in @val2)))
+                (dosync
+                 (alter val1
+                        (fn [x] (unify @val1 @val2))))
+                (dosync
+                 (alter val2
+                        (fn [x] val1))) ;; note that now val2 is a ref to a ref.
+                (log/debug (str "returning ref: " val1))
+                ;; TODO: remove, since it's disabled, or add a global setting to en/dis-able.
+                (if (and false (fail? @val1)) :fail
+                    val1))))
+
+           ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
+           (not (= :notfound (:not val1 :notfound)))
+           (if (= val2 :top)
+                                        ;       :top ;; special case: (unify :top {:not X}) => :top
+             val1
+             ;; else
+             (let [debug1 (log/debug (str "VAL1: " val1))
+                   debug2 (log/debug (str "VAL2: " val2))
+                   result (unify (:not val1) val2)]
+               (if (= result :fail)
+                 val2
+                 :fail)))
+           
+           ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
+           (not (= :notfound (:not val2 :notfound)))
+           (if (= val1 :top)
+                                        ;       val1 ;; special case mentioned above in comments preceding this function.
+             val2
+             (let [debug1 (log/debug (str "VAL1: " val1))
+                   debug2 (log/debug (str "VAL2: " val2))
+                   result (unify val1 (:not val2))]
+               (if (= result :fail)
+                 val1
+                 :fail)))
+           
+           (or (= val1 :fail)
+               (= val2 :fail))
+           :fail
+
+           (= val1 :top) val2
+           (= val2 :top) val1
+           
+           ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
+           ;; these two rules are unfortunately necessary because of congomongo's storage of keywords as strings.
+           (= val1 "top") val2
+           (= val2 "top") val1
+
+           ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
+           ;; :foo,"foo" => :foo
+           (and (= (type val1) clojure.lang.Keyword)
+                (= (type val2) java.lang.String)
+                (= (string/replace-first (str val1) ":" "") val2))
+           val1
+
+           ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
+           ;; "foo",:foo => :foo
+           (and (= (type val2) clojure.lang.Keyword)
+                (= (type val1) java.lang.String)
+                (= (string/replace-first (str val2) ":" "") val1))
+           val2
+
+           (= val1 val2) val1
+           
+           ;; The follow two 2 rules allow values of :english and :italian that
+           ;; are strings to over-ride values that are maps (in which
+           ;; case they are specs of how to compute a string: agreement
+           ;; information such as gender and number.
+           (and
+            (not strict)
+            (map? val1)
+            (string? val2))
+           (do
+             (log/debug "unifying a map and a string: ignoring the former and returning the latter: 'val2'")
+             val2)
+
+           (and
+            (not strict)
+            (string? val1)
+            (map? val2))
+           (do
+             (log/debug (str "unifying a string and a map: ignoring the latter and returning the former: '" val1 "'"))
+             val1)
+
+           :else ;; fail.
+           (do
+             (log/debug (str "(" val1 ", " val2 ") => :fail"))
+             :fail)))))
+
+(defn merge-with-keys [arg1 arg2]
+  (log/debug (str "merge-with-keys: arg1:" arg1))
+  (log/debug (str "merge-with-keys: arg2" arg2))
+  (let [keys1 (keys arg1)
+        key1 (first keys1)]
+    (if key1
+      (cond
+       (and (string? (key1 arg1))
+            (contains? string-unifier-keys key1)
+            (contains? (set (keys arg2)) key1)
+            (map? (key1 arg2)))
+       (merge
+        {key1 (unify {key1 (key1 arg1)}
+                     (key1 arg2))}
+        (merge-with-keys (dissoc arg1 key1)
+                         (dissoc arg2 key1)))
+
+
+       (and (string? (key1 arg2))
+            (contains? string-unifier-keys key1)
+            (contains? (set (keys arg1)) key1)
+            (map? (key1 arg1)))
+       (merge
+        {key1 (unify {key1 (key1 arg2)}
+                     (key1 arg1))}
+        (merge-with-keys (dissoc arg1 key1)
+                         (dissoc arg2 key1)))
+
+       (contains? (set (keys arg2)) key1)
+       (merge {key1 (unify (key1 arg1)
+                           (key1 arg2))}
+              (merge-with-keys (dissoc arg1 key1)
+                               (dissoc arg2 key1)))
+
+       true
+       (merge {key1 (key1 arg1)}
+              (merge-with-keys (dissoc arg1 key1)
+                               (dissoc arg2 key1))))
+      arg2)))
+
 
 ;; unify vs. merge:
 ;;
@@ -707,14 +754,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   val (second kv)]
 ;              (println (str "K:" key))
               (if (not (contains? *exclude-keys* key))
-                (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                (if (or (= (type val) clojure.lang.PersistentArrayMap) ;; TODO: just use (map?)
                         (= (type val) clojure.lang.PersistentHashMap))
                   (do
 ;                    (println (str "PAM"))
                     (pathify-r val (concat prefix (list key))))
                   (if (and (= (type val) clojure.lang.Ref)
                            (let [val @val]
-                             (or (= (type val) clojure.lang.PersistentArrayMap)
+                             (or (= (type val) clojure.lang.PersistentArrayMap) ;; TODO: just use (map?)
                                  (= (type val) clojure.lang.PersistentHashMap))))
                     (pathify-r @val (concat prefix (list key)))
                   (do
@@ -729,6 +776,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 
 (def uniq-using-recur
+  "remove duplicates by checking first and second: if equal, remove the first and keep the second. otherwise, keep both."
   (fn [sorted-vals]
     (loop [sv sorted-vals result nil]
       (let [first-val (first sv)]
@@ -763,7 +811,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (if (or (= (type map) clojure.lang.PersistentArrayMap)
                 (= (type map) clojure.lang.PersistentHashMap))
           (mapcat (fn [key]
-                    (paths-to-value (get map key) value (concat path (list key))))
+                    (paths-to-value (core/get map key) value (concat path (list key))))
                   (keys map))))))
 
 (defn all-refs [input]
@@ -790,7 +838,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           ;; TODO: fix bug here: vals resolves @'s
           (concat
            (mapcat (fn [key]
-                     (let [val (get input key)]
+                     (let [val (core/get input key)]
                        (if (= (type input) clojure.lang.Ref)
                          (if (= (type @val) clojure.lang.Ref)
                            (list @val)
@@ -855,7 +903,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
      ;; associate each ref with its skeleton.
      (map (fn [ref]
             {:ref ref
-             :skel (get skels ref)})
+             :skel (core/get skels ref)})
           refs)
 
      ;; list of all paths that point to each ref in _input-map_.
@@ -886,8 +934,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (zipmap
        keys
        (map (fn [paths]
-              (if (nil? paths) 0
-                  (apply max (map (fn [path] (if (nil? path) 0 (.size path))) paths))))
+              (cond (nil? paths) 0
+                    (= 0 (.size paths)) 0
+                    true
+                    (apply max (map (fn [path] (if (nil? path) 0 (.size path))) paths))))
             keys)))))
 
 (defn sort-by-max-lengths [serialization]
@@ -902,7 +952,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           max-length (second path-length-pair)]
       (cons
        (list paths
-             (get serialization paths))
+             (core/get serialization paths))
        (sort-shortest-path-ascending-r serialization (rest path-length-pairs))))))
 
 (defn ser-intermed [input-map]
@@ -982,7 +1032,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (serialize (expand-disj input-map))
 
    true
-   (let [memoized (get input-map :serialized :none)]
+   (let [memoized (core/get input-map :serialized :none)]
      (if (not (= memoized :none))
        (let [debug (log/debug "using cached serialization.")]
          memoized)
@@ -1157,18 +1207,21 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (and
      (not (= butlast-val1 :none))
      (not (= butlast-val2 :none))
-     (= (get butlast-val1 (last path1) :none1)
-        (get butlast-val2 (last path2) :none2)))))
+     (= (core/get butlast-val1 (last path1) :none1)
+        (core/get butlast-val2 (last path2) :none2)))))
 
 (defn strip-refs [map-with-refs]
   "return a map like map-with-refs, but without refs - (e.g. {:foo (ref 42)} => {:foo 42}) - used for printing maps in plain (i.e. non html) format"
   (cond
+   (or (vector? map-with-refs)
+       (seq? map-with-refs))
+   (map strip-refs map-with-refs)
    (= map-with-refs {})
    {}
    (map? map-with-refs)
    (let [map-keys (sort (keys map-with-refs))]
      (let [first-key (first (keys map-with-refs))
-           val (get map-with-refs first-key)]
+           val (core/get map-with-refs first-key)]
        (conj
         {first-key (strip-refs val)}
         (strip-refs (dissoc map-with-refs first-key)))))
@@ -1187,7 +1240,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (map? fs)
    (let [map-keys (sort (keys fs))]
      (let [first-key (first (keys fs))
-           val (get fs first-key)]
+           val (core/get fs first-key)]
        (cond
         (and (not (= first-key :1)) 
              (not (= first-key :2)) 
@@ -1207,6 +1260,39 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (= (type fs) clojure.lang.Ref)
    ;; strip refs for readability.
    (remove-top-values (deref fs))
+
+   :else
+   fs))
+
+(defn remove-matching-values [fs pred]
+  "Use case is same as remove-top-values, but more general by use of pred: pred is a function that takes a key and a value; if (pred k v) or (pred k @v) is true, remove the kv from the fs."
+  (cond
+
+   (= fs {})
+   {}
+
+   (map? fs)
+   (let [map-keys (sort (keys fs))]
+     (let [k (first (keys fs))
+           v (core/get fs k)]
+       (cond
+        (and (ref? v)
+             (pred k @v))
+        (remove-matching-values (dissoc fs k) pred)
+
+        (pred k v)
+        ;; remove (k v) from the map.
+        (remove-matching-values (dissoc fs k) pred)
+
+         ;; else keep (k v), but if v is itself a map, recursively remove things that match pred within v.
+        true
+        (conj
+         {k (remove-matching-values v pred)}
+         (remove-matching-values (dissoc fs k) pred)))))
+
+   (= (type fs) clojure.lang.Ref)
+   ;; strip refs for readability.
+   (remove-matching-values (deref fs) pred)
 
    :else
    fs))
@@ -1382,7 +1468,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                (map (fn [each-ref-in-fs]
                                       {:ref each-ref-in-fs
                                     :val (get-unified-value-for each-fs each-ref-in-fs)})
-                                    (get refs-per-fs each-fs))})
+                                    (core/get refs-per-fs each-fs))})
                             step2-set)]
     (set (filter (fn [each]
                    (not (fail? each)))
@@ -1462,12 +1548,31 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
              (cons elem
                    (lazy-shuffle (concat prior (rest remainder))))))))))
 
+(defn remove-false [spec]
+  (cond (map? spec)
+        (into {}
+              (map (fn [key]
+                     (let [val (get-in spec (list key))]
+                       (if (not (= val false))
+                         [key (remove-false val)])))
+                   (keys spec)))
+        
+        (seq? spec)
+        (map (fn [each]
+               (remove-false each))
+             spec)
+        (ref? spec)
+        (remove-false @spec)
+
+        true
+        spec))
+
 (defn show-spec [spec]
   (cond (seq? spec)
         (map show-spec spec)
         true
         (remove-top-values-log (dissoc-paths spec '((:english :initial)
-                                                    (:italian :initial)
+                                                    (:italiano :initial)
                                                     (:synsem :essere)
                                                     (:synsem :agr)
                                                     (:synsem :pronoun)
@@ -1489,8 +1594,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         false ;; two maps whose key cardinality (different number of keys) is different are not equal.
         (and (map? a)
              (map? b))
-        (and (isomorphic? (get a (first (keys a))) ;; two maps are isomorphic if their keys' values are isomorphic.
-                          (get b (first (keys a))))
+        (and (isomorphic? (core/get a (first (keys a))) ;; two maps are isomorphic if their keys' values are isomorphic.
+                          (core/get b (first (keys a))))
              (isomorphic? (dissoc a (first (keys a)))
                           (dissoc b (first (keys a)))))
         (and (ref? a)
@@ -1501,3 +1606,44 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn label-of [parent]
   (if (:rule parent) (:rule parent) (:comment parent)))
+
+(defn find-fail-in [fs1 fs2 paths]
+  (if (not (empty? paths))
+    (let [path (first paths)
+          val1 (get-in fs1 path :top)
+          val2 (get-in fs2 path :top)]
+      (if (fail? (unify val1 val2))
+        {:fail-path path
+         :val1 val1
+         :val2 val2}
+        (find-fail-in fs1 fs2 (rest paths))))))
+
+(defn fail-path-between [fs1 fs2]
+  (let [paths-in-fs1 (map #(first (first %)) (pathify-r fs1))
+        paths-in-fs2 (map #(first (first %)) (pathify-r fs2))]
+    (find-fail-in fs1 fs2 (concat paths-in-fs1 paths-in-fs2))))
+
+(defn get [input key & [ default-val ]]
+  "strip :serialized key from map, since it's verbose, for computers only, and makes a map hard to read."
+  (cond (or (seq? input)
+            (vector? input))
+        (map #(get % key default-val)
+             input)
+        true
+        (let [got (if default-val
+                    (core/get input key default-val)
+                    (core/get input key))]
+          (cond (or (seq? got)
+                    (vector? got))
+                (map #(dissoc % :serialized)
+                     got)
+
+                (map? got)
+                (dissoc got :serialized)
+
+                true
+                got))))
+
+
+            
+

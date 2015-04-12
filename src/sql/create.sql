@@ -1,4 +1,7 @@
--- Must do this with DB superuser privileges:
+-- TODO: figure out how to create the table (if necessary) as the superuser
+-- and then drop privileges and become the user 'verbcoach'.
+-- 
+-- For now, must do this with DB superuser privileges:
 --
 -- CREATE DATABASE verbcoach OWNER verbcoach;
 -- 
@@ -261,6 +264,14 @@ INSERT INTO vc_user
         SELECT id FROM vc_user WHERE fullname='Franco Regguzoni' AND email='franksfo2003@gmail.com'
     );
 
+INSERT INTO vc_user
+ (fullname,email,username,type)
+  SELECT 'Michael Marcheschi','voltosanto@hotmail.com','michael','teacher'
+   WHERE
+    NOT EXISTS (
+        SELECT id FROM vc_user WHERE fullname='Franco Regguzoni' AND email='franksfo2003@gmail.com'
+    );
+
 CREATE TABLE tests_in_classes (
        test  bigint  REFERENCES test(id),
        class bigint REFERENCES classes(id)
@@ -327,4 +338,8 @@ ALTER TABLE ONLY guess ALTER COLUMN id SET DEFAULT nextval('guess_id_seq'::regcl
 ALTER TABLE filter ADD COLUMN form_params text;
 
 ALTER TABLE queue ADD COLUMN type text;
+
+CREATE TABLE authentication_codes (
+       recipient text,
+       hashcode text);
 
