@@ -117,73 +117,37 @@
            stem (string/replace infinitive #"[iae]r$" "")
            last-stem-char-is-i (re-find #"ir$" infinitive)
            last-stem-char-is-e (re-find #"er$" infinitive)
-           is-care-or-gare? (re-find #"[cg]ar$" infinitive)
+          
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))]
 
        (cond
 
-        (and (= person :1st) (= number :sing))
-        (str stem "o")
+        (and (= person :1st) er-type (= number :sing))
+        (str stem "e")
 
-        (and (= person :2nd) (= number :sing) ar-type (= false usted))
-        (str stem "as")
-
-        (and (= person :2nd) (= number :sing) ar-type usted)
-        (str stem "a")
-
-        (and (= person :2nd) (= number :sing) (or ir-type er-type) (= false usted))
+        (and (= person :2nd) (= number :sing) er-type)
         (str stem "es")
 
-        (and (= person :2nd) (= number :sing) (or ir-type er-type) usted)
+        (and (= person :3rd) (= number :sing) er-type)
         (str stem "e")
-
-        (and (= person :3rd) (= number :sing) ar-type)
-        (str stem "a")
-        (and (= person :3rd) (= number :sing) (or ir-type er-type))
-        (str stem "e")
-
-        (and (= person :1st) (= number :plur) ar-type)
-        (str stem "amos")
 
         (and (= person :1st) (= number :plur) er-type)
-        (str stem "emos")
+        (str stem "ons")
 
-        (and (= person :1st) (= number :plur) ir-type)
-        (str stem "imos")
-       
         ;; <second person plural present>
 
-        (and (= person :2nd) (= number :plur) ar-type vosotros)
-        (str stem "ais")
-
-        (and (= person :2nd) (= number :plur) er-type vosotros)
-        (str stem "eis")
-
-        (and (= person :2nd) (= number :plur) ir-type vosotros)
-        (str stem "ís")
-
-        (and (= person :2nd) (= number :plur) ar-type ustedes)
-        (str stem "an")
-
-        (and (= person :2nd) (= number :plur) er-type ustedes)
-        (str stem "en")
-
-        (and (= person :2nd) (= number :plur) ir-type ustedes)
-        (str stem "en")
+        (and (= person :2nd) (= number :plur) er-type )
+        (str stem "ez")
 
         ;; </second person plural present>
 
+
         ;; <third person plural present>
         (and (= person :3rd) (= number :plur)
-             ar-type)
-        (str stem "an")
-        (and (= person :3rd) (= number :plur)
              er-type)
-        (str stem "en")
-        (and (= person :3rd) (= number :plur)
-             ir-type)
-        (str stem "en")
+        (str stem "ent")
+        
 
         ;; </third person plural present>
         
