@@ -1,7 +1,6 @@
-(ns italianverbs.lexicon.espanol
+(ns italianverbs.lexicon.francais
   (:require
-   [italianverbs.lexiconfn :refer (unify)]
-   [italianverbs.pos.espanol :refer :all]))
+   [italianverbs.lexiconfn :refer (unify)]))
 
 (def lexicon-source 
   {"abandonar" {:synsem {:cat :verb
